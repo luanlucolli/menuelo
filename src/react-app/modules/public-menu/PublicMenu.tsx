@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { AtSign, Clock3, ExternalLink, MapPin, MessageCircle, Phone, Search, UtensilsCrossed } from 'lucide-react'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import type { MenuResponse, Product } from '../../../../shared/schemas'
 import { calculateOpenStatus, formatMoney, getZonedClock, normalizeSearch } from '../../../../shared/utils'
 import { api } from '../../lib/api'
@@ -14,6 +14,7 @@ export function PublicMenu() {
   const [search, setSearch] = useState('')
   const [activeCategory, setActiveCategory] = useState('')
   const [selected, setSelected] = useState<Product | null>(null)
+  const categoryNavRef = useRef<HTMLDivElement>(null)
 
   const categories = useMemo(() => {
     if (!data) return []
@@ -36,6 +37,22 @@ export function PublicMenu() {
     return () => observer.disconnect()
   }, [categories])
 
+  useEffect(() => {
+    const container = categoryNavRef.current
+    const activeButton = [...(container?.querySelectorAll<HTMLButtonElement>('button') ?? [])]
+      .find((button) => button.dataset.category === activeCategory)
+    if (!container || !activeButton) return
+
+    const containerRect = container.getBoundingClientRect()
+    const buttonRect = activeButton.getBoundingClientRect()
+    const left = container.scrollLeft + buttonRect.left - containerRect.left
+      - (container.clientWidth - buttonRect.width) / 2
+    container.scrollTo({
+      left,
+      behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+    })
+  }, [activeCategory])
+
   if (isLoading) return <main className="state-page"><span className="spinner" /> <p>Carregando cardápio…</p></main>
   if (error || !data) return <main className="state-page"><h1>Não foi possível abrir o cardápio</h1><p>Tente novamente em alguns instantes.</p><button type="button" onClick={() => window.location.reload()}>Tentar novamente</button></main>
 
@@ -48,6 +65,7 @@ export function PublicMenu() {
   const validWhatsapp = /^\d{10,15}$/.test(whatsappDigits)
 
   const scrollTo = (slug: string) => {
+    setActiveCategory(slug)
     document.getElementById(slug)?.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' })
   }
 
@@ -73,8 +91,8 @@ export function PublicMenu() {
         </div>
 
         <nav className="category-nav" aria-label="Categorias do cardápio">
-          <div>
-            {categories.map((category) => <button className={activeCategory === category.slug ? 'active' : ''} type="button" key={category.id} onClick={() => scrollTo(category.slug)}>{category.name}</button>)}
+          <div ref={categoryNavRef}>
+            {categories.map((category) => <button className={activeCategory === category.slug ? 'active' : ''} data-category={category.slug} type="button" key={category.id} onClick={() => scrollTo(category.slug)}>{category.name}</button>)}
           </div>
         </nav>
 
