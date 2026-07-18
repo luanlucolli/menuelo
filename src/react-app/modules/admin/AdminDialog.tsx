@@ -8,12 +8,9 @@ export function AdminDialog({ onClose, children }: { onClose: () => void; childr
     const dialog = ref.current
     if (!dialog) return
     const handleClose = () => onCloseRef.current()
-    dialog.showModal()
+    if (!dialog.open) dialog.showModal()
     dialog.addEventListener('close', handleClose)
-    return () => {
-      dialog.removeEventListener('close', handleClose)
-      if (dialog.open) dialog.close()
-    }
+    return () => dialog.removeEventListener('close', handleClose)
   }, [])
   return <dialog ref={ref} className="form-overlay" onMouseDown={(event) => { if (event.target === event.currentTarget) event.currentTarget.close() }}>{children}</dialog>
 }
