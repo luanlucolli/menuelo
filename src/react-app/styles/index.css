@@ -188,7 +188,8 @@ a { color: inherit; }
 .filter-search svg { position: absolute; left: .8rem; bottom: .75rem; width: 1.1rem; color: var(--color-muted); }
 .filter-search input { padding-left: 2.5rem; }
 .helper-text { color: var(--color-muted); font-size: .8rem; }
-.form-overlay { position: fixed; inset: 0; z-index: 100; display: grid; align-items: end; background: rgb(22 18 15 / 64%); }
+.form-overlay { width: 100%; max-width: none; height: 100%; max-height: none; position: fixed; inset: 0; z-index: 100; display: grid; align-items: end; margin: 0; border: 0; padding: 0; background: transparent; }
+.form-overlay::backdrop { background: rgb(22 18 15 / 64%); }
 .admin-form-dialog { width: 100%; max-height: 94dvh; overflow-y: auto; border-radius: 1.2rem 1.2rem 0 0; padding: 1rem; background: var(--color-surface-strong); box-shadow: var(--shadow-lg); }
 .form-dialog-heading { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1rem; }
 .form-dialog-heading h2 { margin: 0; }

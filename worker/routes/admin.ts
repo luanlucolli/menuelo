@@ -54,12 +54,12 @@ function isWebp(bytes: Uint8Array): boolean {
     && String.fromCharCode(...bytes.slice(8, 12)) === 'WEBP'
 }
 
-async function readWebp(request: Request): Promise<ArrayBuffer> {
+async function readWebp(request: Request): Promise<Uint8Array> {
   const contentType = (request.headers.get('content-type') ?? '').split(';')[0].trim().toLowerCase()
   if (contentType !== 'image/webp') throw new ApiError(415, 'WEBP_REQUIRED', 'Envie uma imagem WebP.')
   const body = await readBytesLimited(request, 800 * 1024, 'A imagem final deve ter no máximo 800 KB.')
   if (!isWebp(body)) throw new ApiError(422, 'INVALID_WEBP', 'O arquivo não é uma imagem WebP válida.')
-  return body.buffer
+  return body
 }
 
 async function deleteObjectBestEffort(bucket: R2Bucket, key: string | null, context: string): Promise<void> {

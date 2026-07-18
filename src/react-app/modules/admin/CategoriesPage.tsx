@@ -11,6 +11,7 @@ import { categoryInputSchema } from '../../../../shared/schemas'
 import { api, jsonBody, messageFromError } from '../../lib/api'
 import { AdminState } from './DashboardPage'
 import { useAdminMenu } from './hooks'
+import { AdminDialog } from './AdminDialog'
 
 function SortableCategory({ category, index, total, onEdit, onDelete, onMove }: { category: Category; index: number; total: number; onEdit: () => void; onDelete: () => void; onMove: (direction: -1 | 1) => void }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: category.id })
@@ -66,11 +67,11 @@ export function CategoriesPage() {
     <section className="admin-card list-card">
       {!items.length ? <div className="admin-empty">Nenhuma categoria cadastrada.</div> : <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}><SortableContext items={items.map((item) => item.id)} strategy={verticalListSortingStrategy}>{items.map((category, index) => <SortableCategory key={category.id} category={category} index={index} total={items.length} onMove={(direction) => move(index, direction)} onEdit={() => setEditing(category)} onDelete={() => { if (window.confirm(`Excluir a categoria “${category.name}”?`)) remove.mutate(category.id) }} />)}</SortableContext></DndContext>}
     </section>
-    {editing && <div className="form-overlay" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setEditing(null) }}><section className="admin-form-dialog" role="dialog" aria-modal="true" aria-labelledby="category-form-title"><div className="form-dialog-heading"><h2 id="category-form-title">{editing === 'new' ? 'Nova categoria' : 'Editar categoria'}</h2><button type="button" aria-label="Fechar" onClick={() => setEditing(null)}>×</button></div><form onSubmit={form.handleSubmit((input) => save.mutate(input))}>
+    {editing && <AdminDialog onClose={() => setEditing(null)}><section className="admin-form-dialog" aria-labelledby="category-form-title"><div className="form-dialog-heading"><h2 id="category-form-title">{editing === 'new' ? 'Nova categoria' : 'Editar categoria'}</h2><button type="button" aria-label="Fechar" onClick={() => setEditing(null)}>×</button></div><form onSubmit={form.handleSubmit((input) => save.mutate(input))}>
       <label>Nome<input {...form.register('name')} autoFocus />{form.formState.errors.name && <small>{form.formState.errors.name.message}</small>}</label>
       <label>Descrição<textarea rows={3} {...form.register('description', { setValueAs: (value) => value || null })} /></label>
       <label className="check-field"><input type="checkbox" {...form.register('isActive')} /> Categoria ativa</label>
       <div className="form-actions"><button className="secondary-button" type="button" onClick={() => setEditing(null)}>Cancelar</button><button className="primary-button" type="submit" disabled={save.isPending}>{save.isPending ? 'Salvando…' : 'Salvar categoria'}</button></div>
-    </form></section></div>}
+    </form></section></AdminDialog>}
   </div>
 }

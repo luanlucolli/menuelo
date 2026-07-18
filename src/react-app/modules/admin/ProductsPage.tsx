@@ -13,6 +13,7 @@ import { api, jsonBody, messageFromError } from '../../lib/api'
 import { prepareImage } from '../../lib/image'
 import { AdminState } from './DashboardPage'
 import { useAdminMenu } from './hooks'
+import { AdminDialog } from './AdminDialog'
 
 function SortableProduct({ product, index, total, disabled, onMove, onEdit, onDuplicate, onDelete }: { product: Product; index: number; total: number; disabled: boolean; onMove: (direction: -1 | 1) => void; onEdit: () => void; onDuplicate: () => void; onDelete: () => void }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: product.id, disabled })
@@ -63,7 +64,7 @@ function ProductForm({ product, categories, onClose, onSaved }: { product: Produ
     try { await api(`/admin/api/products/${product.id}/image`, { method: 'DELETE' }); setImagePreview(null); await onSaved('Imagem removida.') } catch (cause) { setFormError(messageFromError(cause)) }
   }
 
-  return <div className="form-overlay" role="presentation"><section className="admin-form-dialog product-form-dialog" role="dialog" aria-modal="true" aria-labelledby="product-form-title">
+  return <AdminDialog onClose={onClose}><section className="admin-form-dialog product-form-dialog" aria-labelledby="product-form-title">
     <div className="form-dialog-heading"><h2 id="product-form-title">{product ? 'Editar produto' : 'Novo produto'}</h2><button type="button" aria-label="Fechar" onClick={onClose}><X /></button></div>
     <form onSubmit={form.handleSubmit((input) => save.mutate(input))}>
       {formError && <p className="feedback error" role="alert">{formError}</p>}
@@ -87,7 +88,7 @@ function ProductForm({ product, categories, onClose, onSaved }: { product: Produ
       </div></div>
       <div className="form-actions sticky-actions"><button className="secondary-button" type="button" onClick={onClose}>Cancelar</button><button className="primary-button" type="submit" disabled={save.isPending || processingImage}>{save.isPending ? 'Salvando…' : 'Salvar produto'}</button></div>
     </form>
-  </section></div>
+  </section></AdminDialog>
 }
 
 export function ProductsPage() {
