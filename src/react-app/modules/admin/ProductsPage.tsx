@@ -78,7 +78,7 @@ function ProductForm({ product, categories, onClose, onSaved }: { product: Produ
         <fieldset className="variants-field"><legend>Preços e variações</legend>{fields.fields.map((field, index) => <div className="variant-row" key={field.id}>
           <label>Nome da variação<input placeholder={fields.fields.length === 1 ? 'Opcional para preço único' : 'Ex.: Média'} {...form.register(`variants.${index}.label`, { setValueAs: (value) => value || null })} /></label>
           <label>Preço em centavos<input type="number" min="1" step="1" {...form.register(`variants.${index}.priceCents`, { valueAsNumber: true })} /><small>Ex.: 2500 = R$ 25,00</small></label>
-          <label>Promocional em centavos<input type="number" min="1" step="1" placeholder="Opcional" {...form.register(`variants.${index}.promotionalPriceCents`, { setValueAs: (value) => value === '' ? null : Number(value) })} /></label>
+          <label>Promocional em centavos<input type="number" min="1" step="1" placeholder="Opcional" {...form.register(`variants.${index}.promotionalPriceCents`, { setValueAs: (value) => value == null || value === '' ? null : Number(value) })} /></label>
           <input type="hidden" {...form.register(`variants.${index}.sortOrder`, { valueAsNumber: true })} value={index} />
           <label className="check-field"><input type="checkbox" {...form.register(`variants.${index}.isActive`)} /> Variação ativa</label>
           {fields.fields.length > 1 && <button className="text-danger" type="button" onClick={() => fields.remove(index)}>Remover variação</button>}

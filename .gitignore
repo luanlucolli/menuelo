@@ -12,6 +12,9 @@ dist
 dist-ssr
 *.local
 
+# Fotos-fonte usadas para importar conteúdo no cardápio
+/src/assets/rafas/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
