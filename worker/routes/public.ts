@@ -1,4 +1,5 @@
 import { Hono } from 'hono'
+import { z } from 'zod'
 import { getMenu } from '../repositories/menu'
 import type { AppEnvironment } from '../middleware/auth'
 
@@ -16,8 +17,9 @@ publicRoutes.get('/menu', async (c) => {
 export const mediaRoutes = new Hono<AppEnvironment>()
 
 mediaRoutes.get('/*', async (c) => {
-  const key = c.req.path.replace(/^\/media\//, '')
-  if (!/^(products|covers)\/[0-9a-f-]+\.webp$/.test(key)) return c.json({ code: 'INVALID_MEDIA_KEY', message: 'Imagem inválida.' }, 400)
+  const parsedKey = z.string().regex(/^(products|covers)\/[0-9a-f-]+\.webp$/).safeParse(c.req.path.replace(/^\/media\//, ''))
+  if (!parsedKey.success) return c.json({ code: 'INVALID_MEDIA_KEY', message: 'Imagem inválida.' }, 400)
+  const key = parsedKey.data
   const object = await c.env.MENU_IMAGES.get(key)
   if (!object) return c.json({ code: 'MEDIA_NOT_FOUND', message: 'Imagem não encontrada.' }, 404)
   const headers = new Headers()

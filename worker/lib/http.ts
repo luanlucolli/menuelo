@@ -1,5 +1,5 @@
 import type { Context } from 'hono'
-import type { ZodType } from 'zod'
+import { z, type ZodType } from 'zod'
 import type { ApiErrorBody } from '../../shared/schemas'
 
 export class ApiError extends Error {
@@ -74,6 +74,7 @@ export async function readBytesLimited(request: Request, maxBytes: number, messa
 }
 
 export function requireId(value: string): string {
-  if (!value || value.length > 100) throw new ApiError(400, 'INVALID_ID', 'Identificador inválido.')
-  return value
+  const result = z.string().trim().min(1).max(100).safeParse(value)
+  if (!result.success) throw new ApiError(400, 'INVALID_ID', 'Identificador inválido.')
+  return result.data
 }
