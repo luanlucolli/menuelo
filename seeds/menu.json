@@ -1,0 +1,1721 @@
+{
+  "schemaVersion": 1,
+  "categories": [
+    {
+      "name": "Dogs Prensados",
+      "products": [
+        {
+          "name": "DOG PRENSADO DUPLO",
+          "ingredients": "Pão, 2 salsichas, milho, ervilha e batata palha.",
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 1800,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "DOG ALCATRA",
+          "ingredients": "Pão, salsicha, alcatra, milho, ervilha e batata palha.",
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 3800,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "DOG PIZZA",
+          "ingredients": "Pão, salsicha, queijo mussarela, tomate, orégano e batata palha.",
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 2700,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "DOG CATUPIRY",
+          "ingredients": "Pão, salsicha, catupiry, milho, ervilha e batata palha.",
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 2700,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "DOG CHEDDAR",
+          "ingredients": "Pão, salsicha, cheddar, milho, ervilha e batata palha.",
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 2700,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "DOG CALABRESA",
+          "ingredients": "Pão, salsicha, calabresa, milho, ervilha e batata palha.",
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 2700,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "DOG BACON",
+          "ingredients": "Pão, salsicha, bacon, milho, ervilha e batata palha.",
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 2700,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "DOG FRANGO",
+          "ingredients": "Pão, salsicha, frango, milho, ervilha e batata palha.",
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 2700,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "DOG CORAÇÃO",
+          "ingredients": "Pão, salsicha, coração, milho, ervilha e batata palha.",
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 3000,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "DOG EGG",
+          "ingredients": "Pão, salsicha, ovo, milho, ervilha e batata palha.",
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 3000,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "DOG BACON EGG",
+          "ingredients": "Pão, salsicha, maionese e batata palha.",
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 3000,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "DOG FRANGO EGG",
+          "ingredients": null,
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 3000,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "DOG FRANGO BACON",
+          "ingredients": null,
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 3000,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "DOG FRANGO CATUPIRY",
+          "ingredients": null,
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 3000,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "DOG FRANGO CHEDDAR",
+          "ingredients": null,
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 3000,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "DOG FRANGO CALABRESA",
+          "ingredients": null,
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 3000,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "DOG FRANGO CORAÇÃO",
+          "ingredients": null,
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 3200,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "DOG PIZZA BACON",
+          "ingredients": null,
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 3000,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "DOG PIZZA FRANGO",
+          "ingredients": null,
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 3000,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "DOG PIZZA CATUPIRY",
+          "ingredients": null,
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 3000,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "DOG PIZZA CORAÇÃO",
+          "ingredients": null,
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 3000,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "DOG PIZZA CALABRESA EGG",
+          "ingredients": null,
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 3300,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "DOG PIZZA CALABRESA CATUPIRY",
+          "ingredients": null,
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 3300,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "DOG PIZZA FRANGO BACON",
+          "ingredients": null,
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 3300,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "DOG PIZZA FRANGO CALABRESA",
+          "ingredients": null,
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 3300,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "DOG CORAÇÃO FRANGO BACON EGG",
+          "ingredients": null,
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 3300,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "DOG EGG FRANGO CATUPIRY",
+          "ingredients": null,
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 3300,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "DOG FRANGO CORAÇÃO BACON",
+          "ingredients": null,
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 3500,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "DOG BACON EGG CORAÇÃO",
+          "ingredients": null,
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 3500,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "DOG FRANGO CORAÇÃO CATUPIRY",
+          "ingredients": null,
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 3500,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "DOG FRANGO CORAÇÃO CALABRESA",
+          "ingredients": null,
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 3500,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "DOG PIZZA CORAÇÃO BACON EGG",
+          "ingredients": null,
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 3800,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "DOG PIZZA CALABRESA EGG CORAÇÃO",
+          "ingredients": null,
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 3800,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "DOG PIZZA CALABRESA CATUPIRY CORAÇÃO",
+          "ingredients": null,
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 3800,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "DOG PIPO",
+          "ingredients": "Pão, salsicha, frango, calabresa, coração, bacon, ovo, catupiry, cheddar, queijo mussarela, tomate, milho, ervilha e batata palha. Servido no prato.",
+          "is_available": true,
+          "is_featured": true,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 4700,
+              "promotional_price_cents": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Hot Dogs Tradicionais",
+      "products": [
+        {
+          "name": "HOT DOG TRADICIONAL",
+          "ingredients": "Salsicha, molho de tomate, milho, ervilha, vinagrete, farofa, batata palha, maionese e catchup.",
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 2000,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "HOT DOG TRADICIONAL DUPLO",
+          "ingredients": "2 salsichas, molho de tomate, mussarela, milho, ervilha, vinagrete, farofa, batata palha, maionese e catchup.",
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 2200,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "HOT DOG TRADICIONAL BACON",
+          "ingredients": "Salsicha, bacon, molho de tomate, mussarela, milho, ervilha, vinagrete, farofa, batata palha, maionese e catchup.",
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 2700,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "HOT DOG TRADICIONAL CATUPIRY",
+          "ingredients": "Salsicha, molho de tomate, catupiry, milho, ervilha, vinagrete, farofa, batata palha, maionese e catchup.",
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 2700,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "HOT DOG TRADICIONAL CHEDDAR",
+          "ingredients": "Salsicha, molho de tomate, cheddar, milho, ervilha, vinagrete, farofa, batata palha, maionese e catchup.",
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 2700,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "HOT DOG TRADICIONAL BACON CHEDDAR",
+          "ingredients": "Salsicha, bacon, molho de tomate, cheddar, milho, ervilha, vinagrete, farofa, batata palha, maionese e catchup.",
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 3000,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "HOT DOG TRADICIONAL BACON CATUPIRY",
+          "ingredients": "Salsicha, bacon, molho de tomate, catupiry, milho, ervilha, vinagrete, farofa, batata palha, maionese e catchup.",
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 3000,
+              "promotional_price_cents": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Lanches Especiais",
+      "products": [
+        {
+          "name": "X GOURMET NO PRATO",
+          "ingredients": "Hambúrguer gourmet de 150 g, alface, tomate, cebola roxa, pepino, queijo cheddar e 3 opções de acompanhamentos: bacon, calabresa ou ovo.",
+          "is_available": true,
+          "is_featured": true,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 3300,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "X COSTELA NO PACOTE",
+          "ingredients": "Carne de costela 150 g, cebola roxa, alface, tomate, pepino e queijo mussarela.",
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 3500,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "X GOURMET DUPLO NO PRATO",
+          "ingredients": "2 hambúrgueres gourmet de 150 g, alface, tomate, cebola roxa, pepino, queijo cheddar e 3 opções de acompanhamentos: bacon, calabresa ou ovo.",
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 3900,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "X ALCATRA NO PACOTE",
+          "ingredients": "Alcatra, cebola chapeada, queijo mussarela derretido, alface e tomate.",
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 3900,
+              "promotional_price_cents": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Lanches",
+      "products": [
+        {
+          "name": "X-BURGUER",
+          "ingredients": "Pão, hambúrguer e queijo.",
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 1500,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "X-BURGUER EGG",
+          "ingredients": "Pão, hambúrguer, ovo e queijo.",
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 1800,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "X-SALADA",
+          "ingredients": "Pão, hambúrguer, alface, tomate e queijo.",
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 1800,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "BAURU",
+          "ingredients": "Pão, queijo mussarela e tomate.",
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 1800,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "X-SALADA COMPLETO",
+          "ingredients": "Pão, hambúrguer, alface, tomate, queijo, milho, ervilha e batata palha.",
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 2400,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "EGGDU",
+          "ingredients": "Pão, hambúrguer, ovo, queijo mussarela, tomate e orégano.",
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 2500,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "EGGCATU",
+          "ingredients": "Pão, hambúrguer, catupiry, queijo, alface e tomate.",
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 2500,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "BAURU CALABRESA",
+          "ingredients": "Pão, calabresa, queijo mussarela e tomate.",
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 2500,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "X-BURGUER BACON",
+          "ingredients": "Pão, hambúrguer, bacon e queijo.",
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 2500,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "X-EGG",
+          "ingredients": "Pão, hambúrguer, ovo, alface, tomate, queijo, milho, ervilha e batata palha.",
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 2800,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "MISTO FRANGO",
+          "ingredients": "Pão, frango e queijo mussarela.",
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 2800,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "MISTO CORAÇÃO",
+          "ingredients": "Pão, coração e queijo mussarela.",
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 3000,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "X-SALADA GOURMET",
+          "ingredients": "Pão, hambúrguer artesanal 150 g, alface, tomate, queijo cheddar, pepino e cebola roxa.",
+          "is_available": true,
+          "is_featured": true,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 3000,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "X-FRANGO",
+          "ingredients": "Pão, frango, alface, tomate, queijo, milho, ervilha e batata palha.",
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 3300,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "X-BACON",
+          "ingredients": "Pão, hambúrguer, bacon, alface, tomate, queijo, milho, ervilha e batata palha.",
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 3300,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "X-CALABRESA",
+          "ingredients": "Pão, hambúrguer, calabresa, alface, tomate, queijo, milho, ervilha e batata palha.",
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 3300,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "MISTO BACON",
+          "ingredients": "Pão, bacon e queijo mussarela.",
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 3300,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "MISTO BACON EGG",
+          "ingredients": "Pão, bacon, ovo e queijo mussarela.",
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 3400,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "X-FRANGO BACON",
+          "ingredients": "Pão, frango, bacon, alface, tomate, queijo, milho, ervilha e batata palha.",
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 3500,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "X-FRANGO EGG",
+          "ingredients": "Pão, frango, ovo, alface, tomate, queijo, milho, ervilha e batata palha.",
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 3500,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "X-BACON EGG",
+          "ingredients": "Pão, hambúrguer, bacon, ovo, alface, tomate, queijo, milho, ervilha e batata palha.",
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 3500,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "X-CORAÇÃO",
+          "ingredients": "Pão, hambúrguer, coração, alface, tomate, queijo, milho, ervilha e batata palha.",
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 3500,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "X-FRANGO CALABRESA",
+          "ingredients": "Pão, frango, calabresa, alface, tomate, queijo, milho, ervilha e batata palha.",
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 3500,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "MISTO FRANGO CORAÇÃO",
+          "ingredients": "Pão, frango, coração e queijo mussarela.",
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 3700,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "X-FRANGO CORAÇÃO",
+          "ingredients": "Pão, frango, coração, alface, tomate, queijo, milho, ervilha e batata palha.",
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 3700,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "X-ALCATRA EGG",
+          "ingredients": "Pão, alcatra, ovo, alface, tomate, queijo, milho, ervilha e batata palha.",
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 4000,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "X-TUDO PIPO",
+          "ingredients": "Pão, hambúrguer, bacon, ovo, frango, calabresa, coração, catupiry, alface, tomate, queijo, milho, ervilha e batata palha. Servido no prato.",
+          "is_available": true,
+          "is_featured": true,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 5200,
+              "promotional_price_cents": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Lanches com Fritas no Prato",
+      "products": [
+        {
+          "name": "X BURGUER COM FRITAS",
+          "ingredients": null,
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 2500,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "X SALADA COM FRITAS",
+          "ingredients": null,
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 2800,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "X EGG COM FRITAS",
+          "ingredients": null,
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 3500,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "X GOURMET COM FRITAS",
+          "ingredients": null,
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 3600,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "X FRANGO COM FRITAS",
+          "ingredients": null,
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 3900,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "X BACON COM FRITAS",
+          "ingredients": null,
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 3900,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "X CALABRESA COM FRITAS",
+          "ingredients": null,
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 3900,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "X CORAÇÃO COM FRITAS",
+          "ingredients": null,
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 4000,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "X COSTELA COM FRITAS",
+          "ingredients": null,
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 4100,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "X DOG ALCATRA COM FRITAS",
+          "ingredients": null,
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 4300,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "X BIFE COM FRITAS",
+          "ingredients": null,
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 4500,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "X ALCATRA COM FRITAS",
+          "ingredients": null,
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 4700,
+              "promotional_price_cents": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Porções",
+      "products": [
+        {
+          "name": "FRANGO A PASSARINHO (COXINHA DA ASA)",
+          "ingredients": null,
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": "Média",
+              "price_cents": 4800,
+              "promotional_price_cents": null
+            },
+            {
+              "label": "Grande",
+              "price_cents": 6900,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "FRITAS",
+          "ingredients": null,
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": "Média",
+              "price_cents": 5000,
+              "promotional_price_cents": null
+            },
+            {
+              "label": "Grande",
+              "price_cents": 7200,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "FRITAS COM CALABRESA",
+          "ingredients": null,
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": "Média",
+              "price_cents": 5800,
+              "promotional_price_cents": null
+            },
+            {
+              "label": "Grande",
+              "price_cents": 7400,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "FRITAS COM FRANGO",
+          "ingredients": null,
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": "Média",
+              "price_cents": 5900,
+              "promotional_price_cents": null
+            },
+            {
+              "label": "Grande",
+              "price_cents": 7700,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "FRITAS COM BACON",
+          "ingredients": null,
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": "Média",
+              "price_cents": 6200,
+              "promotional_price_cents": null
+            },
+            {
+              "label": "Grande",
+              "price_cents": 7400,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "FRITAS COM CHEDDAR",
+          "ingredients": null,
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": "Média",
+              "price_cents": 6400,
+              "promotional_price_cents": null
+            },
+            {
+              "label": "Grande",
+              "price_cents": 7500,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "FRITAS COM CORAÇÃO",
+          "ingredients": null,
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": "Média",
+              "price_cents": 6500,
+              "promotional_price_cents": null
+            },
+            {
+              "label": "Grande",
+              "price_cents": 7700,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "FRITAS COM ALCATRA",
+          "ingredients": null,
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": "Média",
+              "price_cents": 7200,
+              "promotional_price_cents": null
+            },
+            {
+              "label": "Grande",
+              "price_cents": 8700,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "FRITAS COM CHEDDAR E BACON",
+          "ingredients": null,
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": "Média",
+              "price_cents": 7200,
+              "promotional_price_cents": null
+            },
+            {
+              "label": "Grande",
+              "price_cents": 8700,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "FRITAS COMPLETA",
+          "ingredients": "Coração, frango, calabresa, alcatra e bacon.",
+          "is_available": true,
+          "is_featured": true,
+          "variants": [
+            {
+              "label": "Média",
+              "price_cents": 9500,
+              "promotional_price_cents": null
+            },
+            {
+              "label": "Grande",
+              "price_cents": 14900,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "FRITAS KIDS",
+          "ingredients": null,
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 2000,
+              "promotional_price_cents": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Torre de Batata",
+      "products": [
+        {
+          "name": "QUEIJO, FRANGO, CHEDDAR E CATUPIRY",
+          "ingredients": null,
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": "Média",
+              "price_cents": 8500,
+              "promotional_price_cents": null
+            },
+            {
+              "label": "Grande",
+              "price_cents": 11000,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "QUEIJO, BACON, CHEDDAR E CATUPIRY",
+          "ingredients": null,
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": "Média",
+              "price_cents": 8900,
+              "promotional_price_cents": null
+            },
+            {
+              "label": "Grande",
+              "price_cents": 9900,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "QUEIJO, BACON, CALABRESA, CHEDDAR E CATUPIRY",
+          "ingredients": null,
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": "Média",
+              "price_cents": 9800,
+              "promotional_price_cents": null
+            },
+            {
+              "label": "Grande",
+              "price_cents": 12500,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "QUEIJO, BACON, ALCATRA, CHEDDAR E CATUPIRY",
+          "ingredients": null,
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": "Média",
+              "price_cents": 10000,
+              "promotional_price_cents": null
+            },
+            {
+              "label": "Grande",
+              "price_cents": 14500,
+              "promotional_price_cents": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Hot Dogs Doces",
+      "products": [
+        {
+          "name": "DOG CHOCO",
+          "ingredients": "Pão, queijo mussarela derretido e chocolate.",
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 1600,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "DOG SENSAÇÃO",
+          "ingredients": "Pão, queijo mussarela derretido, chocolate e morango.",
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 1800,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "DOG CHARGE",
+          "ingredients": "Pão, queijo mussarela derretido, chocolate e amendoim.",
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 1800,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "DOG PRESTÍGIO",
+          "ingredients": "Pão, queijo mussarela derretido, chocolate e coco ralado.",
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 1800,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "DOG LOVE",
+          "ingredients": "Pão, queijo mussarela derretido, chocolate, morango, amendoim e coco ralado.",
+          "is_available": true,
+          "is_featured": true,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 2300,
+              "promotional_price_cents": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Sobremesas",
+      "products": [
+        {
+          "name": "TAÇA DE SORVETE",
+          "ingredients": null,
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 1600,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "PETIT GATEAU",
+          "ingredients": null,
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 1800,
+              "promotional_price_cents": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Drinks",
+      "products": [
+        {
+          "name": "DOSE",
+          "ingredients": "Steinhager ou Smirnoff.",
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 1200,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "ICE",
+          "ingredients": null,
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 1500,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "REDBULL",
+          "ingredients": null,
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 1600,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "CUBA",
+          "ingredients": "Steinhager ou Smirnoff.",
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 1800,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "CAIPIRA",
+          "ingredients": "Steinhager ou Smirnoff.",
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 2000,
+              "promotional_price_cents": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Cervejas",
+      "products": [
+        {
+          "name": "ORIGINAL 600ML",
+          "ingredients": null,
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 1700,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "HEINEKEN 600ML",
+          "ingredients": null,
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 2300,
+              "promotional_price_cents": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Bebidas",
+      "products": [
+        {
+          "name": "ÁGUA MINERAL",
+          "ingredients": null,
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 500,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "REFRIGERANTE LATA",
+          "ingredients": null,
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 800,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "SUCO POLPA",
+          "ingredients": null,
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 1000,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "REFRIGERANTE 600ML",
+          "ingredients": null,
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 1200,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "CERVEJA LONG NECK",
+          "ingredients": null,
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 1500,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "REFRIGERANTE 1 LITRO",
+          "ingredients": null,
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 1600,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "CERVEJA LONG NECK (STELLA ARTOIS, HEINEKEN)",
+          "ingredients": null,
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 1700,
+              "promotional_price_cents": null
+            }
+          ]
+        },
+        {
+          "name": "REFRIGERANTE 2 LITROS",
+          "ingredients": null,
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 2000,
+              "promotional_price_cents": null
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
