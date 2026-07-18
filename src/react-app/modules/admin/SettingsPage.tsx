@@ -23,7 +23,9 @@ import { AdminState } from './DashboardPage'
 import { useAdminMenu } from './hooks'
 
 const WEEKDAYS = ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado']
-const nullable = { setValueAs: (value: string) => value.trim() || null }
+const nullable = {
+  setValueAs: (value: unknown) => typeof value === 'string' ? value.trim() || null : null,
+}
 
 function HoursEditor({ hours, refresh }: { hours: BusinessHour[]; refresh: () => Promise<void> }) {
   const [editing, setEditing] = useState<BusinessHour | null | 'new'>(null)
