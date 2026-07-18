@@ -16,11 +16,19 @@ export function AdminLayout() {
   return (
     <div className="admin-shell">
       <header className="admin-mobile-header">
+        <button
+          type="button"
+          aria-label={open ? 'Fechar menu' : 'Abrir menu'}
+          aria-expanded={open}
+          aria-controls="admin-sidebar"
+          onClick={() => setOpen((value) => !value)}
+        >
+          {open ? <X /> : <Menu />}
+        </button>
         <strong>Pipo · Administração</strong>
-        <button type="button" aria-label={open ? 'Fechar menu' : 'Abrir menu'} onClick={() => setOpen((value) => !value)}>{open ? <X /> : <Menu />}</button>
       </header>
       {open && <button type="button" className="admin-nav-backdrop" aria-label="Fechar menu" onClick={() => setOpen(false)} />}
-      <aside className={`admin-sidebar${open ? ' open' : ''}`}>
+      <aside id="admin-sidebar" className={`admin-sidebar${open ? ' open' : ''}`}>
         <div className="admin-brand"><span>P</span><div><strong>Pipo</strong><small>Administração</small></div></div>
         <nav aria-label="Navegação administrativa">
           {links.map(({ icon: Icon, ...link }) => <NavLink key={link.to} to={link.to} end={link.end} onClick={() => setOpen(false)}><Icon />{link.label}</NavLink>)}
