@@ -227,7 +227,7 @@ test('configurações são divididas por tarefa e restauração valida antes de 
       const daySelect = page.getByRole('combobox', { name: 'Dia', exact: true })
       const selectedDay = Number(await daySelect.inputValue())
       expect(current.hours.some((hour) => hour.weekday === selectedDay)).toBeFalsy()
-      for (const weekday of new Set(current.hours.map((hour) => hour.weekday))) await expect(daySelect.locator(`option[value="${weekday}"]`)).toBeDisabled()
+      for (const weekday of new Set(current.hours.map((hour) => hour.weekday))) await expect(daySelect.locator(`option[value="${weekday}"]`)).toHaveAttribute('disabled', '')
       await page.getByRole('button', { name: 'Cancelar' }).click()
     }
     await page.getByRole('button', { name: /Avançado/ }).click()
