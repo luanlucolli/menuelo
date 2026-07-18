@@ -1,0 +1,6 @@
+# O bypass só funciona em hostnames locais e permanece desativado por padrão.
+DEV_ADMIN_BYPASS=true
+CF_ACCESS_TEAM_DOMAIN=https://sua-equipe.cloudflareaccess.com
+CF_ACCESS_AUD=substitua-pelo-aud-da-aplicacao-access
+ADMIN_EMAILS=luangstl@gmail.com
+PUBLIC_SITE_URL=
