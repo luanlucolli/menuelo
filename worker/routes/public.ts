@@ -10,7 +10,7 @@ publicRoutes.get('/menu', async (c) => {
   if (!menu.business.publicSiteUrl) {
     menu.business.publicSiteUrl = String(c.env.PUBLIC_SITE_URL || '') || new URL(c.req.url).origin
   }
-  c.header('Cache-Control', 'public, max-age=60, s-maxage=300, stale-while-revalidate=600')
+  c.header('Cache-Control', 'public, max-age=30, s-maxage=60, must-revalidate')
   return c.json(menu)
 })
 

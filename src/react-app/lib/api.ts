@@ -23,10 +23,44 @@ export async function api<T>(path: string, init?: RequestInit): Promise<T> {
   return response.json() as Promise<T>
 }
 
+export function uploadBlob<T>(path: string, blob: Blob, onProgress?: (percentage: number) => void): Promise<T> {
+  return new Promise((resolve, reject) => {
+    const request = new XMLHttpRequest()
+    request.open('POST', path)
+    request.setRequestHeader('Content-Type', blob.type || 'application/octet-stream')
+    request.responseType = 'json'
+    request.upload.addEventListener('progress', (event) => {
+      if (event.lengthComputable) onProgress?.(Math.round((event.loaded / event.total) * 100))
+    })
+    request.addEventListener('load', () => {
+      if (request.status >= 200 && request.status < 300) {
+        onProgress?.(100)
+        resolve(request.response as T)
+        return
+      }
+      const body = request.response && typeof request.response === 'object'
+        ? request.response as ApiErrorBody
+        : { code: 'REQUEST_FAILED', message: 'Não foi possível enviar a foto.' }
+      reject(new ApiClientError(request.status, body))
+    })
+    request.addEventListener('error', () => reject(new TypeError('Network request failed')))
+    request.addEventListener('abort', () => reject(new DOMException('Upload cancelado.', 'AbortError')))
+    request.send(blob)
+  })
+}
+
 export function jsonBody(value: unknown): string {
   return JSON.stringify(value)
 }
 
 export function messageFromError(error: unknown): string {
-  return error instanceof Error ? error.message : 'Ocorreu um erro inesperado.'
+  if (error instanceof ApiClientError) return error.message
+  if (error instanceof TypeError) return 'Não foi possível conectar. Verifique sua internet e tente novamente.'
+  if (error instanceof DOMException && error.name === 'AbortError') return 'A operação demorou demais. Tente novamente.'
+  if (error instanceof Error && error.message) return error.message
+  return 'Ocorreu um erro inesperado. Tente novamente.'
+}
+
+export function fieldErrorsFromError(error: unknown): Record<string, string[]> {
+  return error instanceof ApiClientError ? error.body.fieldErrors ?? {} : {}
 }

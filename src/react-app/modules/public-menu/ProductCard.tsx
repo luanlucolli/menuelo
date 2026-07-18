@@ -28,14 +28,18 @@ function ProductImage({ product, modal = false }: { product: Product; modal?: bo
 
 export function ProductDialog({ product, onClose }: { product: Product; onClose: () => void }) {
   const ref = useRef<HTMLDialogElement>(null)
+  const onCloseRef = useRef(onClose)
+  useEffect(() => { onCloseRef.current = onClose }, [onClose])
   useEffect(() => {
     const dialog = ref.current
     if (!dialog) return
-    dialog.showModal()
-    const close = () => onClose()
+    if (!dialog.open) dialog.showModal()
+    const close = () => onCloseRef.current()
     dialog.addEventListener('close', close)
-    return () => dialog.removeEventListener('close', close)
-  }, [onClose])
+    return () => {
+      dialog.removeEventListener('close', close)
+    }
+  }, [])
 
   return (
     <dialog ref={ref} className="product-dialog" aria-labelledby="product-dialog-title" onClick={(event) => { if (event.target === ref.current) ref.current?.close() }}>
@@ -53,9 +57,9 @@ export function ProductDialog({ product, onClose }: { product: Product; onClose:
   )
 }
 
-export function ProductCard({ product, onSelect }: { product: Product; onSelect: (product: Product) => void }) {
+export function ProductCard({ product, onSelect }: { product: Product; onSelect: (product: Product, trigger: HTMLButtonElement) => void }) {
   return (
-    <button className={`product-card${product.isAvailable ? '' : ' unavailable'}`} type="button" onClick={() => onSelect(product)} aria-label={`Ver detalhes de ${product.name}`}>
+    <button className={`product-card${product.isAvailable ? '' : ' unavailable'}`} type="button" onClick={(event) => onSelect(product, event.currentTarget)} aria-label={`Ver detalhes de ${product.name}`}>
       <ProductImage product={product} />
       <div className="product-copy">
         <div className="product-heading">

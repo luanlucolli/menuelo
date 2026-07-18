@@ -2,7 +2,7 @@
   "extends": "./tsconfig.node.json",
   "compilerOptions": {
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.test.tsbuildinfo",
-    "types": ["vitest/globals", "./worker-configuration.d.ts"],
+    "types": ["node", "vitest/globals", "./worker-configuration.d.ts"],
     "module": "esnext",
     "moduleResolution": "bundler",
     "erasableSyntaxOnly": false,

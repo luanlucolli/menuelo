@@ -1,26 +1,30 @@
+import { lazy, Suspense } from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
-import { PublicMenu } from './modules/public-menu/PublicMenu'
-import { AdminLayout } from './modules/admin/AdminLayout'
-import { DashboardPage } from './modules/admin/DashboardPage'
-import { CategoriesPage } from './modules/admin/CategoriesPage'
-import { ProductsPage } from './modules/admin/ProductsPage'
-import { SettingsPage } from './modules/admin/SettingsPage'
-import { ImportExportPage } from './modules/admin/ImportExportPage'
-import { QrCodePage } from './modules/admin/QrCodePage'
+
+const PublicMenu = lazy(() => import('./modules/public-menu/PublicMenu').then((module) => ({ default: module.PublicMenu })))
+const AdminLayout = lazy(() => import('./modules/admin/AdminLayout').then((module) => ({ default: module.AdminLayout })))
+const DashboardPage = lazy(() => import('./modules/admin/DashboardPage').then((module) => ({ default: module.DashboardPage })))
+const CategoriesPage = lazy(() => import('./modules/admin/CategoriesPage').then((module) => ({ default: module.CategoriesPage })))
+const ProductsPage = lazy(() => import('./modules/admin/ProductsPage').then((module) => ({ default: module.ProductsPage })))
+const SettingsPage = lazy(() => import('./modules/admin/SettingsPage').then((module) => ({ default: module.SettingsPage })))
+const ImportExportPage = lazy(() => import('./modules/admin/ImportExportPage').then((module) => ({ default: module.ImportExportPage })))
+const QrCodePage = lazy(() => import('./modules/admin/QrCodePage').then((module) => ({ default: module.QrCodePage })))
 
 export default function App() {
   return (
-    <Routes>
-      <Route path="/" element={<PublicMenu />} />
-      <Route path="/admin" element={<AdminLayout />}>
-        <Route index element={<DashboardPage />} />
-        <Route path="produtos" element={<ProductsPage />} />
-        <Route path="categorias" element={<CategoriesPage />} />
-        <Route path="configuracoes" element={<SettingsPage />} />
-        <Route path="importar-exportar" element={<ImportExportPage />} />
-        <Route path="qrcode" element={<QrCodePage />} />
-      </Route>
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+    <Suspense fallback={<main className="state-page"><span className="spinner" /><p>Carregando…</p></main>}>
+      <Routes>
+        <Route path="/" element={<PublicMenu />} />
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route index element={<DashboardPage />} />
+          <Route path="produtos" element={<ProductsPage />} />
+          <Route path="categorias" element={<CategoriesPage />} />
+          <Route path="configuracoes" element={<SettingsPage />} />
+          <Route path="importar-exportar" element={<ImportExportPage />} />
+          <Route path="qrcode" element={<QrCodePage />} />
+        </Route>
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </Suspense>
   )
 }

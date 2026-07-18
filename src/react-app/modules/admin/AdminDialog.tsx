@@ -7,10 +7,16 @@ export function AdminDialog({ onClose, children }: { onClose: () => void; childr
   useEffect(() => {
     const dialog = ref.current
     if (!dialog) return
-    const handleClose = () => onCloseRef.current()
+    const handleCancel = (event: Event) => {
+      event.preventDefault()
+      onCloseRef.current()
+    }
     if (!dialog.open) dialog.showModal()
-    dialog.addEventListener('close', handleClose)
-    return () => dialog.removeEventListener('close', handleClose)
+    dialog.addEventListener('cancel', handleCancel)
+    return () => {
+      dialog.removeEventListener('cancel', handleCancel)
+      if (dialog.open) dialog.close()
+    }
   }, [])
-  return <dialog ref={ref} className="form-overlay" onMouseDown={(event) => { if (event.target === event.currentTarget) event.currentTarget.close() }}>{children}</dialog>
+  return <dialog ref={ref} className="form-overlay" onMouseDown={(event) => { if (event.target === event.currentTarget) onCloseRef.current() }}>{children}</dialog>
 }

@@ -35,7 +35,7 @@ describe('handlers críticos com bindings simulados', () => {
     const response = await publicRoutes.request('http://localhost/menu', {}, runtimeEnv({ DB: database.asBinding() }))
     const body = await response.json() as { categories: unknown[] }
     expect(response.status).toBe(200)
-    expect(response.headers.get('Cache-Control')).toContain('max-age=60')
+    expect(response.headers.get('Cache-Control')).toBe('public, max-age=30, s-maxage=60, must-revalidate')
     expect(body.categories).toHaveLength(1)
   })
 
