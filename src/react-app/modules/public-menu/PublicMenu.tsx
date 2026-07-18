@@ -29,12 +29,35 @@ export function PublicMenu() {
   useEffect(() => {
     const sections = [...document.querySelectorAll<HTMLElement>('[data-category-section]')]
     if (!sections.length) return
-    const observer = new IntersectionObserver((entries) => {
-      const visible = entries.filter((entry) => entry.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0]
-      if (visible?.target.id) setActiveCategory(visible.target.id)
-    }, { rootMargin: '-32% 0px -55% 0px', threshold: [0.05, 0.25, 0.6] })
-    sections.forEach((section) => observer.observe(section))
-    return () => observer.disconnect()
+    let animationFrame = 0
+
+    const updateActiveCategory = () => {
+      animationFrame = 0
+      const navBottom = categoryNavRef.current?.parentElement?.getBoundingClientRect().bottom ?? 0
+      const activationLine = navBottom + 16
+      let current = sections[0]
+
+      for (const section of sections) {
+        if (section.getBoundingClientRect().top > activationLine) break
+        current = section
+      }
+
+      setActiveCategory((previous) => previous === current.id ? previous : current.id)
+    }
+
+    const scheduleUpdate = () => {
+      if (animationFrame) return
+      animationFrame = window.requestAnimationFrame(updateActiveCategory)
+    }
+
+    updateActiveCategory()
+    window.addEventListener('scroll', scheduleUpdate, { passive: true })
+    window.addEventListener('resize', scheduleUpdate)
+    return () => {
+      window.removeEventListener('scroll', scheduleUpdate)
+      window.removeEventListener('resize', scheduleUpdate)
+      if (animationFrame) window.cancelAnimationFrame(animationFrame)
+    }
   }, [categories])
 
   useEffect(() => {
