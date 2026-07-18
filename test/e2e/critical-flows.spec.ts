@@ -84,20 +84,30 @@ test('cria produto, valida promoção, alterna disponibilidade, duplica e exclui
     productIds.push(saved!.id)
 
     let row = page.locator('article').filter({ hasText: productName })
-    await row.getByRole('button', { name: 'Preços' }).click()
+    await row.getByRole('button', { name: 'Preços e opções' }).click()
+    await expect(page.getByRole('heading', { name: 'Preços e opções' })).toBeVisible()
     await page.getByLabel('Colocar em promoção').check()
     await page.getByLabel('Preço promocional').fill('3000')
-    await page.getByRole('button', { name: 'Salvar preços' }).click()
+    await page.getByRole('button', { name: 'Salvar preços e opções' }).click()
     await expect(page.getByText('O preço promocional precisa ser menor que o preço normal.')).toBeVisible()
     await page.getByLabel('Preço promocional').fill('1990')
-    await page.getByRole('button', { name: 'Salvar preços' }).click()
-    await expect(page.getByText('Preços e promoções atualizados.')).toBeVisible()
+    await page.getByRole('button', { name: 'Adicionar tamanho ou opção' }).click()
+    await page.locator('.quick-price-item').first().getByLabel(/Nome da opção/).fill('Média')
+    const addedOption = page.locator('.quick-price-item').last()
+    await addedOption.getByLabel(/Nome da opção/).fill('Grande')
+    await addedOption.getByLabel('Preço normal').fill('3490')
+    await page.getByRole('button', { name: 'Salvar preços e opções' }).click()
+    await expect(page.getByText('Preços, promoções e opções atualizados.')).toBeVisible()
+    await expect.poll(async () => (await menu(request)).categories.flatMap((item) => item.products).find((item) => item.id === saved!.id)?.variants.map((variant) => variant.label)).toContain('Grande')
 
     row = page.locator('article').filter({ hasText: productName })
     await row.getByRole('button', { name: 'Indisponibilizar' }).click()
     await expect(row.getByText('Indisponível', { exact: true })).toBeVisible()
+    await row.getByText('Mais ações', { exact: true }).click()
     await row.getByRole('button', { name: 'Duplicar' }).click()
     await expect(page.getByRole('heading', { name: 'Editar produto' })).toBeVisible()
+    await expect(page.getByRole('dialog').getByText('Preços, promoções, tamanhos e disponibilidade')).toBeVisible()
+    await expect(page.getByRole('dialog').getByText('Colocar em promoção')).toHaveCount(0)
     await page.getByRole('dialog').getByRole('button', { name: 'Fechar' }).click()
 
     const copy = (await menu(request)).categories.flatMap((item) => item.products).find((item) => item.name === `Cópia de ${productName}`)
@@ -105,6 +115,7 @@ test('cria produto, valida promoção, alterna disponibilidade, duplica e exclui
     productIds.push(copy!.id)
 
     row = page.locator('article').filter({ hasText: productName }).first()
+    await row.getByText('Mais ações', { exact: true }).click()
     await row.getByRole('button', { name: 'Excluir' }).click()
     await expect(page.getByRole('heading', { name: `Excluir “${productName}”?` })).toBeVisible()
     await page.getByRole('button', { name: 'Excluir produto' }).click()
@@ -136,6 +147,41 @@ test('organização oferece alternativa aos gestos de arrastar e filtros persist
   await expect(page).toHaveURL(/filtro=promotion/)
 })
 
+test('cria categoria dentro do produto e bloqueia exclusão de categoria ocupada', async ({ page, request }) => {
+  const current = await menu(request)
+  const occupied = current.categories.find((category) => category.products.length > 0)
+  const categoryName = `Categoria rápida ${Date.now().toString(36)}`
+  let categoryId = ''
+  try {
+    await page.setViewportSize({ width: 390, height: 844 })
+    await page.goto('/admin/produtos?acao=novo')
+    const dialog = page.getByRole('dialog')
+    await dialog.getByRole('button', { name: 'Criar nova categoria' }).click()
+    await dialog.getByLabel('Nome da nova categoria').fill(categoryName)
+    await dialog.getByRole('button', { name: 'Criar e selecionar' }).click()
+    await expect(dialog.getByLabel('Categoria').locator('option:checked')).toHaveText(categoryName)
+    categoryId = (await menu(request)).categories.find((category) => category.name === categoryName)?.id ?? ''
+
+    page.once('dialog', (confirmation) => confirmation.accept())
+    await dialog.getByRole('button', { name: 'Cancelar' }).click()
+    await page.goto('/admin/categorias')
+    const createdRow = page.locator('article').filter({ hasText: categoryName })
+    await createdRow.getByRole('button', { name: 'Excluir' }).click()
+    await page.getByRole('button', { name: 'Excluir categoria' }).click()
+    await expect(page.getByText('Categoria excluída.')).toBeVisible()
+    categoryId = ''
+
+    if (occupied) {
+      const occupiedRow = page.locator('article').filter({ hasText: occupied.name })
+      await occupiedRow.getByRole('button', { name: 'Excluir' }).click()
+      await expect(page.getByText(new RegExp(`“${occupied.name}” contém`))).toBeVisible()
+      await expect(page.getByRole('link', { name: 'Ver produtos' })).toHaveAttribute('href', `/admin/produtos?categoria=${occupied.id}`)
+    }
+  } finally {
+    if (categoryId) await request.delete(`/admin/api/categories/${categoryId}`)
+  }
+})
+
 test('falha no upload preserva o produto e permite reenviar e remover a foto', async ({ page, request }) => {
   const suffix = Date.now().toString(36)
   let categoryId = ''
@@ -153,7 +199,7 @@ test('falha no upload preserva o produto e permite reenviar e remover a foto', a
     await page.setViewportSize({ width: 390, height: 844 })
     await page.goto(`/admin/produtos?categoria=${categoryId}`)
     const row = page.locator('article').filter({ hasText: product.name })
-    await row.getByRole('button', { name: 'Editar' }).click()
+    await row.getByRole('button', { name: 'Editar dados' }).click()
     const photoSection = page.locator('details').filter({ hasText: 'Foto do produto' })
     await photoSection.locator('summary').click()
     const bytes = await page.evaluate(async () => {
@@ -178,7 +224,7 @@ test('falha no upload preserva o produto e permite reenviar e remover a foto', a
     await expect(page.getByRole('dialog')).toBeHidden()
     expect((await menu(request)).categories.flatMap((item) => item.products).find((item) => item.id === productId)?.imageKey).toBeTruthy()
 
-    await page.locator('article').filter({ hasText: product.name }).getByRole('button', { name: 'Editar' }).click()
+    await page.locator('article').filter({ hasText: product.name }).getByRole('button', { name: 'Editar dados' }).click()
     await page.getByRole('button', { name: 'Remover foto' }).click()
     await expect(page.getByText('A foto atual será removida quando você salvar o produto.')).toBeVisible()
     await page.getByRole('button', { name: 'Salvar produto' }).click()

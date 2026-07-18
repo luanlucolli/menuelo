@@ -2,7 +2,7 @@ import { DndContext, KeyboardSensor, PointerSensor, closestCenter, useSensor, us
 import { SortableContext, arrayMove, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { ArrowDown, ArrowUp, BadgeDollarSign, Check, CircleCheck, CircleOff, Copy, GripVertical, ImageIcon, ListOrdered, Pencil, Plus, Search, Trash2, X } from 'lucide-react'
+import { ArrowDown, ArrowUp, BadgeDollarSign, Check, CircleCheck, CircleOff, Copy, Ellipsis, GripVertical, ImageIcon, ListOrdered, Pencil, Plus, Search, Trash2, X } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import type { MenuResponse, Product } from '../../../../shared/schemas'
@@ -46,10 +46,9 @@ function SortableProduct({ product, categoryName, index, total, orderingEnabled,
     <div className="row-actions">
       {orderingEnabled ? <><button type="button" disabled={index === 0} onClick={() => onMove(-1)}><ArrowUp /><span>Subir</span></button><button type="button" disabled={index === total - 1} onClick={() => onMove(1)}><ArrowDown /><span>Descer</span></button></> : <>
         <button type="button" className={`availability-action${product.isAvailable ? '' : ' unavailable'}`} aria-pressed={!product.isAvailable} disabled={availabilityBusy} onClick={onToggleAvailability}>{product.isAvailable ? <CircleOff /> : <CircleCheck />}<span>{availabilityBusy ? 'Salvando…' : product.isAvailable ? 'Indisponibilizar' : 'Disponibilizar'}</span></button>
-        <button type="button" onClick={onPricing}><BadgeDollarSign /><span>Preços</span></button>
-        <button type="button" onClick={onDuplicate}><Copy /><span>Duplicar</span></button>
-        <button type="button" onClick={onEdit}><Pencil /><span>Editar</span></button>
-        <button className="danger-icon" type="button" onClick={onDelete}><Trash2 /><span>Excluir</span></button>
+        <button type="button" onClick={onPricing}><BadgeDollarSign /><span>Preços e opções</span></button>
+        <button type="button" onClick={onEdit}><Pencil /><span>Editar dados</span></button>
+        <details className="row-more" name="product-actions"><summary><Ellipsis /><span>Mais ações</span></summary><div><button type="button" onClick={(event) => { event.currentTarget.closest('details')?.removeAttribute('open'); onDuplicate() }}><Copy /><span>Duplicar</span></button><button className="danger-icon" type="button" onClick={(event) => { event.currentTarget.closest('details')?.removeAttribute('open'); onDelete() }}><Trash2 /><span>Excluir</span></button></div></details>
       </>}
     </div>
   </article>
