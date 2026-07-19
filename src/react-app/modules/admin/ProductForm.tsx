@@ -53,6 +53,7 @@ export function ProductForm({ product, categories, initialCategoryId, onClose, o
   })
   const variants = useFieldArray({ control: form.control, name: 'variants' })
   const watchedVariants = useWatch({ control: form.control, name: 'variants' })
+  const hasMultipleSizes = variants.fields.length > 1
   const categoryOptions = createdCategory && !categories.some((category) => category.id === createdCategory.id)
     ? [...categories.map((category) => ({ id: category.id, name: category.name })), createdCategory]
     : categories.map((category) => ({ id: category.id, name: category.name }))
@@ -163,6 +164,30 @@ export function ProductForm({ product, categories, initialCategoryId, onClose, o
     setImagePreview(persistedProduct?.imageKey ? `/media/${persistedProduct.imageKey}` : null)
   }
 
+  const useMultipleSizes = () => {
+    if (hasMultipleSizes) return
+    const current = form.getValues('variants.0')
+    variants.replace([
+      { ...current, label: current.label?.trim() || 'Médio', isActive: true, sortOrder: 0 },
+      { label: 'Grande', priceCents: 0, promotionalPriceCents: null, isActive: true, sortOrder: 1 },
+    ])
+    form.clearErrors('variants')
+  }
+
+  const useSinglePrice = () => {
+    if (!hasMultipleSizes) return
+    if (!window.confirm('Usar apenas um preço? Os outros tamanhos serão removidos quando você salvar o produto.')) return
+    const current = form.getValues('variants.0')
+    variants.replace([{ ...current, label: null, isActive: true, sortOrder: 0 }])
+    form.clearErrors('variants')
+  }
+
+  const addAnotherSize = () => {
+    const lastLabel = form.getValues(`variants.${variants.fields.length - 1}.label`)?.trim().toLocaleLowerCase('pt-BR')
+    const suggestedLabel = lastLabel === 'pequeno' ? 'Médio' : lastLabel === 'médio' || lastLabel === 'media' || lastLabel === 'média' ? 'Grande' : lastLabel === 'grande' ? 'Família' : null
+    variants.append({ label: suggestedLabel, priceCents: 0, promotionalPriceCents: null, isActive: true, sortOrder: variants.fields.length })
+  }
+
   const focusPricingError = () => {
     setPricingOpen(true)
     setPricingFocus(crypto.randomUUID())
@@ -183,7 +208,8 @@ export function ProductForm({ product, categories, initialCategoryId, onClose, o
       })
     }
     if (firstLabelError >= 0) return focusPricingError()
-    save.mutate({ ...input, variants: input.variants.map((variant, index) => ({ ...variant, label: variant.label?.trim() || null, sortOrder: index })) })
+    const singlePrice = input.variants.length === 1
+    save.mutate({ ...input, variants: input.variants.map((variant, index) => ({ ...variant, label: singlePrice ? null : variant.label?.trim() || null, isActive: singlePrice ? true : variant.isActive, sortOrder: index })) })
   }, (errors) => {
     if (errors.variants) focusPricingError()
   })
@@ -201,20 +227,21 @@ export function ProductForm({ product, categories, initialCategoryId, onClose, o
         {creatingCategory && <div className="inline-create-category"><label>Nome da nova categoria<input value={categoryName} onChange={(event) => setCategoryName(event.target.value)} /></label><button className="secondary-button" type="button" disabled={!categoryName.trim() || createCategory.isPending} onClick={() => createCategory.mutate()}>{createCategory.isPending ? 'Criando…' : 'Criar e selecionar'}</button></div>}
       </section>
 
-      <details ref={pricingRef} className="progressive-section pricing-section" open={pricingOpen} onToggle={(event) => setPricingOpen(event.currentTarget.open)}><summary>Preços e tamanhos <span>{product ? variants.fields.length === 1 ? '1 preço' : `${variants.fields.length} tamanhos` : 'Obrigatório'}</span></summary><div>
-        <p className="variant-section-intro">{product && <strong>{product.name}</strong>}Use um preço único ou crie tamanhos como Pequeno, Médio e Grande.</p>
+      <details ref={pricingRef} className="progressive-section pricing-section" open={pricingOpen} onToggle={(event) => setPricingOpen(event.currentTarget.open)}><summary>Preços e tamanhos <span>{product ? hasMultipleSizes ? `${variants.fields.length} tamanhos` : 'Preço único' : 'Obrigatório'}</span></summary><div>
+        <div className="pricing-mode"><div><strong>Como este produto é vendido?</strong><span>Escolha a opção que combina com o cardápio.</span></div><div className="pricing-mode-options" role="group" aria-label="Forma de venda do produto"><button type="button" aria-pressed={!hasMultipleSizes} onClick={useSinglePrice}><strong>Um preço só</strong><small>Não possui tamanhos.</small></button><button type="button" aria-pressed={hasMultipleSizes} onClick={useMultipleSizes}><strong>Mais de um tamanho</strong><small>Ex.: Médio e Grande.</small></button></div></div>
+        {product && <p className="variant-product-name">Editando preços de <strong>{product.name}</strong></p>}
         <div className="variant-editor-list">
-          {variants.fields.map((variant, index) => { const variantError = form.formState.errors.variants?.[index]; const promotionEnabled = watchedVariants?.[index]?.promotionalPriceCents !== null; return <section className="variant-editor-item" key={variant.id}>
-            <div className="variant-editor-heading"><strong>{variants.fields.length === 1 ? 'Preço principal' : `Tamanho ${index + 1}`}</strong>{variants.fields.length > 1 && <button className="remove-option" type="button" aria-label={`Remover tamanho ${index + 1}`} onClick={() => variants.remove(index)}><Trash2 /> Remover</button>}</div>
-            <label>Nome do tamanho {variants.fields.length === 1 && <span className="optional-label">(opcional)</span>}<input placeholder={variants.fields.length === 1 ? 'Ex.: Único' : 'Ex.: Médio'} maxLength={40} aria-invalid={Boolean(variantError?.label)} {...form.register(`variants.${index}.label`, { setValueAs: (value) => value || null })} />{variantError?.label && <small className="field-error">{variantError.label.message}</small>}</label>
+          {variants.fields.map((variant, index) => { const variantError = form.formState.errors.variants?.[index]; const promotionEnabled = watchedVariants?.[index]?.promotionalPriceCents !== null; return <section className={`variant-editor-item${hasMultipleSizes ? '' : ' single-price-item'}`} key={variant.id}>
+            <div className="variant-editor-heading"><div><strong>{hasMultipleSizes ? watchedVariants?.[index]?.label || `Tamanho ${index + 1}` : 'Preço do produto'}</strong>{!hasMultipleSizes && <span>O cliente verá apenas o valor, sem nome de tamanho.</span>}</div>{hasMultipleSizes && <button className="remove-option" type="button" aria-label={`Remover tamanho ${index + 1}`} onClick={() => variants.remove(index)}><Trash2 /> Remover</button>}</div>
+            {hasMultipleSizes && <label>Nome do tamanho<input placeholder="Ex.: Médio" maxLength={40} aria-invalid={Boolean(variantError?.label)} {...form.register(`variants.${index}.label`, { setValueAs: (value) => value || null })} />{variantError?.label && <small className="field-error">{variantError.label.message}</small>}</label>}
             <Controller control={form.control} name={`variants.${index}.priceCents`} render={({ field }) => <MoneyInput id={`product-price-${index}`} label="Preço normal" value={field.value > 0 ? field.value : null} onChange={(value) => field.onChange(value ?? 0)} error={variantError?.priceCents?.message} />} />
-            <label className="check-field"><input type="checkbox" checked={promotionEnabled} onChange={(event) => form.setValue(`variants.${index}.promotionalPriceCents`, event.target.checked ? 0 : null, { shouldDirty: true, shouldValidate: !event.target.checked })} /> Colocar em promoção</label>
+            <label className="check-field"><input type="checkbox" checked={promotionEnabled} onChange={(event) => form.setValue(`variants.${index}.promotionalPriceCents`, event.target.checked ? 0 : null, { shouldDirty: true, shouldValidate: !event.target.checked })} /> {hasMultipleSizes ? 'Este tamanho está em promoção' : 'Este produto está em promoção'}</label>
             {promotionEnabled && <Controller control={form.control} name={`variants.${index}.promotionalPriceCents`} render={({ field }) => <MoneyInput id={`product-promotion-${index}`} label="Preço promocional" value={field.value && field.value > 0 ? field.value : null} onChange={field.onChange} error={variantError?.promotionalPriceCents?.message} />} />}
-            <label className="check-field"><input type="checkbox" {...form.register(`variants.${index}.isActive`)} /> Mostrar este tamanho no cardápio</label>
+            {hasMultipleSizes && <label className="check-field"><input type="checkbox" {...form.register(`variants.${index}.isActive`)} /> Este tamanho está disponível</label>}
             <input type="hidden" {...form.register(`variants.${index}.sortOrder`, { valueAsNumber: true })} value={index} />
           </section>})}
         </div>
-        <button className="secondary-button add-variant-option" type="button" disabled={variants.fields.length >= 20} onClick={() => variants.append({ label: null, priceCents: 0, promotionalPriceCents: null, isActive: true, sortOrder: variants.fields.length })}><Plus /> Adicionar tamanho</button>
+        {hasMultipleSizes && <button className="secondary-button add-variant-option" type="button" disabled={variants.fields.length >= 20} onClick={addAnotherSize}><Plus /> Adicionar outro tamanho</button>}
         {variants.fields.length >= 20 && <small className="field-help">Você atingiu o limite de 20 tamanhos neste produto.</small>}
       </div></details>
 
