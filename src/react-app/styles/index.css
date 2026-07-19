@@ -349,6 +349,8 @@ a { color: inherit; }
 .settings-nav button { min-height: 44px; flex: 0 0 auto; display: inline-flex; align-items: center; gap: .4rem; border: 1px solid var(--color-border); border-radius: 999px; padding: .6rem .8rem; background: var(--color-surface-strong); font-size: .78rem; font-weight: 750; }
 .settings-nav button.active { border-color: var(--color-brand); color: white; background: var(--color-brand); }
 .settings-nav svg { width: 1rem; }
+.settings-unsaved { border-radius: 999px; padding: .16rem .35rem; color: var(--color-brand-strong); background: var(--color-brand-soft); font-size: .62rem; font-weight: 850; }
+.settings-nav button.active .settings-unsaved { color: white; background: rgb(255 255 255 / 20%); }
 .settings-subsections { display: grid; gap: 1rem; }
 .settings-grid { display: grid; gap: .8rem; }
 .address-section { display: grid; gap: 1rem; }
@@ -396,7 +398,9 @@ a { color: inherit; }
 .color-preview > strong { font-size: 1.15rem; }
 .color-preview .preview-button { margin-top: .35rem; border-radius: .5rem; padding: .55rem .8rem; color: var(--preview-brand-text); background: var(--preview-brand); font-size: .8rem; font-weight: 800; }
 .reset-color { justify-self: start; }
-.settings-save { position: sticky; bottom: .75rem; z-index: 10; display: flex; justify-content: flex-end; padding: .7rem; border: 1px solid var(--color-border); border-radius: .7rem; background: rgb(255 253 249 / 94%); box-shadow: var(--shadow-sm); backdrop-filter: blur(8px); }
+.settings-save { position: sticky; bottom: .75rem; z-index: 10; display: flex; align-items: center; justify-content: space-between; gap: .75rem; padding: .7rem; border: 1px solid color-mix(in srgb, var(--color-brand) 30%, var(--color-border)); border-radius: .7rem; background: rgb(255 253 249 / 96%); box-shadow: var(--shadow-sm); backdrop-filter: blur(8px); }
+.settings-save > span { color: var(--color-muted); font-size: .78rem; font-weight: 700; }
+.settings-save > div { display: flex; flex: 0 0 auto; gap: .5rem; }
 .compact-list { display: grid; }
 .compact-list > div { display: flex; align-items: center; justify-content: space-between; gap: .6rem; border-top: 1px solid var(--color-border); padding: .6rem 0; }
 .compact-list > div > span { min-width: 0; display: grid; }
@@ -441,6 +445,9 @@ a { color: inherit; }
 .qr-card small svg { width: 1rem; }
 
 @media (max-width: 649px) {
+  .settings-save { align-items: stretch; flex-direction: column; }
+  .settings-save > div { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); }
+  .settings-save > div > button { min-width: 0; }
   .product-admin-row { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: .6rem; padding: .75rem .5rem; }
   .product-admin-row:has(.drag-handle) { grid-template-columns: 44px auto minmax(0, 1fr); }
   .product-admin-row .list-copy { min-width: 0; }
