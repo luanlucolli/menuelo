@@ -71,21 +71,25 @@ O seed inicial não cria contatos, endereço, meios de pagamento, zonas ou horá
 
 No dashboard Zero Trust:
 
-1. Abra **Integrations > Identity providers** e habilite **Cloudflare** como provedor de identidade. Contas Zero Trust novas já podem tê-lo como padrão.
-2. Não habilite **One-time PIN** para esta aplicação. O login `Cloudflare` usa a conta Cloudflare existente, sem OTP por e-mail.
-3. Ative a opção de restringir a membros da conta Cloudflare, quando disponível, e confirme que `luangstl@gmail.com` é membro da conta.
-4. Abra **Access controls > Applications > Add an application > Self-hosted**.
-5. Use o hostname público e proteja o caminho `/admin/*`. A API administrativa está no mesmo prefixo.
-6. Crie uma política **Allow** com uma única regra **Include > Emails > `luangstl@gmail.com`**. Não use `Everyone`, `Emails ending in` nem `Bypass`.
-7. Selecione apenas o provedor **Cloudflare** como método de login. Com um único IdP, `Instant authentication` pode ser habilitado.
-8. Salve a aplicação e copie o **Application Audience (AUD) Tag** em **Additional settings**.
-9. Coloque o AUD em `CF_ACCESS_AUD` e confirme o domínio da equipe em `CF_ACCESS_TEAM_DOMAIN`.
+1. Abra **Integrations > Identity providers > Add new identity provider** e habilite **One-time PIN**.
+2. Abra **Access controls > Applications > Add an application > Self-hosted**.
+3. Use o hostname público e cadastre dois caminhos na mesma aplicação: `/admin` e `/admin/*`. O primeiro protege a entrada exata do painel; o segundo protege suas páginas e toda a API administrativa em `/admin/api/*`.
+4. Crie uma política **Allow** com regras **Include > Emails** para cada endereço autorizado. Use endereços completos; não use `Everyone`, `Emails ending in`, `Login Methods` sozinho nem `Bypass`.
+5. Selecione apenas **One-time PIN** como método de login. O usuário informará o e-mail autorizado e receberá um código temporário, sem precisar criar uma conta Cloudflare.
+6. Na configuração da aplicação, selecione **Session duration > 7 days** e mantenha a política com a duração **Same as application**. O código será solicitado novamente quando a sessão expirar ou for encerrada.
+7. Salve a aplicação e copie o **Application Audience (AUD) Tag** em **Additional settings**.
+8. Coloque o AUD em `CF_ACCESS_AUD` e confirme o domínio da equipe em `CF_ACCESS_TEAM_DOMAIN`.
+
+Os mesmos endereços completos da política devem constar em `ADMIN_EMAILS`, separados por vírgula. Cada proprietário ou funcionário deve usar seu próprio e-mail; mantenha também um e-mail da Menuelo somente quando o suporte administrativo for necessário.
 
 O Worker valida novamente assinatura, issuer, audience, expiração e e-mail usando `jose` e o endpoint JWKS rotativo do Access. Isso é intencional e não substitui a política do Access.
 
 Referências oficiais:
 
-- <https://developers.cloudflare.com/cloudflare-one/integrations/identity-providers/>
+- <https://developers.cloudflare.com/cloudflare-one/integrations/identity-providers/one-time-pin/>
+- <https://developers.cloudflare.com/cloudflare-one/access-controls/policies/common-policies/>
+- <https://developers.cloudflare.com/cloudflare-one/access-controls/policies/app-paths/>
+- <https://developers.cloudflare.com/cloudflare-one/access-controls/access-settings/session-management/>
 - <https://developers.cloudflare.com/cloudflare-one/access-controls/applications/http-apps/self-hosted-public-app/>
 - <https://developers.cloudflare.com/cloudflare-one/access-controls/applications/http-apps/authorization-cookie/validating-json/>
 
@@ -109,7 +113,7 @@ Quando o domínio estiver registrado:
 1. Abra **Workers & Pages > pipo-cardapio-digital > Settings > Domains & Routes**.
 2. Adicione o domínio personalizado desejado.
 3. Atualize `PUBLIC_SITE_URL` em `wrangler.jsonc` e a **URL pública** no painel.
-4. Atualize o hostname da aplicação Access, preservando `/admin/*`.
+4. Atualize o hostname da aplicação Access, preservando os dois caminhos `/admin` e `/admin/*`.
 5. Faça novo deploy manual caso `wrangler.jsonc` tenha mudado.
 
 Não é necessário tornar o bucket R2 público: todas as imagens são servidas por `/media/:key`.
@@ -124,7 +128,6 @@ A troca exige as duas camadas:
 
 1. altere a regra **Emails** da política Access;
 2. altere `ADMIN_EMAILS` em `wrangler.jsonc` (vários e-mails podem ser separados por vírgula);
-3. confirme que o novo usuário é membro da conta quando o Cloudflare IdP estiver restrito a membros;
-4. execute `npm run deploy` manualmente.
+3. execute `npm run deploy` manualmente.
 
 Remover o e-mail em apenas uma camada continuará bloqueando o usuário, como esperado.

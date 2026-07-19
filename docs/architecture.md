@@ -8,7 +8,7 @@ O cardápio filtra nome e ingredientes no cliente, pois o volume é pequeno. Tan
 
 ## Segurança administrativa
 
-Em produção, Cloudflare Access protege `/admin/*`. A API aplica uma segunda camada: verifica `Cf-Access-Jwt-Assertion` com as chaves JWKS rotativas do domínio da equipe, issuer, audience, expiração e e-mail. O e-mail também precisa constar em `ADMIN_EMAILS`.
+Em produção, Cloudflare Access protege os caminhos `/admin` e `/admin/*`. Usuários autorizados entram com um código temporário enviado ao e-mail e não precisam possuir conta Cloudflare. A API aplica uma segunda camada: verifica `Cf-Access-Jwt-Assertion` com as chaves JWKS rotativas do domínio da equipe, issuer, audience, expiração e e-mail. O e-mail também precisa constar em `ADMIN_EMAILS`.
 
 O bypass local requer simultaneamente `DEV_ADMIN_BYPASS=true` e hostname loopback/local. Configurá-lo por engano em um domínio real não libera a API.
 

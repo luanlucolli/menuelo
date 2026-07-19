@@ -9,7 +9,7 @@ Cardápio público e painel administrativo da **Pipo Lanches & Porções**. O pr
 - TypeScript estrito, Zod compartilhado e Tailwind CSS com tokens neutros;
 - Hono em Cloudflare Workers com Static Assets;
 - Cloudflare D1 para dados e R2 para imagens;
-- Cloudflare Access para `/admin/*`, com validação JWT adicional no Worker;
+- Cloudflare Access com código por e-mail para `/admin` e `/admin/*`, com validação JWT adicional no Worker;
 - Vitest, sem Playwright.
 
 ## Executar localmente
