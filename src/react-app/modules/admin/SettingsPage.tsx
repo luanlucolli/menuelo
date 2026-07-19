@@ -1,9 +1,10 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Clock3, CreditCard, ImageIcon, MapPin, Pencil, Plus, Settings2, Store, Trash2 } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type CSSProperties } from 'react'
 import { Controller, useForm, useWatch } from 'react-hook-form'
 import {
+  DEFAULT_PRIMARY_COLOR,
   deliveryZoneInputSchema,
   hourInputSchema,
   paymentMethodInputSchema,
@@ -17,7 +18,7 @@ import {
   type PaymentMethodInput,
   type SettingsInput,
 } from '../../../../shared/schemas'
-import { formatMoney } from '../../../../shared/utils'
+import { formatMoney, readableBrandText } from '../../../../shared/utils'
 import { api, jsonBody, messageFromError, uploadBlob } from '../../lib/api'
 import { prepareImage } from '../../lib/image'
 import { AdminNotice, type Notice } from './AdminNotice'
@@ -30,6 +31,7 @@ import { useAdminMenu } from './hooks'
 const WEEKDAYS = ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado']
 const nullable = { setValueAs: (value: unknown) => typeof value === 'string' ? value.trim() || null : null }
 type SettingsSection = 'business' | 'contact' | 'hours' | 'service' | 'appearance' | 'advanced'
+type ColorPreviewStyle = CSSProperties & { '--preview-brand': string; '--preview-brand-text': string }
 
 const sections: { id: SettingsSection; label: string; icon: typeof Store }[] = [
   { id: 'business', label: 'Lanchonete', icon: Store },
@@ -124,6 +126,7 @@ export function SettingsPage() {
   const [imageProgress, setImageProgress] = useState<number | null>(null)
   const [confirmCoverRemoval, setConfirmCoverRemoval] = useState(false)
   const form = useForm<SettingsInput>({ resolver: zodResolver(settingsInputSchema) })
+  const primaryColor = useWatch({ control: form.control, name: 'primaryColor' }) || DEFAULT_PRIMARY_COLOR
   useEffect(() => { if (data && !form.formState.isDirty) form.reset(settingsFromBusiness(data.business)) }, [data, form])
   useEffect(() => { const warn = (event: BeforeUnloadEvent) => { if (!form.formState.isDirty) return; event.preventDefault() }; window.addEventListener('beforeunload', warn); return () => window.removeEventListener('beforeunload', warn) }, [form.formState.isDirty])
   const refresh = async () => { await queryClient.invalidateQueries({ queryKey: ['admin'] }); await queryClient.invalidateQueries({ queryKey: ['menu'] }) }
@@ -138,19 +141,23 @@ export function SettingsPage() {
   if (isLoading) return <AdminState message="Carregando configurações…" />
   if (error || !data) return <AdminState error message={messageFromError(error)} onRetry={() => void refetch()} retrying={isFetching} />
   const business = data.business
-  const formSection = activeSection === 'business' || activeSection === 'contact' || activeSection === 'advanced'
+  const formSection = activeSection === 'business' || activeSection === 'contact' || activeSection === 'appearance' || activeSection === 'advanced'
   return <div className="admin-page settings-page"><div className="admin-heading"><div><p>Estabelecimento</p><h1>Configurações</h1><span>Escolha uma seção e altere somente o que precisa.</span></div></div>
     <nav className="settings-nav" aria-label="Seções das configurações">{sections.map(({ id, label, icon: Icon }) => <button className={activeSection === id ? 'active' : ''} type="button" key={id} onClick={() => { setActiveSection(id); setFeedback(null) }}><Icon />{label}</button>)}</nav>
     {feedback && <AdminNotice notice={feedback} action={feedback.kind === 'success' ? <a className="feedback-action" href={`/?refresh=${encodeURIComponent(business.updatedAt)}`} target="_blank" rel="noreferrer">Ver no cardápio</a> : undefined} />}
     {formSection && <form className="settings-main-form" noValidate onSubmit={form.handleSubmit((input) => save.mutate(input), () => setFeedback({ kind: 'error', message: 'Corrija os campos destacados antes de salvar.' }))}>
       {activeSection === 'business' && <section className="admin-card settings-section"><div className="card-heading"><div><h2>Dados da lanchonete</h2><p>Estas informações aparecem no topo e nas mensagens do cardápio.</p></div></div><div className="settings-grid"><label>Nome da lanchonete<input {...form.register('name')} aria-invalid={Boolean(form.formState.errors.name)} />{form.formState.errors.name && <small className="field-error">Informe o nome da lanchonete.</small>}</label><label>Slogan <small>(opcional)</small><input {...form.register('slogan', nullable)} /></label><label className="wide">Descrição <small>(opcional)</small><textarea rows={3} {...form.register('description', nullable)} /></label><label className="wide">Mensagem especial <small>(opcional)</small><textarea rows={2} {...form.register('specialMessage', nullable)} placeholder="Ex.: Hoje atendemos até 23h" /></label></div></section>}
       {activeSection === 'contact' && <><section className="admin-card settings-section"><div className="card-heading"><div><h2>Contato</h2><p>Campos vazios não aparecem para os clientes.</p></div></div><div className="settings-grid"><label>WhatsApp<input inputMode="tel" {...form.register('whatsapp', nullable)} placeholder="Ex.: (11) 99999-9999" /></label><label>Telefone <small>(opcional)</small><input inputMode="tel" {...form.register('phone', nullable)} /></label><label>Link do Instagram <small>(opcional)</small><input type="url" {...form.register('instagramUrl', nullable)} placeholder="https://instagram.com/..." />{form.formState.errors.instagramUrl && <small className="field-error">Informe um link completo, começando com https://.</small>}</label><label>Link do Facebook <small>(opcional)</small><input type="url" {...form.register('facebookUrl', nullable)} />{form.formState.errors.facebookUrl && <small className="field-error">Informe um link completo.</small>}</label></div></section><AddressFields form={form} /></>}
+      {activeSection === 'appearance' && <div className="settings-subsections"><section className="admin-card settings-section"><div className="card-heading"><div><h2>Cor principal do cardápio</h2><p>Usada nos destaques, botões e detalhes vistos pelos clientes.</p></div></div><Controller control={form.control} name="primaryColor" render={({ field }) => {
+        const validColor = /^#[0-9a-fA-F]{6}$/.test(field.value) ? field.value : DEFAULT_PRIMARY_COLOR
+        const previewStyle: ColorPreviewStyle = { '--preview-brand': validColor, '--preview-brand-text': readableBrandText(validColor) }
+        return <div className="color-editor"><div className="color-fields"><label className="color-picker-field">Escolher cor<input type="color" value={validColor} onChange={(event) => field.onChange(event.target.value.toUpperCase())} aria-label="Escolher a cor principal" /></label><label>Código da cor<input ref={field.ref} name={field.name} value={field.value} onChange={(event) => field.onChange(event.target.value.toUpperCase())} onBlur={field.onBlur} inputMode="text" maxLength={7} placeholder={DEFAULT_PRIMARY_COLOR} aria-invalid={Boolean(form.formState.errors.primaryColor)} />{form.formState.errors.primaryColor && <small className="field-error">{form.formState.errors.primaryColor.message}</small>}</label></div><div className="color-preview" style={previewStyle} aria-label="Prévia da cor no cardápio"><span>Prévia no cardápio</span><strong>{business.name}</strong><span className="preview-button">Ver detalhes</span></div><button className="secondary-button reset-color" type="button" disabled={primaryColor === DEFAULT_PRIMARY_COLOR} onClick={() => form.setValue('primaryColor', DEFAULT_PRIMARY_COLOR, { shouldDirty: true, shouldValidate: true })}>Voltar ao laranja padrão</button></div>
+      }} /></section><section className="admin-card settings-section"><div className="card-heading"><div><h2>Capa do cardápio</h2><p>Imagem opcional exibida no topo do cardápio.</p></div></div><div className="cover-admin">{business.coverImageKey ? <img src={`/media/${business.coverImageKey}`} alt="Capa atual" /> : <div><ImageIcon /><span>Nenhuma capa configurada</span></div>}<div className="inline-actions"><label className="secondary-button file-button">{imageBusy ? imageProgress === null ? 'Preparando capa…' : `Enviando… ${imageProgress}%` : business.coverImageKey ? 'Substituir capa' : 'Enviar capa'}<input type="file" accept="image/jpeg,image/png,image/webp" disabled={imageBusy} onChange={(event) => { const file = event.target.files?.[0]; if (file) void uploadCover(file); event.currentTarget.value = '' }} /></label>{business.coverImageKey && <button type="button" className="text-danger" onClick={() => setConfirmCoverRemoval(true)}>Remover capa</button>}</div>{imageProgress !== null && <div className="upload-progress" role="status"><progress max="100" value={imageProgress} /><span>Enviando capa: {imageProgress}%</span></div>}</div></section></div>}
       {activeSection === 'advanced' && <section className="admin-card settings-section"><div className="card-heading"><div><h2>Opções avançadas</h2><p>Normalmente estes campos não precisam ser alterados.</p></div></div><div className="warning-box"><Settings2 /><div><strong>Altere somente se souber o impacto</strong><p>O endereço curto e o link público podem afetar QR Code e mecanismos de busca.</p></div></div><div className="settings-grid"><label>Endereço curto do link<input {...form.register('slug')} aria-invalid={Boolean(form.formState.errors.slug)} />{form.formState.errors.slug && <small className="field-error">Use apenas letras minúsculas, números e hífens.</small>}</label><label>Fuso horário<input {...form.register('timezone')} aria-invalid={Boolean(form.formState.errors.timezone)} />{form.formState.errors.timezone && <small className="field-error">Informe um fuso válido.</small>}</label><label className="wide">Link público do cardápio<input type="url" {...form.register('publicSiteUrl', nullable)} placeholder="https://..." />{form.formState.errors.publicSiteUrl && <small className="field-error">Informe um link completo.</small>}</label><label className="wide">Título para o Google <small>(opcional)</small><input {...form.register('seoTitle', nullable)} /></label><label className="wide">Descrição para o Google <small>(opcional)</small><textarea rows={3} {...form.register('seoDescription', nullable)} /></label></div></section>}
       <div className="settings-save"><button className="primary-button" type="submit" disabled={save.isPending || !form.formState.isDirty}>{save.isPending ? 'Salvando…' : form.formState.isDirty ? 'Salvar alterações' : 'Tudo salvo'}</button></div>
     </form>}
     {activeSection === 'hours' && <HoursEditor hours={data.hours} refresh={refresh} />}
     {activeSection === 'service' && <div className="settings-subsections"><PaymentsEditor methods={data.paymentMethods} refresh={refresh} /><ZonesEditor zones={data.deliveryZones} refresh={refresh} /></div>}
-    {activeSection === 'appearance' && <section className="admin-card settings-section"><div className="card-heading"><div><h2>Capa do cardápio</h2><p>Imagem opcional exibida no topo do cardápio.</p></div></div><div className="cover-admin">{business.coverImageKey ? <img src={`/media/${business.coverImageKey}`} alt="Capa atual" /> : <div><ImageIcon /><span>Nenhuma capa configurada</span></div>}<div className="inline-actions"><label className="secondary-button file-button">{imageBusy ? imageProgress === null ? 'Preparando capa…' : `Enviando… ${imageProgress}%` : business.coverImageKey ? 'Substituir capa' : 'Enviar capa'}<input type="file" accept="image/jpeg,image/png,image/webp" disabled={imageBusy} onChange={(event) => { const file = event.target.files?.[0]; if (file) void uploadCover(file); event.currentTarget.value = '' }} /></label>{business.coverImageKey && <button type="button" className="text-danger" onClick={() => setConfirmCoverRemoval(true)}>Remover capa</button>}</div>{imageProgress !== null && <div className="upload-progress" role="status"><progress max="100" value={imageProgress} /><span>Enviando capa: {imageProgress}%</span></div>}</div></section>}
     {confirmCoverRemoval && <ConfirmDialog title="Remover a capa atual?" description="O cardápio voltará a usar o fundo padrão. Você poderá enviar outra imagem depois." confirmLabel="Remover capa" onClose={() => setConfirmCoverRemoval(false)} onConfirm={() => void removeCover()} />}
   </div>
 }

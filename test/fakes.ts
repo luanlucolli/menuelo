@@ -84,6 +84,7 @@ export const settingsRow = {
   maps_url: null,
   timezone: 'America/Sao_Paulo',
   special_message: 'Fechado às segundas-feiras.',
+  primary_color: '#FB5D01',
   cover_image_key: null,
   public_site_url: null,
   seo_title: null,

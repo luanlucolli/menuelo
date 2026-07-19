@@ -1,5 +1,7 @@
 import { z } from 'zod'
 
+export const DEFAULT_PRIMARY_COLOR = '#FB5D01'
+
 const nullableText = (max: number) => z.string().trim().max(max).nullable()
 const idSchema = z.string().trim().min(1).max(100)
 const moneySchema = z.number().int().nonnegative().max(10_000_000)
@@ -11,6 +13,9 @@ const optionalPostalCodeSchema = z.string().trim().regex(/^\d{5}-?\d{3}$/, 'Info
   .nullable()
 const optionalStateSchema = z.string().trim().toUpperCase().regex(/^[A-Z]{2}$/, 'Selecione o estado.')
   .nullable()
+const primaryColorSchema = z.string().trim()
+  .regex(/^#[0-9a-fA-F]{6}$/, 'Informe uma cor válida no formato #FB5D01.')
+  .transform((value) => value.toUpperCase())
 
 export const variantInputSchema = z.object({
   label: nullableText(40),
@@ -69,6 +74,7 @@ export const settingsInputSchema = z.object({
   mapsUrl: optionalUrlSchema,
   timezone: z.string().trim().min(1).max(80),
   specialMessage: nullableText(300),
+  primaryColor: primaryColorSchema,
   publicSiteUrl: optionalUrlSchema,
   seoTitle: nullableText(120),
   seoDescription: nullableText(300),
@@ -146,6 +152,7 @@ export const menuImportSchema = z.preprocess((value) => {
   return {
     ...value,
     business: {
+      primaryColor: DEFAULT_PRIMARY_COLOR,
       addressPostalCode: null,
       addressStreet: null,
       addressNumber: null,

@@ -30,6 +30,7 @@ interface SettingsRow {
   maps_url: string | null
   timezone: string
   special_message: string | null
+  primary_color: string
   cover_image_key: string | null
   public_site_url: string | null
   seo_title: string | null
@@ -67,6 +68,7 @@ function mapSettings(row: SettingsRow): BusinessSettings {
     mapsUrl: row.maps_url,
     timezone: row.timezone,
     specialMessage: row.special_message,
+    primaryColor: row.primary_color,
     coverImageKey: row.cover_image_key,
     publicSiteUrl: row.public_site_url,
     seoTitle: row.seo_title,

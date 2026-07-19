@@ -19,6 +19,7 @@ export function Seo({ menu }: { menu: MenuResponse }) {
     const description = business.seoDescription || business.description || `Consulte o cardápio digital da ${business.name}.`
     const canonical = new URL('/', business.publicSiteUrl || window.location.origin).toString()
     document.title = title
+    setMeta('meta[name="theme-color"]', 'name', 'theme-color', business.primaryColor)
     setMeta('meta[name="description"]', 'name', 'description', description)
     setMeta('meta[property="og:type"]', 'property', 'og:type', 'restaurant')
     setMeta('meta[property="og:title"]', 'property', 'og:title', title)

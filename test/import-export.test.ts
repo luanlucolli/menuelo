@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { menuImportSchema, type MenuImport } from '../shared/schemas'
+import { DEFAULT_PRIMARY_COLOR, menuImportSchema, type MenuImport } from '../shared/schemas'
 import { applyImport, serializeExport } from '../worker/services/import-export'
 import { FakeDatabase, fakeBucket, settingsRow } from './fakes'
 
@@ -26,6 +26,7 @@ const validImport: MenuImport = {
     mapsUrl: null,
     timezone: 'America/Sao_Paulo',
     specialMessage: 'Fechado às segundas-feiras.',
+    primaryColor: '#FB5D01',
     publicSiteUrl: null,
     seoTitle: null,
     seoDescription: null,
@@ -81,9 +82,12 @@ describe('exportação e importação', () => {
 
   it('continua aceitando cópias antigas sem os campos estruturados', () => {
     const legacy = JSON.parse(JSON.stringify(validImport)) as { business: Record<string, unknown> }
-    for (const field of ['addressPostalCode', 'addressStreet', 'addressNumber', 'addressComplement', 'addressNeighborhood', 'addressCity', 'addressState']) delete legacy.business[field]
+    for (const field of ['primaryColor', 'addressPostalCode', 'addressStreet', 'addressNumber', 'addressComplement', 'addressNeighborhood', 'addressCity', 'addressState']) delete legacy.business[field]
     const result = menuImportSchema.safeParse(legacy)
     expect(result.success).toBe(true)
-    if (result.success) expect(result.data.business.addressPostalCode).toBeNull()
+    if (result.success) {
+      expect(result.data.business.addressPostalCode).toBeNull()
+      expect(result.data.business.primaryColor).toBe(DEFAULT_PRIMARY_COLOR)
+    }
   })
 })

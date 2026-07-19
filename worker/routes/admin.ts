@@ -291,10 +291,10 @@ adminRoutes.get('/address/cep/:postalCode', async (c) => {
 adminRoutes.patch('/settings', async (c) => {
   const input = await parseJson(c.req.raw, settingsInputSchema)
   const address = formatStructuredAddress(input) ?? input.address
-  await c.env.DB.prepare(`UPDATE business_settings SET name=?, slug=?, slogan=?, description=?, whatsapp=?, phone=?, instagram_url=?, facebook_url=?, address=?, address_postal_code=?, address_street=?, address_number=?, address_complement=?, address_neighborhood=?, address_city=?, address_state=?, maps_url=?, timezone=?, special_message=?, public_site_url=?, seo_title=?, seo_description=?, updated_at=strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE id=1`).bind(
+  await c.env.DB.prepare(`UPDATE business_settings SET name=?, slug=?, slogan=?, description=?, whatsapp=?, phone=?, instagram_url=?, facebook_url=?, address=?, address_postal_code=?, address_street=?, address_number=?, address_complement=?, address_neighborhood=?, address_city=?, address_state=?, maps_url=?, timezone=?, special_message=?, primary_color=?, public_site_url=?, seo_title=?, seo_description=?, updated_at=strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE id=1`).bind(
     input.name, input.slug, input.slogan, input.description, input.whatsapp, input.phone, input.instagramUrl, input.facebookUrl,
     address, input.addressPostalCode, input.addressStreet, input.addressNumber, input.addressComplement, input.addressNeighborhood, input.addressCity, input.addressState,
-    input.mapsUrl, input.timezone, input.specialMessage, input.publicSiteUrl, input.seoTitle, input.seoDescription,
+    input.mapsUrl, input.timezone, input.specialMessage, input.primaryColor, input.publicSiteUrl, input.seoTitle, input.seoDescription,
   ).run()
   return c.json((await getMenu(c.env.DB, true)).business)
 })

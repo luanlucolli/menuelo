@@ -12,6 +12,14 @@ export function slugify(value: string): string {
   return normalizeSearch(value).replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || 'item'
 }
 
+export function readableBrandText(color: string): '#211F1B' | '#FFFFFF' {
+  if (!/^#[0-9a-fA-F]{6}$/.test(color)) return '#FFFFFF'
+  const red = Number.parseInt(color.slice(1, 3), 16)
+  const green = Number.parseInt(color.slice(3, 5), 16)
+  const blue = Number.parseInt(color.slice(5, 7), 16)
+  return (red * 299 + green * 587 + blue * 114) / 1000 >= 170 ? '#211F1B' : '#FFFFFF'
+}
+
 export interface StructuredAddressFields {
   addressPostalCode?: string | null
   addressStreet?: string | null

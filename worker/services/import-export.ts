@@ -26,6 +26,7 @@ function withoutMetadata(menu: Awaited<ReturnType<typeof getMenu>>): MenuImport 
       mapsUrl: menu.business.mapsUrl,
       timezone: menu.business.timezone,
       specialMessage: menu.business.specialMessage,
+      primaryColor: menu.business.primaryColor,
       publicSiteUrl: menu.business.publicSiteUrl,
       seoTitle: menu.business.seoTitle,
       seoDescription: menu.business.seoDescription,
@@ -111,7 +112,7 @@ export async function applyImport(db: D1Database, bucket: R2Bucket, data: MenuIm
   const summary = await summarizeImport(db, bucket, data)
   const missing = new Set(summary.missingImageKeys)
   const statements: D1PreparedStatement[] = [
-    db.prepare(`UPDATE business_settings SET name=?, slug=?, slogan=?, description=?, whatsapp=?, phone=?, instagram_url=?, facebook_url=?, address=?, address_postal_code=?, address_street=?, address_number=?, address_complement=?, address_neighborhood=?, address_city=?, address_state=?, maps_url=?, timezone=?, special_message=?, cover_image_key=?, public_site_url=?, seo_title=?, seo_description=?, updated_at=strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE id=1`).bind(
+    db.prepare(`UPDATE business_settings SET name=?, slug=?, slogan=?, description=?, whatsapp=?, phone=?, instagram_url=?, facebook_url=?, address=?, address_postal_code=?, address_street=?, address_number=?, address_complement=?, address_neighborhood=?, address_city=?, address_state=?, maps_url=?, timezone=?, special_message=?, primary_color=?, cover_image_key=?, public_site_url=?, seo_title=?, seo_description=?, updated_at=strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE id=1`).bind(
       data.business.name,
       data.business.slug,
       data.business.slogan,
@@ -131,6 +132,7 @@ export async function applyImport(db: D1Database, bucket: R2Bucket, data: MenuIm
       data.business.mapsUrl,
       data.business.timezone,
       data.business.specialMessage,
+      data.business.primaryColor,
       data.business.coverImageKey && !missing.has(data.business.coverImageKey) ? data.business.coverImageKey : null,
       data.business.publicSiteUrl,
       data.business.seoTitle,

@@ -1,13 +1,14 @@
 import { useQuery } from '@tanstack/react-query'
 import { AtSign, Clock3, ExternalLink, MapPin, MessageCircle, Phone, Search, UtensilsCrossed, X } from 'lucide-react'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
 import type { MenuResponse, Product } from '../../../../shared/schemas'
-import { buildGoogleMapsDirectionsUrl, calculateOpenStatus, formatMoney, formatStructuredAddress, getZonedClock, normalizeSearch } from '../../../../shared/utils'
+import { buildGoogleMapsDirectionsUrl, calculateOpenStatus, formatMoney, formatStructuredAddress, getZonedClock, normalizeSearch, readableBrandText } from '../../../../shared/utils'
 import { api } from '../../lib/api'
 import { ProductCard, ProductDialog } from './ProductCard'
 import { Seo } from './Seo'
 
 const WEEKDAYS = ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado']
+type PublicThemeStyle = CSSProperties & { '--public-brand-color': string; '--public-brand-text': string }
 
 export function PublicMenu() {
   const refreshToken = new URLSearchParams(window.location.search).get('refresh')
@@ -105,6 +106,10 @@ export function PublicMenu() {
     ? [data.business.addressCity, data.business.addressState].filter(Boolean).join(', ')
     : null
   const showBusinessInfo = Boolean(openStatus || validWhatsapp || data.business.phone || (businessAddress && mapsUrl) || data.business.instagramUrl)
+  const publicTheme: PublicThemeStyle = {
+    '--public-brand-color': data.business.primaryColor,
+    '--public-brand-text': readableBrandText(data.business.primaryColor),
+  }
 
   const scrollTo = (slug: string) => {
     setActiveCategory(slug)
@@ -116,7 +121,7 @@ export function PublicMenu() {
   }
 
   return (
-    <div className="public-shell">
+    <div className="public-shell" style={publicTheme}>
       <Seo menu={data} />
       <header className="cover" style={data.business.coverImageKey ? { backgroundImage: `linear-gradient(180deg, rgba(20,18,15,.12), rgba(20,18,15,.72)), url(/media/${data.business.coverImageKey})` } : undefined}>
         <div className="cover-pattern" aria-hidden="true"><UtensilsCrossed /></div>
