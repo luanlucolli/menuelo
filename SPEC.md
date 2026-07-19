@@ -2416,7 +2416,7 @@ A tarefa só está concluída quando:
 1. `npm install` conclui.
 2. O banco local pode ser migrado e semeado pelos scripts documentados.
 3. `npm run dev` inicia frontend e Worker com D1/R2 locais.
-4. O cardápio público exibe todas as 12 categorias e 122 produtos do seed.
+4. O cardápio público exibe as 4 categorias e os 23 produtos do seed.
 5. Produtos com tamanhos mostram corretamente Média/Grande.
 6. Promoções são suportadas e a seção fica oculta quando vazia.
 7. Indisponíveis permanecem visíveis.

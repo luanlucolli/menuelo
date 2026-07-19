@@ -29,7 +29,7 @@ Em `.dev.vars`, mantenha `DEV_ADMIN_BYPASS=true` apenas para desenvolvimento. O 
 - Cardápio: `http://localhost:5173/`
 - Painel: `http://localhost:5173/admin`
 
-O seed é idempotente e contém 12 categorias, 122 produtos e 136 variações. Segunda-feira começa marcada como fechada; os outros horários e todos os contatos permanecem vazios.
+O seed substitui integralmente o cardápio por 4 categorias, 23 produtos e 23 variações, removendo as referências de imagens dos produtos e da capa. Segunda-feira começa marcada como fechada; os outros horários e todos os contatos permanecem vazios.
 
 ## Scripts
 
