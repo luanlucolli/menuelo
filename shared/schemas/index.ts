@@ -6,6 +6,11 @@ const moneySchema = z.number().int().nonnegative().max(10_000_000)
 const positiveMoneySchema = z.number().int().positive().max(10_000_000)
 const timeSchema = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/, 'Use o formato HH:mm')
 const optionalUrlSchema = z.union([z.literal(''), z.url().max(500)]).nullable().transform((value) => value || null)
+const optionalPostalCodeSchema = z.string().trim().regex(/^\d{5}-?\d{3}$/, 'Informe os 8 números do CEP.')
+  .transform((value) => `${value.replace(/\D/g, '').slice(0, 5)}-${value.replace(/\D/g, '').slice(5)}`)
+  .nullable()
+const optionalStateSchema = z.string().trim().toUpperCase().regex(/^[A-Z]{2}$/, 'Selecione o estado.')
+  .nullable()
 
 export const variantInputSchema = z.object({
   label: nullableText(40),
@@ -54,12 +59,33 @@ export const settingsInputSchema = z.object({
   instagramUrl: optionalUrlSchema,
   facebookUrl: optionalUrlSchema,
   address: nullableText(300),
+  addressPostalCode: optionalPostalCodeSchema,
+  addressStreet: nullableText(150),
+  addressNumber: nullableText(20),
+  addressComplement: nullableText(100),
+  addressNeighborhood: nullableText(100),
+  addressCity: nullableText(100),
+  addressState: optionalStateSchema,
   mapsUrl: optionalUrlSchema,
   timezone: z.string().trim().min(1).max(80),
   specialMessage: nullableText(300),
   publicSiteUrl: optionalUrlSchema,
   seoTitle: nullableText(120),
   seoDescription: nullableText(300),
+}).superRefine((settings, context) => {
+  const requiredAddressFields = [
+    ['addressPostalCode', settings.addressPostalCode, 'Informe o CEP.'],
+    ['addressStreet', settings.addressStreet, 'Informe a rua ou avenida.'],
+    ['addressNumber', settings.addressNumber, 'Informe o número.'],
+    ['addressNeighborhood', settings.addressNeighborhood, 'Informe o bairro.'],
+    ['addressCity', settings.addressCity, 'Informe a cidade.'],
+    ['addressState', settings.addressState, 'Selecione o estado.'],
+  ] as const
+  if (requiredAddressFields.filter(([field]) => field !== 'addressNumber').some(([, value]) => Boolean(value))) {
+    for (const [field, value, message] of requiredAddressFields) {
+      if (!value) context.addIssue({ code: 'custom', path: [field], message })
+    }
+  }
 })
 
 export const hourInputSchema = z.object({
@@ -96,9 +122,9 @@ const coverImageKeySchema = z.string().trim().max(180).regex(/^covers\/[0-9a-f-]
 
 const importProductSchema = productInputSchema.omit({ categoryId: true }).extend({ imageKey: productImageKeySchema })
 const importCategorySchema = categoryInputSchema.extend({ products: z.array(importProductSchema).max(500) })
-const importBusinessSchema = settingsInputSchema.extend({ coverImageKey: coverImageKeySchema })
+const importBusinessSchema = settingsInputSchema.safeExtend({ coverImageKey: coverImageKeySchema })
 
-export const menuImportSchema = z.object({
+const menuImportDataSchema = z.object({
   schemaVersion: z.literal(1),
   exportedAt: z.iso.datetime(),
   business: importBusinessSchema,
@@ -112,6 +138,25 @@ export const menuImportSchema = z.object({
     context.addIssue({ code: 'custom', path: ['categories'], message: 'O arquivo excede o limite de 500 produtos.' })
   }
 })
+
+export const menuImportSchema = z.preprocess((value) => {
+  if (!value || typeof value !== 'object' || !('business' in value)) return value
+  const business = value.business
+  if (!business || typeof business !== 'object') return value
+  return {
+    ...value,
+    business: {
+      addressPostalCode: null,
+      addressStreet: null,
+      addressNumber: null,
+      addressComplement: null,
+      addressNeighborhood: null,
+      addressCity: null,
+      addressState: null,
+      ...business,
+    },
+  }
+}, menuImportDataSchema)
 
 export const importApplySchema = z.object({
   mode: z.literal('replace'),

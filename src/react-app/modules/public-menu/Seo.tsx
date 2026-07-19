@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import type { MenuResponse } from '../../../../shared/schemas'
+import { formatStructuredAddress, hasStructuredAddress } from '../../../../shared/utils'
 
 function setMeta(selector: string, attribute: 'name' | 'property', key: string, content: string) {
   let element = document.head.querySelector<HTMLMetaElement>(selector)
@@ -43,7 +44,17 @@ export function Seo({ menu }: { menu: MenuResponse }) {
     }
     if (business.description) jsonLd.description = business.description
     if (business.phone) jsonLd.telephone = business.phone
-    if (business.address) jsonLd.address = { '@type': 'PostalAddress', streetAddress: business.address }
+    const formattedAddress = formatStructuredAddress(business) ?? business.address
+    if (formattedAddress) {
+      jsonLd.address = hasStructuredAddress(business) ? {
+        '@type': 'PostalAddress',
+        streetAddress: [business.addressStreet, business.addressNumber, business.addressComplement].filter(Boolean).join(', '),
+        addressLocality: business.addressCity,
+        addressRegion: business.addressState,
+        postalCode: business.addressPostalCode,
+        addressCountry: 'BR',
+      } : { '@type': 'PostalAddress', streetAddress: formattedAddress }
+    }
     const sameAs = [business.instagramUrl, business.facebookUrl].filter(Boolean)
     if (sameAs.length) jsonLd.sameAs = sameAs
     if (business.coverImageKey) jsonLd.image = new URL(`/media/${business.coverImageKey}`, canonical).toString()

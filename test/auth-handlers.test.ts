@@ -1,9 +1,12 @@
 import { Hono } from 'hono'
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import worker from '../worker'
 import { requireAdmin, type AppEnvironment } from '../worker/middleware/auth'
 import { mediaRoutes, publicRoutes } from '../worker/routes/public'
 import { ApiError } from '../worker/lib/http'
 import { FakeDatabase, fakeBucket, runtimeEnv, settingsRow } from './fakes'
+
+afterEach(() => vi.unstubAllGlobals())
 
 describe('autenticação administrativa', () => {
   const app = new Hono<AppEnvironment>()
@@ -44,5 +47,30 @@ describe('handlers críticos com bindings simulados', () => {
     const response = await mediaRoutes.request('http://localhost/../../segredo', {}, runtimeEnv({ MENU_IMAGES: bucket }))
     expect(response.status).toBe(400)
     expect(bucket.get).not.toHaveBeenCalled()
+  })
+})
+
+describe('busca administrativa de CEP', () => {
+  it('valida o CEP antes de consultar o serviço externo', async () => {
+    const fetchMock = vi.fn()
+    vi.stubGlobal('fetch', fetchMock)
+    const response = await worker.request('http://localhost/admin/api/address/cep/123', {}, runtimeEnv({ DEV_ADMIN_BYPASS: 'true' }))
+    expect(response.status).toBe(400)
+    expect(fetchMock).not.toHaveBeenCalled()
+  })
+
+  it('normaliza somente os campos necessários da resposta do ViaCEP', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => Response.json({
+      cep: '01001-000',
+      logradouro: 'Praça da Sé',
+      complemento: 'lado ímpar',
+      bairro: 'Sé',
+      localidade: 'São Paulo',
+      uf: 'SP',
+      ibge: '3550308',
+    })))
+    const response = await worker.request('http://localhost/admin/api/address/cep/01001000', {}, runtimeEnv({ DEV_ADMIN_BYPASS: 'true' }))
+    expect(response.status).toBe(200)
+    expect(await response.json()).toEqual({ postalCode: '01001-000', street: 'Praça da Sé', neighborhood: 'Sé', city: 'São Paulo', state: 'SP' })
   })
 })

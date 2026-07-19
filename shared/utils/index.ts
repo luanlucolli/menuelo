@@ -12,6 +12,38 @@ export function slugify(value: string): string {
   return normalizeSearch(value).replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || 'item'
 }
 
+export interface StructuredAddressFields {
+  addressPostalCode?: string | null
+  addressStreet?: string | null
+  addressNumber?: string | null
+  addressComplement?: string | null
+  addressNeighborhood?: string | null
+  addressCity?: string | null
+  addressState?: string | null
+}
+
+export function hasStructuredAddress(fields: StructuredAddressFields): boolean {
+  return Boolean(fields.addressPostalCode || fields.addressStreet || fields.addressNeighborhood || fields.addressCity || fields.addressState)
+}
+
+export function formatStructuredAddress(fields: StructuredAddressFields): string | null {
+  if (!hasStructuredAddress(fields)) return null
+  const street = [fields.addressStreet, fields.addressNumber].filter(Boolean).join(', ')
+  const streetWithComplement = fields.addressComplement ? `${street} — ${fields.addressComplement}` : street
+  const cityAndState = [fields.addressCity, fields.addressState].filter(Boolean).join(' - ')
+  const locality = [fields.addressNeighborhood, cityAndState].filter(Boolean).join(', ')
+  const postalCode = fields.addressPostalCode ? `CEP ${fields.addressPostalCode}` : ''
+  return [streetWithComplement, locality, postalCode].filter(Boolean).join(' · ') || null
+}
+
+export function buildGoogleMapsDirectionsUrl(address: string | null): string | null {
+  if (!address) return null
+  const url = new URL('https://www.google.com/maps/dir/')
+  url.searchParams.set('api', '1')
+  url.searchParams.set('destination', address)
+  return url.toString()
+}
+
 export function parseTime(value: string): number {
   const [hours, minutes] = value.split(':').map(Number)
   return hours * 60 + minutes

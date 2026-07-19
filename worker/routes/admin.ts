@@ -1,4 +1,5 @@
 import { Hono } from 'hono'
+import { z } from 'zod'
 import {
   categoryInputSchema,
   deliveryZoneInputSchema,
@@ -11,7 +12,7 @@ import {
   settingsInputSchema,
   type ProductInput,
 } from '../../shared/schemas'
-import { slugify } from '../../shared/utils'
+import { formatStructuredAddress, slugify } from '../../shared/utils'
 import { ApiError, parseJson, readBytesLimited, requireId } from '../lib/http'
 import { requireAdmin, type AppEnvironment } from '../middleware/auth'
 import { getMenu, getProduct } from '../repositories/menu'
@@ -242,10 +243,58 @@ adminRoutes.delete('/products/:id/image', async (c) => {
 
 adminRoutes.get('/settings', async (c) => c.json((await getMenu(c.env.DB, true)).business))
 
+const postalCodeParamSchema = z.string().regex(/^\d{8}$/)
+const viaCepFoundSchema = z.object({
+  cep: z.string().trim().regex(/^\d{5}-\d{3}$/),
+  logradouro: z.string().trim().max(150),
+  bairro: z.string().trim().max(100),
+  localidade: z.string().trim().min(1).max(100),
+  uf: z.string().trim().regex(/^[A-Z]{2}$/),
+})
+const viaCepNotFoundSchema = z.object({ erro: z.literal(true) })
+
+adminRoutes.get('/address/cep/:postalCode', async (c) => {
+  const parsedPostalCode = postalCodeParamSchema.safeParse(c.req.param('postalCode'))
+  if (!parsedPostalCode.success) throw new ApiError(400, 'INVALID_POSTAL_CODE', 'Digite os 8 números do CEP.')
+
+  let response: Response
+  try {
+    response = await fetch(`https://viacep.com.br/ws/${parsedPostalCode.data}/json/`, {
+      headers: { Accept: 'application/json' },
+      signal: AbortSignal.timeout(5_000),
+    })
+  } catch (error) {
+    console.error(JSON.stringify({ message: 'ViaCEP request failed', error: error instanceof Error ? error.message : String(error) }))
+    throw new ApiError(503, 'POSTAL_CODE_SERVICE_UNAVAILABLE', 'Não foi possível buscar o CEP agora. Preencha o endereço manualmente.')
+  }
+  if (!response.ok) throw new ApiError(502, 'POSTAL_CODE_SERVICE_ERROR', 'O serviço de CEP não respondeu corretamente. Preencha o endereço manualmente.')
+
+  let payload: unknown
+  try {
+    payload = await response.json()
+  } catch {
+    throw new ApiError(502, 'INVALID_POSTAL_CODE_RESPONSE', 'O serviço de CEP enviou uma resposta inválida. Preencha o endereço manualmente.')
+  }
+  if (viaCepNotFoundSchema.safeParse(payload).success) throw new ApiError(404, 'POSTAL_CODE_NOT_FOUND', 'CEP não encontrado. Confira os números ou preencha o endereço manualmente.')
+  const address = viaCepFoundSchema.safeParse(payload)
+  if (!address.success) throw new ApiError(502, 'INVALID_POSTAL_CODE_RESPONSE', 'O serviço de CEP enviou uma resposta inválida. Preencha o endereço manualmente.')
+
+  return c.json({
+    postalCode: address.data.cep,
+    street: address.data.logradouro,
+    neighborhood: address.data.bairro,
+    city: address.data.localidade,
+    state: address.data.uf,
+  })
+})
+
 adminRoutes.patch('/settings', async (c) => {
   const input = await parseJson(c.req.raw, settingsInputSchema)
-  await c.env.DB.prepare(`UPDATE business_settings SET name=?, slug=?, slogan=?, description=?, whatsapp=?, phone=?, instagram_url=?, facebook_url=?, address=?, maps_url=?, timezone=?, special_message=?, public_site_url=?, seo_title=?, seo_description=?, updated_at=strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE id=1`).bind(
-    input.name, input.slug, input.slogan, input.description, input.whatsapp, input.phone, input.instagramUrl, input.facebookUrl, input.address, input.mapsUrl, input.timezone, input.specialMessage, input.publicSiteUrl, input.seoTitle, input.seoDescription,
+  const address = formatStructuredAddress(input) ?? input.address
+  await c.env.DB.prepare(`UPDATE business_settings SET name=?, slug=?, slogan=?, description=?, whatsapp=?, phone=?, instagram_url=?, facebook_url=?, address=?, address_postal_code=?, address_street=?, address_number=?, address_complement=?, address_neighborhood=?, address_city=?, address_state=?, maps_url=?, timezone=?, special_message=?, public_site_url=?, seo_title=?, seo_description=?, updated_at=strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE id=1`).bind(
+    input.name, input.slug, input.slogan, input.description, input.whatsapp, input.phone, input.instagramUrl, input.facebookUrl,
+    address, input.addressPostalCode, input.addressStreet, input.addressNumber, input.addressComplement, input.addressNeighborhood, input.addressCity, input.addressState,
+    input.mapsUrl, input.timezone, input.specialMessage, input.publicSiteUrl, input.seoTitle, input.seoDescription,
   ).run()
   return c.json((await getMenu(c.env.DB, true)).business)
 })

@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { AtSign, Clock3, ExternalLink, MapPin, MessageCircle, Phone, Search, UtensilsCrossed, X } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { MenuResponse, Product } from '../../../../shared/schemas'
-import { calculateOpenStatus, formatMoney, getZonedClock, normalizeSearch } from '../../../../shared/utils'
+import { buildGoogleMapsDirectionsUrl, calculateOpenStatus, formatMoney, formatStructuredAddress, getZonedClock, normalizeSearch } from '../../../../shared/utils'
 import { api } from '../../lib/api'
 import { ProductCard, ProductDialog } from './ProductCard'
 import { Seo } from './Seo'
@@ -98,6 +98,8 @@ export function PublicMenu() {
   const openStatus = calculateOpenStatus(data.hours, clock.weekday, clock.minutes)
   const whatsappDigits = (data.business.whatsapp ?? '').replace(/\D/g, '')
   const validWhatsapp = /^\d{10,15}$/.test(whatsappDigits)
+  const businessAddress = formatStructuredAddress(data.business) ?? data.business.address
+  const mapsUrl = data.business.mapsUrl ?? buildGoogleMapsDirectionsUrl(businessAddress)
 
   const scrollTo = (slug: string) => {
     setActiveCategory(slug)
@@ -152,7 +154,7 @@ export function PublicMenu() {
 
       <footer className="public-footer">
         <div className="footer-grid">
-          {data.business.address && <section><h2><MapPin /> Localização</h2><p>{data.business.address}</p>{data.business.mapsUrl && <a href={data.business.mapsUrl} target="_blank" rel="noreferrer">Abrir no Google Maps <ExternalLink /></a>}</section>}
+          {businessAddress && <section><h2><MapPin /> Localização</h2><p>{businessAddress}</p>{mapsUrl && <a href={mapsUrl} target="_blank" rel="noreferrer">Como chegar <ExternalLink /></a>}</section>}
           {data.hours.length > 0 && <section><h2><Clock3 /> Horários</h2><ul>{[...data.hours].sort((a, b) => a.weekday - b.weekday || a.sortOrder - b.sortOrder).map((hour) => <li key={hour.id}><span>{WEEKDAYS[hour.weekday]}</span><strong>{hour.isClosed ? 'Fechado' : `${hour.opensAt}–${hour.closesAt}`}</strong></li>)}</ul></section>}
           {data.paymentMethods.length > 0 && <section><h2>Formas de pagamento</h2><p>{data.paymentMethods.map((method) => method.name).join(' · ')}</p></section>}
           {data.deliveryZones.length > 0 && <section><h2>Regiões e taxas</h2><ul>{data.deliveryZones.map((zone) => <li key={zone.id}><span>{zone.name}{zone.notes ? ` — ${zone.notes}` : ''}</span><strong>{zone.feeCents === null ? 'Consulte' : formatMoney(zone.feeCents)}</strong></li>)}</ul></section>}

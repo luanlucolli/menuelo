@@ -16,6 +16,13 @@ const validImport: MenuImport = {
     instagramUrl: null,
     facebookUrl: null,
     address: null,
+    addressPostalCode: null,
+    addressStreet: null,
+    addressNumber: null,
+    addressComplement: null,
+    addressNeighborhood: null,
+    addressCity: null,
+    addressState: null,
     mapsUrl: null,
     timezone: 'America/Sao_Paulo',
     specialMessage: 'Fechado às segundas-feiras.',
@@ -70,5 +77,13 @@ describe('exportação e importação', () => {
   it('rejeita schemaVersion inválido antes da aplicação', () => {
     const invalid = { ...validImport, schemaVersion: 99 }
     expect(menuImportSchema.safeParse(invalid).success).toBe(false)
+  })
+
+  it('continua aceitando cópias antigas sem os campos estruturados', () => {
+    const legacy = JSON.parse(JSON.stringify(validImport)) as { business: Record<string, unknown> }
+    for (const field of ['addressPostalCode', 'addressStreet', 'addressNumber', 'addressComplement', 'addressNeighborhood', 'addressCity', 'addressState']) delete legacy.business[field]
+    const result = menuImportSchema.safeParse(legacy)
+    expect(result.success).toBe(true)
+    if (result.success) expect(result.data.business.addressPostalCode).toBeNull()
   })
 })

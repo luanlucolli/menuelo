@@ -20,6 +20,13 @@ interface SettingsRow {
   instagram_url: string | null
   facebook_url: string | null
   address: string | null
+  address_postal_code: string | null
+  address_street: string | null
+  address_number: string | null
+  address_complement: string | null
+  address_neighborhood: string | null
+  address_city: string | null
+  address_state: string | null
   maps_url: string | null
   timezone: string
   special_message: string | null
@@ -50,6 +57,13 @@ function mapSettings(row: SettingsRow): BusinessSettings {
     instagramUrl: row.instagram_url,
     facebookUrl: row.facebook_url,
     address: row.address,
+    addressPostalCode: row.address_postal_code,
+    addressStreet: row.address_street,
+    addressNumber: row.address_number,
+    addressComplement: row.address_complement,
+    addressNeighborhood: row.address_neighborhood,
+    addressCity: row.address_city,
+    addressState: row.address_state,
     mapsUrl: row.maps_url,
     timezone: row.timezone,
     specialMessage: row.special_message,

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { menuImportSchema, productInputSchema, variantInputSchema, type BusinessHour } from '../shared/schemas'
-import { calculateOpenStatus, formatMoney, normalizeSearch } from '../shared/utils'
+import { buildGoogleMapsDirectionsUrl, calculateOpenStatus, formatMoney, formatStructuredAddress, normalizeSearch } from '../shared/utils'
 
 const fullWeek: BusinessHour[] = Array.from({ length: 7 }, (_, weekday) => ({
   id: `day-${weekday}`,
@@ -19,6 +19,22 @@ describe('utilitários compartilhados', () => {
 
   it('normaliza caixa e acentos na pesquisa', () => {
     expect(normalizeSearch('  CORAÇÃO com Pão  ')).toBe('coracao com pao')
+  })
+
+  it('formata endereço brasileiro e cria uma rota oficial do Google Maps', () => {
+    const address = formatStructuredAddress({
+      addressPostalCode: '01001-000',
+      addressStreet: 'Praça da Sé',
+      addressNumber: '100',
+      addressComplement: null,
+      addressNeighborhood: 'Sé',
+      addressCity: 'São Paulo',
+      addressState: 'SP',
+    })
+    expect(address).toBe('Praça da Sé, 100 · Sé, São Paulo - SP · CEP 01001-000')
+    const mapsUrl = new URL(buildGoogleMapsDirectionsUrl(address)!)
+    expect(mapsUrl.origin + mapsUrl.pathname).toBe('https://www.google.com/maps/dir/')
+    expect(mapsUrl.searchParams.get('destination')).toBe(address)
   })
 
   it('não calcula status quando a grade está incompleta', () => {
