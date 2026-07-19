@@ -35,7 +35,7 @@ export function ProductForm({ product, categories, initialCategoryId, onClose, o
   const [createdCategory, setCreatedCategory] = useState<CreatedCategory | null>(null)
   const [pricingOpen, setPricingOpen] = useState(!product)
   const [pricingFocus, setPricingFocus] = useState<string | null>(null)
-  const [ingredientsOpen, setIngredientsOpen] = useState(Boolean(product?.ingredients))
+  const [ingredientsOpen, setIngredientsOpen] = useState(false)
   const [imageOpen, setImageOpen] = useState(Boolean(product?.imageKey))
   const errorRef = useRef<HTMLDivElement>(null)
   const pricingRef = useRef<HTMLDetailsElement>(null)
@@ -193,9 +193,11 @@ export function ProductForm({ product, categories, initialCategoryId, onClose, o
     <form noValidate onSubmit={submit}>
       {formError && <div ref={errorRef} tabIndex={-1}><AdminNotice notice={{ kind: 'error', message: formError }} /></div>}
       <section className="essential-fields" aria-labelledby="essential-title">
-        <div className="section-heading"><h3 id="essential-title">Informações principais</h3><span>Obrigatório</span></div>
-        <label>Nome do produto<input {...form.register('name')} autoFocus aria-invalid={Boolean(form.formState.errors.name)} />{form.formState.errors.name && <small className="field-error">{form.formState.errors.name.message}</small>}</label>
-        <div className="category-field"><label>Categoria<select {...form.register('categoryId')} aria-invalid={Boolean(form.formState.errors.categoryId)}>{categoryOptions.map((category) => <option key={category.id} value={category.id}>{category.name}</option>)}</select>{form.formState.errors.categoryId && <small className="field-error">{form.formState.errors.categoryId.message}</small>}</label><button className="text-button" type="button" onClick={() => setCreatingCategory((value) => !value)}>{creatingCategory ? 'Cancelar nova categoria' : 'Criar nova categoria'}</button></div>
+        <div className="section-heading"><div><h3 id="essential-title">Informações principais</h3><p>Identificação e localização no cardápio.</p></div><span>Obrigatório</span></div>
+        <div className="product-main-fields">
+          <label>Nome do produto<input {...form.register('name')} autoFocus aria-invalid={Boolean(form.formState.errors.name)} />{form.formState.errors.name && <small className="field-error">{form.formState.errors.name.message}</small>}</label>
+          <div className="category-field"><label>Categoria<select {...form.register('categoryId')} aria-invalid={Boolean(form.formState.errors.categoryId)}>{categoryOptions.map((category) => <option key={category.id} value={category.id}>{category.name}</option>)}</select>{form.formState.errors.categoryId && <small className="field-error">{form.formState.errors.categoryId.message}</small>}</label><button className="secondary-button category-create-button" type="button" onClick={() => setCreatingCategory((value) => !value)}>{creatingCategory ? <><X /> Cancelar</> : <><Plus /> Nova categoria</>}</button></div>
+        </div>
         {creatingCategory && <div className="inline-create-category"><label>Nome da nova categoria<input value={categoryName} onChange={(event) => setCategoryName(event.target.value)} /></label><button className="secondary-button" type="button" disabled={!categoryName.trim() || createCategory.isPending} onClick={() => createCategory.mutate()}>{createCategory.isPending ? 'Criando…' : 'Criar e selecionar'}</button></div>}
       </section>
 

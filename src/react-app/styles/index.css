@@ -243,15 +243,19 @@ a { color: inherit; }
 .form-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: .55rem; margin-top: .5rem; }
 .product-form-dialog { padding-bottom: 0; }
 .form-columns { display: grid; gap: 1rem; }
-.essential-fields { display: grid; gap: .9rem; border: 1px solid var(--color-border); border-radius: .8rem; padding: .9rem; background: #faf8f4; }
+.essential-fields { display: grid; gap: 1rem; border: 1px solid var(--color-border); border-radius: .8rem; padding: 1rem; background: #faf8f4; }
 .section-heading { display: flex; align-items: center; justify-content: space-between; gap: .7rem; }
 .section-heading h3 { margin: 0; font-size: 1rem; }
+.section-heading p { margin: .2rem 0 0; color: var(--color-muted); font-size: .78rem; font-weight: 500; }
 .section-heading > span { border-radius: 999px; padding: .25rem .5rem; color: var(--color-brand-strong); background: var(--color-brand-soft); font-size: .7rem; font-weight: 800; }
-.category-field { display: grid; gap: .3rem; }
+.product-main-fields { display: grid; gap: .9rem; }
+.category-field { min-width: 0; display: grid; gap: .55rem; }
 .category-field > label { min-width: 0; }
+.category-create-button { justify-self: start; white-space: nowrap; }
+.category-create-button svg { width: 1rem; }
 .text-button { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; gap: .35rem; justify-self: start; border: 0; padding: .45rem .2rem; color: var(--color-brand-strong); background: transparent; font-weight: 800; cursor: pointer; }
 .text-button svg { width: 1rem; }
-.inline-create-category { display: grid; gap: .6rem; border-left: 3px solid var(--color-accent); padding: .75rem; background: #f4f1ec; }
+.inline-create-category { display: grid; gap: .7rem; border: 1px solid color-mix(in srgb, var(--color-brand) 30%, var(--color-border)); border-radius: .65rem; padding: .8rem; background: var(--color-brand-soft); }
 .progressive-section { border: 1px solid var(--color-border); border-radius: .75rem; background: var(--color-surface-strong); }
 .progressive-section > summary { min-height: 50px; display: flex; align-items: center; justify-content: space-between; gap: .7rem; padding: .75rem .85rem; font-weight: 800; cursor: pointer; }
 .progressive-section > summary::marker { color: var(--color-brand); }
@@ -375,8 +379,9 @@ a { color: inherit; }
   .form-overlay { align-items: center; padding: 1.5rem; }
   .admin-form-dialog { width: min(100%, 42rem); max-height: calc(100dvh - 3rem); margin: auto; border-radius: 1rem; }
   .product-form-dialog { width: min(100%, 68rem); }
-  .essential-fields { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: end; }
-  .essential-fields .section-heading, .essential-fields .inline-create-category { grid-column: 1 / -1; }
+  .product-main-fields { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; }
+  .category-field { grid-template-columns: minmax(0, 1fr) auto; align-items: end; }
+  .inline-create-category { grid-template-columns: minmax(0, 1fr) auto; align-items: end; }
   .settings-grid, .two-card-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .settings-grid .wide { grid-column: 1 / -1; }
   .inline-editor { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: end; }
