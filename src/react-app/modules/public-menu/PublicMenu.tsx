@@ -100,6 +100,11 @@ export function PublicMenu() {
   const validWhatsapp = /^\d{10,15}$/.test(whatsappDigits)
   const businessAddress = formatStructuredAddress(data.business) ?? data.business.address
   const mapsUrl = data.business.mapsUrl ?? buildGoogleMapsDirectionsUrl(businessAddress)
+  const locationTitle = data.business.addressNeighborhood || businessAddress
+  const locationSubtitle = data.business.addressNeighborhood && (data.business.addressCity || data.business.addressState)
+    ? [data.business.addressCity, data.business.addressState].filter(Boolean).join(', ')
+    : null
+  const showBusinessInfo = Boolean(openStatus || validWhatsapp || data.business.phone || (businessAddress && mapsUrl) || data.business.instagramUrl)
 
   const scrollTo = (slug: string) => {
     setActiveCategory(slug)
@@ -119,12 +124,18 @@ export function PublicMenu() {
           <p className="eyebrow">Cardápio digital</p>
           <h1>{data.business.name}</h1>
           {data.business.slogan && <p>{data.business.slogan}</p>}
-          {openStatus && <span className={`status-pill ${openStatus.isOpen ? 'open' : 'closed'}`}>{openStatus.isOpen ? 'Aberto agora' : 'Fechado agora'}</span>}
         </div>
       </header>
 
       <main>
         {data.business.specialMessage && <div className="special-message"><Clock3 /><span>{data.business.specialMessage}</span></div>}
+        {showBusinessInfo && <section className="business-info" aria-label="Informações da lanchonete">
+          {openStatus && <div className={`business-info-item hours ${openStatus.isOpen ? 'open' : 'closed'}`}><Clock3 /><div><strong>{openStatus.isOpen ? 'Aberto agora' : 'Fechado agora'}</strong><span>{openStatus.isOpen && openStatus.closesAt ? `Até às ${openStatus.closesAt}` : 'Confira os horários'}</span></div></div>}
+          {validWhatsapp && <a className="business-info-item" href={`https://wa.me/${whatsappDigits}`} target="_blank" rel="noreferrer" aria-label={`Abrir WhatsApp: ${data.business.whatsapp}`}><MessageCircle /><div><strong>{data.business.whatsapp}</strong><span>WhatsApp</span></div><ExternalLink aria-hidden="true" /></a>}
+          {data.business.phone && data.business.phone !== data.business.whatsapp && <a className="business-info-item" href={`tel:${data.business.phone}`}><Phone /><div><strong>{data.business.phone}</strong><span>Telefone</span></div></a>}
+          {businessAddress && mapsUrl && <a className="business-info-item location" href={mapsUrl} target="_blank" rel="noreferrer" aria-label={`Ver localização: ${businessAddress}`}><MapPin /><div><strong>{locationTitle}</strong>{locationSubtitle && <span>{locationSubtitle}</span>}</div><ExternalLink aria-hidden="true" /></a>}
+          {data.business.instagramUrl && <a className="business-info-item" href={data.business.instagramUrl} target="_blank" rel="noreferrer"><AtSign /><div><strong>Instagram</strong><span>Abrir perfil</span></div><ExternalLink aria-hidden="true" /></a>}
+        </section>}
         <div className="search-wrap">
           <Search aria-hidden="true" />
           <label className="sr-only" htmlFor="menu-search">Pesquisar no cardápio</label>
