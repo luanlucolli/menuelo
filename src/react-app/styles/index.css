@@ -64,6 +64,7 @@ a { color: inherit; }
 .business-info-item { min-width: 0; min-height: 4.25rem; display: flex; align-items: center; gap: .75rem; border: 0; border-top: 1px solid var(--color-border); padding: .75rem 0; background: transparent; color: var(--color-text); text-decoration: none; }
 .business-info-item:first-child { border-top: 0; }
 .business-info-item > svg:first-child { width: 2.25rem; height: 2.25rem; flex: 0 0 auto; border-radius: .7rem; padding: .52rem; color: var(--color-brand); background: var(--color-brand-soft); }
+.business-info-logo { width: 2.25rem; height: 2.25rem; flex: 0 0 auto; object-fit: contain; }
 .business-info-item > div { min-width: 0; display: grid; gap: .1rem; }
 .business-info-item strong { font-size: .86rem; line-height: 1.25; overflow-wrap: anywhere; }
 .business-info-item span { color: var(--color-muted); font-size: .76rem; line-height: 1.3; }
@@ -135,8 +136,8 @@ a { color: inherit; }
 .public-footer li strong { color: white; text-align: right; }
 .footer-links { display: flex; flex-wrap: wrap; gap: .8rem; }
 .footer-brand { width: min(100%, 70rem); margin: 2rem auto 0 !important; padding-top: 1.2rem; border-top: 1px solid #4b4640; font-size: .8rem; }
-.whatsapp-fab { position: fixed; z-index: 30; right: 1rem; bottom: 1rem; width: 3.5rem; height: 3.5rem; display: grid; place-items: center; border-radius: 50%; color: white; background: #178b4b; box-shadow: 0 8px 26px rgb(16 75 42 / 42%); }
-.whatsapp-fab svg { width: 1.7rem; height: 1.7rem; }
+.whatsapp-fab { position: fixed; z-index: 30; right: 1rem; bottom: 1rem; width: 3.75rem; height: 3.75rem; display: grid; place-items: center; overflow: hidden; border-radius: 50%; padding: .28rem; background: white; box-shadow: 0 14px 30px rgb(16 75 42 / 32%), 0 5px 12px rgb(25 30 27 / 22%); }
+.whatsapp-fab img { width: 100%; height: 100%; display: block; object-fit: contain; transform: translate(.08rem, -.06rem); }
 
 /* Painel administrativo */
 .admin-shell { min-height: 100dvh; background: #f2f0ec; }

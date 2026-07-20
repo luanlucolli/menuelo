@@ -1,8 +1,9 @@
 import { useQuery } from '@tanstack/react-query'
-import { AtSign, Clock3, ExternalLink, MapPin, MessageCircle, Phone, Search, UtensilsCrossed, X } from 'lucide-react'
+import { AtSign, Clock3, ExternalLink, MapPin, Phone, Search, UtensilsCrossed, X } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
 import type { MenuResponse, Product } from '../../../../shared/schemas'
 import { buildGoogleMapsDirectionsUrl, calculateOpenStatus, formatMoney, formatStructuredAddress, getZonedClock, normalizeSearch, readableBrandText } from '../../../../shared/utils'
+import whatsappLogo from '../../../assets/WhatsApp-logo.webp'
 import { api } from '../../lib/api'
 import { ProductCard, ProductDialog } from './ProductCard'
 import { Seo } from './Seo'
@@ -136,7 +137,7 @@ export function PublicMenu() {
         {data.business.specialMessage && <div className="special-message"><Clock3 /><span>{data.business.specialMessage}</span></div>}
         {showBusinessInfo && <section className="business-info" aria-label="Informações da lanchonete">
           {openStatus && <div className={`business-info-item hours ${openStatus.isOpen ? 'open' : 'closed'}`}><Clock3 /><div><strong>{openStatus.isOpen ? 'Aberto agora' : 'Fechado agora'}</strong><span>{openStatus.isOpen && openStatus.closesAt ? `Até às ${openStatus.closesAt}` : 'Confira os horários'}</span></div></div>}
-          {validWhatsapp && <a className="business-info-item" href={`https://wa.me/${whatsappDigits}`} target="_blank" rel="noreferrer" aria-label={`Abrir WhatsApp: ${data.business.whatsapp}`}><MessageCircle /><div><strong>{data.business.whatsapp}</strong><span>WhatsApp</span></div><ExternalLink aria-hidden="true" /></a>}
+          {validWhatsapp && <a className="business-info-item" href={`https://wa.me/${whatsappDigits}`} target="_blank" rel="noreferrer" aria-label={`Abrir WhatsApp: ${data.business.whatsapp}`}><img className="business-info-logo" src={whatsappLogo} alt="" aria-hidden="true" /><div><strong>{data.business.whatsapp}</strong><span>WhatsApp</span></div><ExternalLink aria-hidden="true" /></a>}
           {data.business.phone && data.business.phone !== data.business.whatsapp && <a className="business-info-item" href={`tel:${data.business.phone}`}><Phone /><div><strong>{data.business.phone}</strong><span>Telefone</span></div></a>}
           {businessAddress && mapsUrl && <a className="business-info-item location" href={mapsUrl} target="_blank" rel="noreferrer" aria-label={`Ver localização: ${businessAddress}`}><MapPin /><div><strong>{locationTitle}</strong>{locationSubtitle && <span>{locationSubtitle}</span>}</div><ExternalLink aria-hidden="true" /></a>}
           {data.business.instagramUrl && <a className="business-info-item" href={data.business.instagramUrl} target="_blank" rel="noreferrer"><AtSign /><div><strong>Instagram</strong><span>Abrir perfil</span></div><ExternalLink aria-hidden="true" /></a>}
@@ -179,7 +180,7 @@ export function PublicMenu() {
         <p className="footer-brand">{data.business.name} · Cardápio digital</p>
       </footer>
 
-      {validWhatsapp && <a className="whatsapp-fab" href={`https://wa.me/${whatsappDigits}`} target="_blank" rel="noreferrer" aria-label="Abrir conversa no WhatsApp"><MessageCircle /></a>}
+      {validWhatsapp && <a className="whatsapp-fab" href={`https://wa.me/${whatsappDigits}`} target="_blank" rel="noreferrer" aria-label="Abrir conversa no WhatsApp"><img src={whatsappLogo} alt="" aria-hidden="true" /></a>}
       {selected && <ProductDialog product={selected} onClose={closeProduct} />}
     </div>
   )
