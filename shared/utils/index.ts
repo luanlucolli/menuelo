@@ -4,6 +4,16 @@ export function formatMoney(cents: number): string {
   return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(cents / 100)
 }
 
+export function formatBrazilianPhone(value: string): string {
+  const digits = value.replace(/\D/g, '')
+  const hasCountryCode = (digits.length === 12 || digits.length === 13) && digits.startsWith('55')
+  const local = hasCountryCode ? digits.slice(2) : digits
+  const prefix = hasCountryCode ? '+55 ' : ''
+  if (local.length === 11) return `${prefix}(${local.slice(0, 2)}) ${local.slice(2, 7)}-${local.slice(7)}`
+  if (local.length === 10) return `${prefix}(${local.slice(0, 2)}) ${local.slice(2, 6)}-${local.slice(6)}`
+  return value.trim()
+}
+
 export function normalizeSearch(value: string): string {
   return value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase('pt-BR').trim()
 }

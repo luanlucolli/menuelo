@@ -1,8 +1,8 @@
 import { useQuery } from '@tanstack/react-query'
-import { AtSign, Clock3, ExternalLink, MapPin, Megaphone, Phone, Search, UtensilsCrossed, X } from 'lucide-react'
+import { AtSign, ChevronDown, Clock3, ExternalLink, MapPin, Megaphone, Phone, Search, Store, UtensilsCrossed, X } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
 import type { MenuResponse, Product } from '../../../../shared/schemas'
-import { buildGoogleMapsDirectionsUrl, calculateOpenStatus, formatMoney, formatStructuredAddress, getZonedClock, normalizeSearch, readableBrandText } from '../../../../shared/utils'
+import { buildGoogleMapsDirectionsUrl, calculateOpenStatus, formatBrazilianPhone, formatMoney, formatStructuredAddress, getZonedClock, normalizeSearch, readableBrandText } from '../../../../shared/utils'
 import whatsappLogo from '../../../assets/WhatsApp-logo.webp'
 import { api } from '../../lib/api'
 import { ProductCard, ProductDialog } from './ProductCard'
@@ -100,13 +100,19 @@ export function PublicMenu() {
   const openStatus = calculateOpenStatus(data.hours, clock.weekday, clock.minutes)
   const whatsappDigits = (data.business.whatsapp ?? '').replace(/\D/g, '')
   const validWhatsapp = /^\d{10,15}$/.test(whatsappDigits)
+  const phoneDigits = (data.business.phone ?? '').replace(/\D/g, '')
+  const showPhone = Boolean(data.business.phone && (!validWhatsapp || phoneDigits !== whatsappDigits))
+  const formattedWhatsapp = data.business.whatsapp ? formatBrazilianPhone(data.business.whatsapp) : ''
+  const formattedPhone = data.business.phone ? formatBrazilianPhone(data.business.phone) : ''
   const businessAddress = formatStructuredAddress(data.business) ?? data.business.address
   const mapsUrl = data.business.mapsUrl ?? buildGoogleMapsDirectionsUrl(businessAddress)
   const locationTitle = data.business.addressNeighborhood || businessAddress
   const locationSubtitle = data.business.addressNeighborhood && (data.business.addressCity || data.business.addressState)
     ? [data.business.addressCity, data.business.addressState].filter(Boolean).join(', ')
     : null
-  const showBusinessInfo = Boolean(openStatus || validWhatsapp || data.business.phone || (businessAddress && mapsUrl) || data.business.instagramUrl)
+  const showBusinessInfo = Boolean(validWhatsapp || showPhone || (businessAddress && mapsUrl) || data.business.instagramUrl)
+  const businessInfoSummary = [validWhatsapp && 'WhatsApp', showPhone && 'telefone', businessAddress && mapsUrl && 'endereço', data.business.instagramUrl && 'Instagram'].filter(Boolean).join(' · ')
+  const specialMessage = data.business.specialMessage?.trim()
   const publicTheme: PublicThemeStyle = {
     '--color-brand': data.business.primaryColor,
     '--color-brand-text': readableBrandText(data.business.primaryColor),
@@ -124,24 +130,26 @@ export function PublicMenu() {
   return (
     <div className="public-shell" style={publicTheme}>
       <Seo menu={data} />
-      <header className="cover" style={data.business.coverImageKey ? { backgroundImage: `linear-gradient(180deg, rgba(20,18,15,.12), rgba(20,18,15,.72)), url(/media/${data.business.coverImageKey})` } : undefined}>
+      <header className="cover" style={data.business.coverImageKey ? { backgroundImage: `url(/media/${data.business.coverImageKey})` } : undefined}>
         <div className="cover-pattern" aria-hidden="true"><UtensilsCrossed /></div>
         <div className="cover-content">
           <p className="eyebrow">Cardápio digital</p>
-          <h1>{data.business.name}</h1>
+          <div className="cover-title-row"><h1>{data.business.name}</h1>{openStatus && <div className={`cover-status ${openStatus.isOpen ? 'open' : 'closed'}`}><span aria-hidden="true" /><div><strong>{openStatus.isOpen ? 'Aberto agora' : 'Fechado agora'}</strong>{openStatus.isOpen && openStatus.closesAt && <small>Até às {openStatus.closesAt}</small>}</div></div>}</div>
           {data.business.slogan && <p>{data.business.slogan}</p>}
         </div>
       </header>
 
       <main>
-        {data.business.specialMessage && <div className="special-message"><Megaphone aria-hidden="true" /><span>{data.business.specialMessage}</span></div>}
-        {showBusinessInfo && <section className="business-info" aria-label="Informações da lanchonete">
-          {openStatus && <div className={`business-info-item hours ${openStatus.isOpen ? 'open' : 'closed'}`}><Clock3 /><div><strong>{openStatus.isOpen ? 'Aberto agora' : 'Fechado agora'}</strong><span>{openStatus.isOpen && openStatus.closesAt ? `Até às ${openStatus.closesAt}` : 'Confira os horários'}</span></div></div>}
-          {validWhatsapp && <a className="business-info-item" href={`https://wa.me/${whatsappDigits}`} target="_blank" rel="noreferrer" aria-label={`Abrir WhatsApp: ${data.business.whatsapp}`}><img className="business-info-logo" src={whatsappLogo} alt="" aria-hidden="true" /><div><strong>{data.business.whatsapp}</strong><span>WhatsApp</span></div><ExternalLink aria-hidden="true" /></a>}
-          {data.business.phone && data.business.phone !== data.business.whatsapp && <a className="business-info-item" href={`tel:${data.business.phone}`}><Phone /><div><strong>{data.business.phone}</strong><span>Telefone</span></div></a>}
+        {specialMessage && <div className="special-message"><Megaphone aria-hidden="true" /><span>{specialMessage}</span></div>}
+        {showBusinessInfo && <details className="business-info">
+          <summary><Store aria-hidden="true" /><span className="business-info-summary"><strong>Informações da loja</strong><span>{businessInfoSummary}</span></span><ChevronDown aria-hidden="true" /></summary>
+          <div className="business-info-content">
+          {validWhatsapp && <a className="business-info-item" href={`https://wa.me/${whatsappDigits}`} target="_blank" rel="noreferrer" aria-label={`Abrir WhatsApp: ${formattedWhatsapp}`}><img className="business-info-logo" src={whatsappLogo} alt="" aria-hidden="true" /><div><strong>{formattedWhatsapp}</strong><span>WhatsApp</span></div><ExternalLink aria-hidden="true" /></a>}
+          {showPhone && <a className="business-info-item" href={`tel:${phoneDigits}`}><Phone /><div><strong>{formattedPhone}</strong><span>Telefone</span></div></a>}
           {businessAddress && mapsUrl && <a className="business-info-item location" href={mapsUrl} target="_blank" rel="noreferrer" aria-label={`Ver localização: ${businessAddress}`}><MapPin /><div><strong>{locationTitle}</strong>{locationSubtitle && <span>{locationSubtitle}</span>}</div><ExternalLink aria-hidden="true" /></a>}
           {data.business.instagramUrl && <a className="business-info-item" href={data.business.instagramUrl} target="_blank" rel="noreferrer"><AtSign /><div><strong>Instagram</strong><span>Abrir perfil</span></div><ExternalLink aria-hidden="true" /></a>}
-        </section>}
+          </div>
+        </details>}
         <div className="search-wrap">
           <Search aria-hidden="true" />
           <label className="sr-only" htmlFor="menu-search">Pesquisar no cardápio</label>
@@ -151,7 +159,7 @@ export function PublicMenu() {
 
         {!searching && <nav className="category-nav" aria-label="Categorias do cardápio">
           <div ref={categoryNavRef}>
-            {categories.map((category) => <button className={activeCategory === category.slug ? 'active' : ''} data-category={category.slug} type="button" key={category.id} onClick={() => scrollTo(category.slug)}>{category.name}</button>)}
+            {categories.map((category) => <button className={activeCategory === category.slug ? 'active' : ''} data-category={category.slug} type="button" key={category.id} title={category.name} onClick={() => scrollTo(category.slug)}>{category.name}</button>)}
           </div>
         </nav>}
 
@@ -175,7 +183,7 @@ export function PublicMenu() {
           {data.hours.length > 0 && <section><h2><Clock3 /> Horários</h2><ul>{[...data.hours].sort((a, b) => a.weekday - b.weekday || a.sortOrder - b.sortOrder).map((hour) => <li key={hour.id}><span>{WEEKDAYS[hour.weekday]}</span><strong>{hour.isClosed ? 'Fechado' : `${hour.opensAt}–${hour.closesAt}`}</strong></li>)}</ul></section>}
           {data.paymentMethods.length > 0 && <section><h2>Formas de pagamento</h2><p>{data.paymentMethods.map((method) => method.name).join(' · ')}</p></section>}
           {data.deliveryZones.length > 0 && <section><h2>Regiões e taxas</h2><ul>{data.deliveryZones.map((zone) => <li key={zone.id}><span>{zone.name}{zone.notes ? ` — ${zone.notes}` : ''}</span><strong>{zone.feeCents === null ? 'Consulte' : formatMoney(zone.feeCents)}</strong></li>)}</ul></section>}
-          {(data.business.phone || data.business.instagramUrl || data.business.facebookUrl) && <section><h2>Contato</h2><div className="footer-links">{data.business.phone && <a href={`tel:${data.business.phone}`}><Phone /> {data.business.phone}</a>}{data.business.instagramUrl && <a href={data.business.instagramUrl} target="_blank" rel="noreferrer"><AtSign /> Instagram</a>}{data.business.facebookUrl && <a href={data.business.facebookUrl} target="_blank" rel="noreferrer">Facebook</a>}</div></section>}
+          {(data.business.phone || data.business.instagramUrl || data.business.facebookUrl) && <section><h2>Contato</h2><div className="footer-links">{data.business.phone && <a href={`tel:${phoneDigits}`}><Phone /> {formattedPhone}</a>}{data.business.instagramUrl && <a href={data.business.instagramUrl} target="_blank" rel="noreferrer"><AtSign /> Instagram</a>}{data.business.facebookUrl && <a href={data.business.facebookUrl} target="_blank" rel="noreferrer">Facebook</a>}</div></section>}
         </div>
         <p className="footer-brand">{data.business.name} · Cardápio digital</p>
       </footer>

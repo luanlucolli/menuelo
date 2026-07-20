@@ -91,7 +91,7 @@ export function CategoriesPage() {
     </section>
     {editing && <AdminDialog onClose={requestFormClose}><section className="admin-form-dialog" aria-labelledby="category-form-title"><div className="form-dialog-heading"><h2 id="category-form-title">{editing === 'new' ? 'Nova categoria' : 'Editar categoria'}</h2><button type="button" aria-label="Fechar" onClick={requestFormClose}><X /></button></div><form noValidate onSubmit={form.handleSubmit((input) => save.mutate(input))}>
       {formError && <AdminNotice notice={{ kind: 'error', message: formError }} />}
-      <label>Nome<input {...form.register('name')} autoFocus aria-invalid={Boolean(form.formState.errors.name)} />{form.formState.errors.name && <small className="field-error">{form.formState.errors.name.message}</small>}</label>
+      <label>Nome<input {...form.register('name')} autoFocus maxLength={80} placeholder="Ex.: Bebidas" aria-invalid={Boolean(form.formState.errors.name)} /><small className="field-help">Prefira nomes curtos, com duas ou três palavras. Use a descrição para explicar detalhes.</small>{form.formState.errors.name && <small className="field-error">{form.formState.errors.name.message}</small>}</label>
       <label>Descrição <small>(opcional)</small><textarea rows={3} {...form.register('description', { setValueAs: (value) => value || null })} /></label>
       <label className="check-field"><input type="checkbox" {...form.register('isActive')} /> Mostrar categoria no cardápio</label>
       <div className="form-actions"><button className="secondary-button" type="button" onClick={requestFormClose}>Cancelar</button><button className="primary-button" type="submit" disabled={save.isPending}>{save.isPending ? 'Salvando…' : 'Salvar categoria'}</button></div>

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { menuImportSchema, productInputSchema, variantInputSchema, type BusinessHour } from '../shared/schemas'
-import { buildGoogleMapsDirectionsUrl, calculateOpenStatus, formatMoney, formatStructuredAddress, normalizeSearch, readableBrandText } from '../shared/utils'
+import { buildGoogleMapsDirectionsUrl, calculateOpenStatus, formatBrazilianPhone, formatMoney, formatStructuredAddress, normalizeSearch, readableBrandText } from '../shared/utils'
 
 const fullWeek: BusinessHour[] = Array.from({ length: 7 }, (_, weekday) => ({
   id: `day-${weekday}`,
@@ -15,6 +15,12 @@ describe('utilitários compartilhados', () => {
   it('formata centavos em reais no padrão brasileiro', () => {
     expect(formatMoney(2590)).toContain('25,90')
     expect(formatMoney(2590)).toContain('R$')
+  })
+
+  it('formata telefone brasileiro com ou sem código do país', () => {
+    expect(formatBrazilianPhone('47984802779')).toBe('(47) 98480-2779')
+    expect(formatBrazilianPhone('5547984802779')).toBe('+55 (47) 98480-2779')
+    expect(formatBrazilianPhone('4733334444')).toBe('(47) 3333-4444')
   })
 
   it('normaliza caixa e acentos na pesquisa', () => {
