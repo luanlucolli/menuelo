@@ -65,8 +65,8 @@ export class FakeDatabase {
 
 export const settingsRow = {
   id: 1,
-  name: 'Pipo Lanches & Porções',
-  slug: 'pipo-lanches-e-porcoes',
+  name: 'Lanchonete de teste',
+  slug: 'lanchonete-de-teste',
   slogan: null,
   description: 'Cardápio digital.',
   whatsapp: null,
@@ -84,7 +84,7 @@ export const settingsRow = {
   maps_url: null,
   timezone: 'America/Sao_Paulo',
   special_message: 'Fechado às segundas-feiras.',
-  primary_color: '#FB5D01',
+  primary_color: '#374151',
   cover_image_key: null,
   public_site_url: null,
   seo_title: null,
@@ -110,7 +110,7 @@ export function runtimeEnv(overrides: Partial<RuntimeEnv> = {}): RuntimeEnv {
     DEV_ADMIN_BYPASS: 'false',
     CF_ACCESS_TEAM_DOMAIN: '',
     CF_ACCESS_AUD: '',
-    ADMIN_EMAILS: 'luangstl@gmail.com',
+    ADMIN_EMAILS: 'admin@teste.com.br',
     PUBLIC_SITE_URL: '',
     ...overrides,
   }

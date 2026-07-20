@@ -67,11 +67,11 @@ export function Seo({ menu }: { menu: MenuResponse }) {
         closes: hour.closesAt,
       }))
     }
-    let script = document.head.querySelector<HTMLScriptElement>('script[data-pipo-json-ld]')
+    let script = document.head.querySelector<HTMLScriptElement>('script[data-menu-json-ld]')
     if (!script) {
       script = document.createElement('script')
       script.type = 'application/ld+json'
-      script.dataset.pipoJsonLd = 'true'
+      script.dataset.menuJsonLd = 'true'
       document.head.append(script)
     }
     script.text = JSON.stringify(jsonLd)

@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 1,
+  "categories": [
+    {
+      "name": "Lanches",
+      "description": "Opções preparadas na hora.",
+      "products": [
+        {
+          "name": "Hambúrguer da casa",
+          "ingredients": "Pão, hambúrguer, queijo, alface, tomate e molho da casa.",
+          "is_available": true,
+          "is_featured": true,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 2890,
+              "promotional_price_cents": 2490
+            }
+          ]
+        },
+        {
+          "name": "Sanduíche vegetariano",
+          "ingredients": "Pão, queijo, legumes grelhados e molho de ervas.",
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": null,
+              "price_cents": 2590,
+              "promotional_price_cents": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Bebidas",
+      "description": null,
+      "products": [
+        {
+          "name": "Suco natural",
+          "ingredients": "Consulte os sabores disponíveis.",
+          "is_available": true,
+          "is_featured": false,
+          "variants": [
+            {
+              "label": "300 ml",
+              "price_cents": 900,
+              "promotional_price_cents": null
+            },
+            {
+              "label": "500 ml",
+              "price_cents": 1400,
+              "promotional_price_cents": null
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

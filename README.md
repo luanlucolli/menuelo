@@ -1,16 +1,16 @@
-# Pipo Cardápio Digital
+# Menuelo
 
-Cardápio público e painel administrativo da **Pipo Lanches & Porções**. O projeto não recebe pedidos: ele publica produtos, preços, promoções e informações comerciais configuráveis.
+Base white label para cardápios digitais com painel administrativo. Cada estabelecimento usa uma implantação isolada, com seu próprio Worker, banco D1, bucket R2, domínio e aplicação Cloudflare Access. O produto publica o cardápio e informações comerciais; não recebe pedidos.
 
 ## Stack
 
 - React 19, React Router, TanStack Query e React Hook Form;
-- Vite com o plugin oficial da Cloudflare;
-- TypeScript estrito, Zod compartilhado e Tailwind CSS com tokens neutros;
+- Vite com o plugin oficial da Cloudflare e TypeScript estrito;
 - Hono em Cloudflare Workers com Static Assets;
 - Cloudflare D1 para dados e R2 para imagens;
-- Cloudflare Access com código por e-mail para `/admin` e `/admin/*`, com validação JWT adicional no Worker;
-- Vitest, sem Playwright.
+- Cloudflare Access com código por e-mail em `/admin` e `/admin/*`;
+- Zod compartilhado entre frontend, Worker e ferramentas de implantação;
+- Vitest e Playwright.
 
 ## Executar localmente
 
@@ -20,56 +20,58 @@ Requisitos: Node.js 22 ou versão compatível com Vite 8 e npm.
 npm install
 cp .dev.vars.example .dev.vars
 npm run db:migrate:local
-npm run db:seed:local
+npm run db:seed:demo:local
 npm run dev
 ```
 
-Em `.dev.vars`, mantenha `DEV_ADMIN_BYPASS=true` apenas para desenvolvimento. O bypass também exige hostname local (`localhost`, `127.0.0.1` ou equivalente), portanto falha fechado fora da máquina local.
+Em `.dev.vars`, `DEV_ADMIN_BYPASS=true` libera o painel somente em hostnames locais. Nunca copie essa opção para produção.
 
 - Cardápio: `http://localhost:5173/`
 - Painel: `http://localhost:5173/admin`
 
-O seed substitui integralmente o cardápio por 4 categorias, 23 produtos e 23 variações, removendo as referências de imagens dos produtos e da capa. Segunda-feira começa marcada como fechada; os outros horários e todos os contatos permanecem vazios.
+O seed de demonstração é deliberadamente neutro e substitui apenas os dados locais. Dados e fotos reais de clientes não pertencem ao repositório.
 
 ## Scripts
 
 | Comando | Função |
 | --- | --- |
-| `npm run dev` | Vite + Worker + bindings D1/R2 locais |
-| `npm run build` | TypeScript e build de produção |
-| `npm run preview` | Build e preview local |
-| `npm run lint` | ESLint |
-| `npm run typecheck` | TypeScript estrito de frontend, Worker e testes |
-| `npm test` | Vitest em modo watch |
-| `npm run test:run` | Vitest uma vez |
-| `npm run db:migrate:local` | Migrações D1 locais |
-| `npm run db:seed:local` | Seed D1 local |
-| `npm run seed:generate` | Regenera o seed a partir do JSON canônico da especificação |
-| `npm run deploy` | Build e deploy manual; não é executado automaticamente |
+| `npm run dev` | Inicia frontend, Worker e bindings locais |
+| `npm run build` | Verifica TypeScript e gera o build neutro |
+| `npm run lint` | Executa o ESLint |
+| `npm run typecheck` | Verifica TypeScript estrito |
+| `npm run test:run` | Executa testes unitários e de integração |
+| `npm run test:e2e` | Executa fluxos críticos no navegador |
+| `npm run db:migrate:local` | Aplica migrations no D1 local |
+| `npm run db:seed:demo:local` | Carrega a demonstração no D1 local |
+| `npm run demo:seed:generate` | Regenera `seeds/demo.sql` |
+| `npm run client:check -- ARQUIVOS...` | Valida perfis externos e o isolamento entre clientes |
+| `npm run client:build -- ARQUIVO` | Gera um build para um cliente |
+| `npm run client:dry-run -- ARQUIVO` | Valida o pacote de deploy sem publicar |
+| `npm run client:db:migrate:remote -- ARQUIVO` | Aplica migrations no D1 do cliente indicado |
+| `npm run client:deploy -- ARQUIVO` | Publica somente a instância indicada |
 
-## Estrutura principal
+As quatro últimas operações que recebem um único arquivo recusam execução ambígua. Perfis reais devem permanecer fora do repositório e são validados antes que qualquer comando seja iniciado.
+
+## Estrutura
 
 ```text
 src/react-app/          interface pública, painel, estilos e cliente HTTP
-worker/                 Hono, rotas, autenticação, persistência e serviços
+worker/                 API, autenticação, persistência e imagens
 shared/                 schemas, tipos e utilitários compartilhados
-migrations/             migrations versionadas do D1
-seeds/                  JSON canônico e SQL idempotente
-scripts/                geração mecânica do seed
-test/                   testes unitários e integrações com bindings simulados
-docs/                   arquitetura e implantação manual
-public/                 assets estáticos
-wrangler.jsonc          Worker, Static Assets, D1, R2 e variáveis
+migrations/             migrations versionadas e bootstrap neutro do D1
+seeds/                  demonstração local sem dados de cliente
+scripts/                seed e comandos de implantação por perfil
+deploy/                 somente o contrato de exemplo do perfil
+test/                   testes unitários, integração e navegador
+docs/                   arquitetura e operação
 ```
 
-## Dados e imagens
+## Dados, imagens e identidade
 
-Dinheiro é armazenado em centavos. Produtos de preço único também usam uma variação com `label: null`. Imagens são convertidas no navegador para WebP, redimensionadas para até 1600 px e reduzidas visando 600 KB; o Worker valida WebP por MIME e magic bytes e impõe 800 KB. HEIC não é suportado nesta versão.
+Nome, inicial, cor principal, contatos e metadados públicos vêm das configurações do estabelecimento. Valores desconhecidos permanecem vazios e ocultos. O fallback visual é neutro (`#374151`) e “Menuelo” não aparece como marca do estabelecimento.
 
-Exportações JSON contêm chaves de imagem, nunca os binários. Uma importação `replace` valida e mostra diferenças antes da confirmação, gera IDs locais e usa `D1Database.batch()` para rollback atômico em falha. Objetos R2 não são excluídos pela importação.
+Dinheiro é armazenado em centavos. Produtos com preço único usam uma variação sem nome. Imagens são convertidas para WebP no navegador; o R2 continua privado e o Worker as entrega por `/media/:key`.
 
-## Produção
+Exportações JSON não contêm os binários das imagens. Guarde cópias dos dados e das fotos fora do Git.
 
-Consulte [docs/cloudflare-setup.md](docs/cloudflare-setup.md) para criar manualmente D1/R2, configurar Access e publicar. O repositório usa um UUID D1 deliberadamente fictício que deve ser substituído antes do deploy.
-
-Dados ainda pendentes e ocultos até configuração: identidade visual definitiva, capa, contatos, redes sociais, endereço, Maps, horários de terça a domingo, formas de pagamento, regiões/taxas e domínio público.
+Para preparar duas instâncias isoladas, consulte [docs/cloudflare-setup.md](docs/cloudflare-setup.md).

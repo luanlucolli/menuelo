@@ -163,7 +163,7 @@ test('cria categoria dentro do produto e bloqueia exclusão de categoria ocupada
     await page.setViewportSize({ width: 390, height: 844 })
     await page.goto('/admin/produtos?acao=novo')
     const dialog = page.getByRole('dialog')
-    await dialog.getByRole('button', { name: 'Criar nova categoria' }).click()
+    await dialog.getByRole('button', { name: 'Nova categoria' }).click()
     await dialog.getByLabel('Nome da nova categoria').fill(categoryName)
     await dialog.getByRole('button', { name: 'Criar e selecionar' }).click()
     await expect(dialog.getByLabel('Categoria').locator('option:checked')).toHaveText(categoryName)

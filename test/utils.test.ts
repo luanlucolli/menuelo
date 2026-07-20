@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { menuImportSchema, productInputSchema, variantInputSchema, type BusinessHour } from '../shared/schemas'
-import { buildGoogleMapsDirectionsUrl, calculateOpenStatus, formatMoney, formatStructuredAddress, normalizeSearch } from '../shared/utils'
+import { buildGoogleMapsDirectionsUrl, calculateOpenStatus, formatMoney, formatStructuredAddress, normalizeSearch, readableBrandText } from '../shared/utils'
 
 const fullWeek: BusinessHour[] = Array.from({ length: 7 }, (_, weekday) => ({
   id: `day-${weekday}`,
@@ -19,6 +19,12 @@ describe('utilitários compartilhados', () => {
 
   it('normaliza caixa e acentos na pesquisa', () => {
     expect(normalizeSearch('  CORAÇÃO com Pão  ')).toBe('coracao com pao')
+  })
+
+  it('escolhe texto legível para cores claras e escuras da marca', () => {
+    expect(readableBrandText('#FFF200')).toBe('#211F1B')
+    expect(readableBrandText('#374151')).toBe('#FFFFFF')
+    expect(readableBrandText('inválida')).toBe('#FFFFFF')
   })
 
   it('formata endereço brasileiro e cria uma rota oficial do Google Maps', () => {

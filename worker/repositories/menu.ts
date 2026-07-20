@@ -106,7 +106,7 @@ export async function getMenu(db: D1Database, includeInactive = false): Promise<
     db.prepare(`SELECT * FROM product_variants ${visibility} ORDER BY product_id, sort_order, id`).all<VariantRow>(),
   ])
 
-  if (!settings) throw new Error('Configuração do estabelecimento não encontrada. Aplique o seed local.')
+  if (!settings) throw new Error('Configuração do estabelecimento não encontrada. Aplique as migrations.')
 
   const variantsByProduct = new Map<string, ProductVariant[]>()
   for (const row of variants.results) {

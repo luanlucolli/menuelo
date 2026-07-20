@@ -4,6 +4,7 @@ import { useState } from 'react'
 import type { MenuImport } from '../../../../shared/schemas'
 import { api, fieldErrorsFromError, jsonBody, messageFromError } from '../../lib/api'
 import { AdminNotice, type Notice } from './AdminNotice'
+import { useAdminMenu } from './hooks'
 
 interface ImportSummary {
   incoming: { categories: number; products: number; variants: number; hours: number; paymentMethods: number; deliveryZones: number }
@@ -13,6 +14,7 @@ interface ImportSummary {
 
 export function ImportExportPage() {
   const queryClient = useQueryClient()
+  const { data: menu } = useAdminMenu()
   const [data, setData] = useState<MenuImport | null>(null)
   const [summary, setSummary] = useState<ImportSummary | null>(null)
   const [feedback, setFeedback] = useState<Notice | null>(null)
@@ -28,7 +30,7 @@ export function ImportExportPage() {
       const url = URL.createObjectURL(blob)
       const link = document.createElement('a')
       link.href = url
-      link.download = `pipo-cardapio-${new Date().toISOString().slice(0, 10)}.json`
+      link.download = `copia-${menu?.business.slug || 'cardapio'}-${new Date().toISOString().slice(0, 10)}.json`
       link.click()
       URL.revokeObjectURL(url)
       setFeedback({ kind: 'success', message: 'Cópia dos dados baixada.' })
@@ -40,7 +42,7 @@ export function ImportExportPage() {
     try {
       if (file.size > 2_000_000) throw new Error('O arquivo é grande demais. Escolha uma cópia de até 2 MB.')
       let parsed: unknown
-      try { parsed = JSON.parse(await file.text()) } catch { throw new Error('Este arquivo não é uma cópia de segurança válida do Pipo.') }
+      try { parsed = JSON.parse(await file.text()) } catch { throw new Error('Este arquivo não é uma cópia de segurança válida.') }
       const result = await api<ImportSummary>('/admin/api/import/validate', { method: 'POST', body: jsonBody(parsed) })
       setData(parsed as MenuImport)
       setSummary(result)

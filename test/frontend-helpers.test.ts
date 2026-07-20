@@ -6,7 +6,7 @@ import { productToInput, replaceProduct } from '../src/react-app/modules/admin/p
 const product: Product = {
   id: 'product-1',
   categoryId: 'category-1',
-  name: 'Dog Pipo',
+  name: 'Lanche da casa',
   ingredients: null,
   imageKey: null,
   isAvailable: true,
@@ -29,7 +29,7 @@ describe('atualizações rápidas de produto', () => {
   it('preserva campos não relacionados ao alterar disponibilidade', () => {
     expect(productToInput(product, { isAvailable: false })).toEqual({
       categoryId: 'category-1',
-      name: 'Dog Pipo',
+      name: 'Lanche da casa',
       ingredients: null,
       isAvailable: false,
       isFeatured: false,

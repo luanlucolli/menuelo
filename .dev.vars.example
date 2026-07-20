@@ -2,5 +2,5 @@
 DEV_ADMIN_BYPASS=true
 CF_ACCESS_TEAM_DOMAIN=https://sua-equipe.cloudflareaccess.com
 CF_ACCESS_AUD=substitua-pelo-aud-da-aplicacao-access
-ADMIN_EMAILS=luangstl@gmail.com
+ADMIN_EMAILS=admin@exemplo.com
 PUBLIC_SITE_URL=

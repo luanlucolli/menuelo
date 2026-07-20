@@ -22,7 +22,7 @@ export function QrCodePage() {
     const objectUrl = URL.createObjectURL(blob)
     const link = document.createElement('a')
     link.href = objectUrl
-    link.download = 'qrcode-cardapio-pipo.svg'
+    link.download = `qrcode-${data.business.slug}.svg`
     link.click()
     URL.revokeObjectURL(objectUrl)
   }

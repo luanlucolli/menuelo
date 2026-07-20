@@ -1,0 +1,16 @@
+PRAGMA foreign_keys = ON;
+INSERT INTO business_settings (id, name, slug, description, timezone, primary_color) VALUES (1, 'Lanchonete de demonstração', 'lanchonete-de-demonstracao', 'Este conteúdo existe apenas para facilitar os testes locais.', 'America/Sao_Paulo', '#374151') ON CONFLICT(id) DO UPDATE SET name=excluded.name, slug=excluded.slug, slogan=NULL, description=excluded.description, whatsapp=NULL, phone=NULL, instagram_url=NULL, facebook_url=NULL, address=NULL, maps_url=NULL, timezone=excluded.timezone, special_message=NULL, cover_image_key=NULL, public_site_url=NULL, seo_title=NULL, seo_description=NULL, address_postal_code=NULL, address_street=NULL, address_number=NULL, address_complement=NULL, address_neighborhood=NULL, address_city=NULL, address_state=NULL, primary_color=excluded.primary_color, updated_at=strftime('%Y-%m-%dT%H:%M:%fZ', 'now');
+DELETE FROM business_hours;
+DELETE FROM payment_methods;
+DELETE FROM delivery_zones;
+DELETE FROM products;
+DELETE FROM categories;
+INSERT INTO categories (id, name, slug, description, is_active, sort_order) VALUES ('demo-category-01', 'Lanches', 'lanches', 'Opções preparadas na hora.', 1, 0);
+INSERT INTO products (id, category_id, name, ingredients, image_key, is_available, is_featured, sort_order) VALUES ('demo-product-001', 'demo-category-01', 'Hambúrguer da casa', 'Pão, hambúrguer, queijo, alface, tomate e molho da casa.', NULL, 1, 1, 0);
+INSERT INTO product_variants (id, product_id, label, price_cents, promotional_price_cents, is_active, sort_order) VALUES ('demo-variant-001', 'demo-product-001', NULL, 2890, '2490', 1, 0);
+INSERT INTO products (id, category_id, name, ingredients, image_key, is_available, is_featured, sort_order) VALUES ('demo-product-002', 'demo-category-01', 'Sanduíche vegetariano', 'Pão, queijo, legumes grelhados e molho de ervas.', NULL, 1, 0, 1);
+INSERT INTO product_variants (id, product_id, label, price_cents, promotional_price_cents, is_active, sort_order) VALUES ('demo-variant-002', 'demo-product-002', NULL, 2590, NULL, 1, 0);
+INSERT INTO categories (id, name, slug, description, is_active, sort_order) VALUES ('demo-category-02', 'Bebidas', 'bebidas', NULL, 1, 1);
+INSERT INTO products (id, category_id, name, ingredients, image_key, is_available, is_featured, sort_order) VALUES ('demo-product-003', 'demo-category-02', 'Suco natural', 'Consulte os sabores disponíveis.', NULL, 1, 0, 0);
+INSERT INTO product_variants (id, product_id, label, price_cents, promotional_price_cents, is_active, sort_order) VALUES ('demo-variant-003', 'demo-product-003', '300 ml', 900, NULL, 1, 0);
+INSERT INTO product_variants (id, product_id, label, price_cents, promotional_price_cents, is_active, sort_order) VALUES ('demo-variant-004', 'demo-product-003', '500 ml', 1400, NULL, 1, 1);

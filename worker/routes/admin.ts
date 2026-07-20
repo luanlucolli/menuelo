@@ -382,8 +382,9 @@ adminRoutes.delete('/delivery-zones/:id', async (c) => {
 })
 
 adminRoutes.get('/export', async (c) => {
-  c.header('Content-Disposition', `attachment; filename="pipo-cardapio-${new Date().toISOString().slice(0, 10)}.json"`)
-  return c.json(await serializeExport(c.env.DB))
+  const data = await serializeExport(c.env.DB)
+  c.header('Content-Disposition', `attachment; filename="copia-${data.business.slug}-${new Date().toISOString().slice(0, 10)}.json"`)
+  return c.json(data)
 })
 
 adminRoutes.post('/import/validate', async (c) => {

@@ -1,0 +1,21 @@
+{
+  "key": "cliente-exemplo",
+  "workerName": "menuelo-cliente-exemplo",
+  "database": {
+    "name": "menuelo-cliente-exemplo-db",
+    "id": "11111111-1111-4111-8111-111111111111"
+  },
+  "bucketName": "menuelo-cliente-exemplo-images",
+  "publicSiteUrl": "https://cardapio.cliente.com.br",
+  "route": {
+    "pattern": "cardapio.cliente.com.br",
+    "customDomain": true
+  },
+  "access": {
+    "teamDomain": "https://equipe.cloudflareaccess.com",
+    "audience": "cole-aqui-o-aud-do-cloudflare-access",
+    "adminEmails": [
+      "responsavel@cliente.com.br"
+    ]
+  }
+}

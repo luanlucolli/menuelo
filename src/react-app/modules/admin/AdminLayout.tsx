@@ -1,6 +1,9 @@
 import { BookOpen, ChartNoAxesColumn, Download, Menu, QrCode, Settings, Shapes, X } from 'lucide-react'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { NavLink, Outlet } from 'react-router-dom'
+import { DEFAULT_PRIMARY_COLOR } from '../../../../shared/schemas'
+import { readableBrandText } from '../../../../shared/utils'
+import { useAdminMenu } from './hooks'
 
 const links = [
   { to: '/admin', label: 'Início', icon: ChartNoAxesColumn, end: true },
@@ -12,6 +15,7 @@ const links = [
 ]
 
 export function AdminLayout() {
+  const { data } = useAdminMenu()
   const [open, setOpen] = useState(false)
   const [desktop, setDesktop] = useState(() => window.matchMedia('(min-width: 1024px)').matches)
   const menuButtonRef = useRef<HTMLButtonElement>(null)
@@ -41,8 +45,16 @@ export function AdminLayout() {
     requestAnimationFrame(() => menuButtonRef.current?.focus())
   }
 
+  const businessName = data?.business.name || 'Administração do cardápio'
+  const brandColor = data?.business.primaryColor || DEFAULT_PRIMARY_COLOR
+  const brandTheme = {
+    '--color-brand': brandColor,
+    '--color-brand-text': readableBrandText(brandColor),
+  } as CSSProperties
+  const businessInitial = businessName.trim().charAt(0).toLocaleUpperCase('pt-BR') || 'A'
+
   return (
-    <div className="admin-shell">
+    <div className="admin-shell" style={brandTheme}>
       <header className="admin-mobile-header">
         <button
           ref={menuButtonRef}
@@ -54,11 +66,11 @@ export function AdminLayout() {
         >
           <Menu />
         </button>
-        <strong>Pipo · Administração</strong>
+        <strong>{businessName} · Administração</strong>
       </header>
       {open && <button type="button" className="admin-nav-backdrop" aria-label="Fechar menu" onClick={closeMenu} />}
       <aside id="admin-sidebar" className={`admin-sidebar${open ? ' open' : ''}`} aria-hidden={!desktop && !open} inert={!desktop && !open ? true : undefined}>
-        <div className="admin-sidebar-heading"><div className="admin-brand"><span>P</span><div><strong>Pipo</strong><small>Administração</small></div></div><button ref={closeButtonRef} className="sidebar-close" type="button" onClick={closeMenu}><X /> <span>Fechar</span></button></div>
+        <div className="admin-sidebar-heading"><div className="admin-brand"><span>{businessInitial}</span><div><strong>{businessName}</strong><small>Administração</small></div></div><button ref={closeButtonRef} className="sidebar-close" type="button" onClick={closeMenu}><X /> <span>Fechar</span></button></div>
         <nav aria-label="Navegação administrativa">
           {links.map(({ icon: Icon, ...link }) => <NavLink key={link.to} to={link.to} end={link.end} onClick={closeMenu}><Icon />{link.label}</NavLink>)}
         </nav>

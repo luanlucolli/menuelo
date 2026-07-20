@@ -8,7 +8,7 @@ import { ProductCard, ProductDialog } from './ProductCard'
 import { Seo } from './Seo'
 
 const WEEKDAYS = ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado']
-type PublicThemeStyle = CSSProperties & { '--public-brand-color': string; '--public-brand-text': string }
+type PublicThemeStyle = CSSProperties & { '--color-brand': string; '--color-brand-text': string }
 
 export function PublicMenu() {
   const refreshToken = new URLSearchParams(window.location.search).get('refresh')
@@ -107,8 +107,8 @@ export function PublicMenu() {
     : null
   const showBusinessInfo = Boolean(openStatus || validWhatsapp || data.business.phone || (businessAddress && mapsUrl) || data.business.instagramUrl)
   const publicTheme: PublicThemeStyle = {
-    '--public-brand-color': data.business.primaryColor,
-    '--public-brand-text': readableBrandText(data.business.primaryColor),
+    '--color-brand': data.business.primaryColor,
+    '--color-brand-text': readableBrandText(data.business.primaryColor),
   }
 
   const scrollTo = (slug: string) => {
@@ -155,7 +155,7 @@ export function PublicMenu() {
         </nav>}
 
         <div className="menu-content">
-          {!allProducts.length && <div className="empty-state"><Search /><h2>Nenhum item encontrado</h2><p>Tente outra palavra na pesquisa.</p>{searching && <button type="button" className="secondary-button" onClick={() => setSearch('')}>Limpar pesquisa</button>}</div>}
+          {!allProducts.length && <div className="empty-state"><Search /><h2>{searching ? 'Nenhum item encontrado' : 'Cardápio em preparação'}</h2><p>{searching ? 'Tente outra palavra na pesquisa.' : 'Os itens serão publicados em breve.'}</p>{searching && <button type="button" className="secondary-button" onClick={() => setSearch('')}>Limpar pesquisa</button>}</div>}
           {searching && allProducts.length > 0 ? <section className="search-results"><div className="section-title"><p>Resultados</p><h2>{allProducts.length} {allProducts.length === 1 ? 'item encontrado' : 'itens encontrados'}</h2></div><div className="product-grid">{allProducts.map((product) => <ProductCard key={product.id} product={product} onSelect={selectProduct} />)}</div></section> : <>
           {featured.length > 0 && <section className="highlight-section"><div className="section-title"><p>Destaques</p><h2>Escolhas da casa</h2></div><div className="product-grid">{featured.map((product) => <ProductCard key={`featured-${product.id}`} product={product} onSelect={selectProduct} />)}</div></section>}
           {promotions.length > 0 && <section className="promotion-section"><div className="section-title"><p>Promoções</p><h2>Preços especiais</h2></div><div className="product-grid">{promotions.map((product) => <ProductCard key={`promo-${product.id}`} product={product} onSelect={selectProduct} />)}</div></section>}
