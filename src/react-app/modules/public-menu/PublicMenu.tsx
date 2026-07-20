@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { AtSign, Clock3, ExternalLink, MapPin, Phone, Search, UtensilsCrossed, X } from 'lucide-react'
+import { AtSign, Clock3, ExternalLink, MapPin, Megaphone, Phone, Search, UtensilsCrossed, X } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
 import type { MenuResponse, Product } from '../../../../shared/schemas'
 import { buildGoogleMapsDirectionsUrl, calculateOpenStatus, formatMoney, formatStructuredAddress, getZonedClock, normalizeSearch, readableBrandText } from '../../../../shared/utils'
@@ -134,7 +134,7 @@ export function PublicMenu() {
       </header>
 
       <main>
-        {data.business.specialMessage && <div className="special-message"><Clock3 /><span>{data.business.specialMessage}</span></div>}
+        {data.business.specialMessage && <div className="special-message"><Megaphone aria-hidden="true" /><span>{data.business.specialMessage}</span></div>}
         {showBusinessInfo && <section className="business-info" aria-label="Informações da lanchonete">
           {openStatus && <div className={`business-info-item hours ${openStatus.isOpen ? 'open' : 'closed'}`}><Clock3 /><div><strong>{openStatus.isOpen ? 'Aberto agora' : 'Fechado agora'}</strong><span>{openStatus.isOpen && openStatus.closesAt ? `Até às ${openStatus.closesAt}` : 'Confira os horários'}</span></div></div>}
           {validWhatsapp && <a className="business-info-item" href={`https://wa.me/${whatsappDigits}`} target="_blank" rel="noreferrer" aria-label={`Abrir WhatsApp: ${data.business.whatsapp}`}><img className="business-info-logo" src={whatsappLogo} alt="" aria-hidden="true" /><div><strong>{data.business.whatsapp}</strong><span>WhatsApp</span></div><ExternalLink aria-hidden="true" /></a>}
