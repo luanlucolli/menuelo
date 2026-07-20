@@ -364,6 +364,11 @@ a { color: inherit; }
 .settings-nav button.active .settings-unsaved { color: var(--color-brand-text); background: rgb(255 255 255 / 20%); }
 .settings-subsections { display: grid; gap: 1rem; }
 .settings-grid { display: grid; gap: .8rem; }
+.backup-settings-card { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: .75rem; }
+.backup-settings-card > svg { width: 2.5rem; height: 2.5rem; border-radius: .65rem; padding: .6rem; color: var(--color-brand-strong); background: var(--color-brand-soft); }
+.backup-settings-card h2, .backup-settings-card p { margin: 0; }
+.backup-settings-card p { margin-top: .2rem; color: var(--color-muted); font-size: .84rem; line-height: 1.45; }
+.backup-settings-card .secondary-button { grid-column: 1 / -1; justify-self: stretch; }
 .address-section { display: grid; gap: 1rem; }
 .address-heading { display: flex; align-items: start; gap: .75rem; }
 .address-heading > span { width: 2.5rem; height: 2.5rem; flex: 0 0 auto; display: grid; place-items: center; border-radius: .65rem; color: var(--color-brand-strong); background: var(--color-brand-soft); }
@@ -491,6 +496,8 @@ a { color: inherit; }
   .category-field { grid-template-columns: minmax(0, 1fr) auto; align-items: end; }
   .inline-create-category { grid-template-columns: minmax(0, 1fr) auto; align-items: end; }
   .settings-grid, .two-card-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .backup-settings-card { grid-template-columns: auto minmax(0, 1fr) auto; }
+  .backup-settings-card .secondary-button { grid-column: auto; justify-self: end; }
   .settings-grid .wide { grid-column: 1 / -1; }
   .address-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
   .postal-code-field, .postal-code-feedback { grid-column: 1 / -1; }

@@ -1,4 +1,4 @@
-import { BookOpen, ChartNoAxesColumn, Download, Menu, QrCode, Settings, Shapes, X } from 'lucide-react'
+import { BookOpen, ChartNoAxesColumn, Menu, QrCode, Settings, Shapes, X } from 'lucide-react'
 import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { NavLink, Outlet } from 'react-router-dom'
 import { DEFAULT_PRIMARY_COLOR } from '../../../../shared/schemas'
@@ -10,7 +10,6 @@ const links = [
   { to: '/admin/produtos', label: 'Produtos', icon: BookOpen },
   { to: '/admin/categorias', label: 'Categorias', icon: Shapes },
   { to: '/admin/configuracoes', label: 'Configurações', icon: Settings },
-  { to: '/admin/importar-exportar', label: 'Cópia de segurança', icon: Download },
   { to: '/admin/qrcode', label: 'QR Code', icon: QrCode },
 ]
 

@@ -20,7 +20,8 @@ export default function App() {
           <Route path="produtos" element={<ProductsPage />} />
           <Route path="categorias" element={<CategoriesPage />} />
           <Route path="configuracoes" element={<SettingsPage />} />
-          <Route path="importar-exportar" element={<ImportExportPage />} />
+          <Route path="configuracoes/importar-exportar" element={<ImportExportPage />} />
+          <Route path="importar-exportar" element={<Navigate to="/admin/configuracoes/importar-exportar" replace />} />
           <Route path="qrcode" element={<QrCodePage />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
