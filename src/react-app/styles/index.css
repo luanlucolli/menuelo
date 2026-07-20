@@ -49,16 +49,12 @@ a { color: inherit; }
   overflow-x: clip;
 }
 .public-shell .primary-button { color: var(--color-brand-text); }
-.cover { min-height: 14.5rem; display: flex; position: relative; overflow: hidden; background: linear-gradient(145deg, color-mix(in srgb, var(--color-brand) 62%, black), var(--color-brand)); background-size: cover; background-position: center; color: white; }
-.cover::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgb(12 10 9 / 8%) 10%, rgb(12 10 9 / 38%) 58%, rgb(12 10 9 / 90%) 100%); pointer-events: none; }
-.cover-pattern { position: absolute; right: -2rem; top: -2rem; opacity: .1; transform: rotate(-12deg); }
+.cover { display: flex; position: relative; overflow: hidden; background: linear-gradient(145deg, color-mix(in srgb, var(--color-brand) 62%, black), var(--color-brand)); background-size: cover; background-position: center; color: white; }
+.cover-pattern { position: absolute; z-index: 0; right: -2rem; top: -2rem; opacity: .1; transform: rotate(-12deg); }
 .cover-pattern svg { width: 15rem; height: 15rem; }
-.cover-content { position: relative; z-index: 1; align-self: end; width: min(100%, 72rem); margin: 0 auto; padding: 2rem 1rem 1.35rem; }
 .eyebrow { margin: 0 0 .4rem; text-transform: uppercase; font-size: .72rem; font-weight: 850; letter-spacing: .13em; opacity: .86; }
-.cover-title-row { display: flex; flex-wrap: wrap; align-items: end; gap: .65rem 1rem; }
-.cover h1 { max-width: 24ch; margin: 0; font-size: clamp(2rem, 9vw, 3.8rem); line-height: 1; letter-spacing: -.04em; text-wrap: balance; text-shadow: 0 2px 16px rgb(0 0 0 / 52%); }
+.cover h1 { max-width: 24ch; margin: 0; line-height: 1.05; letter-spacing: -.04em; text-wrap: balance; text-shadow: 0 2px 16px rgb(0 0 0 / 52%); }
 .cover-content > p:not(.eyebrow) { max-width: 45rem; margin: .75rem 0 0; color: rgb(255 255 255 / 86%); }
-.cover-status { min-height: 2.35rem; display: inline-flex; align-items: center; gap: .5rem; border: 1px solid rgb(255 255 255 / 24%); border-radius: 999px; padding: .38rem .7rem; background: rgb(15 14 13 / 62%); box-shadow: 0 4px 14px rgb(0 0 0 / 18%); backdrop-filter: blur(8px); }
 .cover-status > span { width: .55rem; height: .55rem; flex: 0 0 auto; border-radius: 50%; background: #ff8d83; box-shadow: 0 0 0 3px rgb(255 141 131 / 16%); }
 .cover-status.open > span { background: #62df91; box-shadow: 0 0 0 3px rgb(98 223 145 / 16%); }
 .cover-status > div { display: grid; }
@@ -480,8 +476,6 @@ a { color: inherit; }
 }
 
 @media (min-width: 650px) {
-  .cover { min-height: 18rem; }
-  .cover-content { padding-inline: 1.5rem; }
   .business-info-content { gap: .6rem; padding: .6rem; }
   .business-info-item { border: 0; border-radius: .7rem; padding: .75rem; background: #faf8f4; }
   .product-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }

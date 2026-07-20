@@ -130,11 +130,13 @@ export function PublicMenu() {
   return (
     <div className="public-shell" style={publicTheme}>
       <Seo menu={data} />
-      <header className="cover" style={data.business.coverImageKey ? { backgroundImage: `url(/media/${data.business.coverImageKey})` } : undefined}>
+      <header className="cover relative h-64 overflow-hidden md:h-72" style={data.business.coverImageKey ? { backgroundImage: `url(/media/${data.business.coverImageKey})` } : undefined}>
+        <div className="absolute inset-0 z-0 bg-gradient-to-t bg-linear-to-t from-black/90 via-black/40 to-transparent" aria-hidden="true" />
         <div className="cover-pattern" aria-hidden="true"><UtensilsCrossed /></div>
-        <div className="cover-content">
+        <div className="cover-content relative z-10 mx-auto flex h-full w-full max-w-6xl flex-col items-center justify-end px-4 pb-6 text-center">
           <p className="eyebrow">Cardápio digital</p>
-          <div className="cover-title-row"><h1>{data.business.name}</h1>{openStatus && <div className={`cover-status ${openStatus.isOpen ? 'open' : 'closed'}`}><span aria-hidden="true" /><div><strong>{openStatus.isOpen ? 'Aberto agora' : 'Fechado agora'}</strong>{openStatus.isOpen && openStatus.closesAt && <small>Até às {openStatus.closesAt}</small>}</div></div>}</div>
+          <h1 className="text-center text-3xl font-bold text-white sm:text-4xl lg:text-5xl">{data.business.name}</h1>
+          {openStatus && <div className={`cover-status mt-3 flex items-center gap-2 rounded-full bg-gray-900/80 px-4 py-1.5 shadow-lg backdrop-blur-sm ${openStatus.isOpen ? 'open' : 'closed'}`}><span aria-hidden="true" /><div><strong>{openStatus.isOpen ? 'Aberto agora' : 'Fechado agora'}</strong>{openStatus.isOpen && openStatus.closesAt && <small>Até às {openStatus.closesAt}</small>}</div></div>}
           {data.business.slogan && <p>{data.business.slogan}</p>}
         </div>
       </header>
