@@ -449,7 +449,7 @@ a { color: inherit; }
 .button-nowrap svg { width: 1.05rem; flex: 0 0 auto; }
 .qr-card small { display: flex; align-items: center; gap: .35rem; color: var(--color-muted); }
 .qr-card small svg { width: 1rem; }
-
+.settings-grid input[readonly] { color: var(--color-muted); background: #f2eee8; cursor: default; }
 @media (max-width: 649px) {
   .settings-save { align-items: stretch; flex-direction: column; }
   .settings-save > div { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); }

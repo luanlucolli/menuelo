@@ -17,6 +17,7 @@ import { ApiError, parseJson, readBytesLimited, requireId } from '../lib/http'
 import { requireAdmin, type AppEnvironment } from '../middleware/auth'
 import { getMenu, getProduct } from '../repositories/menu'
 import { applyImport, serializeExport, summarizeImport } from '../services/import-export'
+import { preparePublicMenu } from '../services/public-menu'
 
 export const adminRoutes = new Hono<AppEnvironment>()
 
@@ -72,10 +73,10 @@ async function deleteObjectBestEffort(bucket: R2Bucket, key: string | null, cont
   }
 }
 
-adminRoutes.get('/menu', async (c) => c.json(await getMenu(c.env.DB, true)))
+adminRoutes.get('/menu', async (c) => c.json(preparePublicMenu(await getMenu(c.env.DB, true), c.req.url, c.env.PUBLIC_SITE_URL)))
 
 adminRoutes.get('/dashboard', async (c) => {
-  const menu = await getMenu(c.env.DB, true)
+  const menu = preparePublicMenu(await getMenu(c.env.DB, true), c.req.url, c.env.PUBLIC_SITE_URL)
   const products = menu.categories.flatMap((category) => category.products)
   return c.json({
     categories: menu.categories.length,
@@ -241,7 +242,9 @@ adminRoutes.delete('/products/:id/image', async (c) => {
   return c.json({ success: true })
 })
 
-adminRoutes.get('/settings', async (c) => c.json((await getMenu(c.env.DB, true)).business))
+adminRoutes.get('/settings', async (c) => c.json(
+  preparePublicMenu(await getMenu(c.env.DB, true), c.req.url, c.env.PUBLIC_SITE_URL).business,
+))
 
 const postalCodeParamSchema = z.string().regex(/^\d{8}$/)
 const viaCepFoundSchema = z.object({
@@ -296,7 +299,7 @@ adminRoutes.patch('/settings', async (c) => {
     address, input.addressPostalCode, input.addressStreet, input.addressNumber, input.addressComplement, input.addressNeighborhood, input.addressCity, input.addressState,
     input.mapsUrl, input.timezone, input.specialMessage, input.primaryColor, input.publicSiteUrl, input.seoTitle, input.seoDescription,
   ).run()
-  return c.json((await getMenu(c.env.DB, true)).business)
+  return c.json(preparePublicMenu(await getMenu(c.env.DB, true), c.req.url, c.env.PUBLIC_SITE_URL).business)
 })
 
 adminRoutes.post('/settings/cover-image', async (c) => {

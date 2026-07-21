@@ -1,7 +1,10 @@
 import type { BusinessHour } from '../schemas'
 
 export function formatMoney(cents: number): string {
-  return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(cents / 100)
+  const absolute = Math.abs(cents)
+  const integer = Math.floor(absolute / 100).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')
+  const decimals = String(absolute % 100).padStart(2, '0')
+  return `${cents < 0 ? '-' : ''}R$\u00a0${integer},${decimals}`
 }
 
 export function formatBrazilianPhone(value: string): string {

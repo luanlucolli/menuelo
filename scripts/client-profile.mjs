@@ -27,6 +27,7 @@ export const clientProfileSchema = z.object({
       return url.pathname === '/' && !url.search && !url.hash && !url.username && !url.password
     }, 'informe somente a origem pública, sem caminho, parâmetros ou credenciais'),
   route: z.union([customDomainRouteSchema, workersDevRouteSchema]),
+  features: z.object({ publicSsr: z.boolean() }).strict().default({ publicSsr: false }),
   access: z.object({
     teamDomain: z.url()
       .refine((value) => new URL(value).protocol === 'https:', 'use uma URL HTTPS')
@@ -121,6 +122,7 @@ export function buildWranglerConfig(baseConfig, profile) {
       CF_ACCESS_AUD: profile.access.audience,
       ADMIN_EMAILS: profile.access.adminEmails.join(','),
       PUBLIC_SITE_URL: profile.publicSiteUrl,
+      PUBLIC_SSR_ENABLED: String(profile.features.publicSsr),
     },
   }
 

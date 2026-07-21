@@ -112,6 +112,7 @@ export function runtimeEnv(overrides: Partial<RuntimeEnv> = {}): RuntimeEnv {
     CF_ACCESS_AUD: '',
     ADMIN_EMAILS: 'admin@teste.com.br',
     PUBLIC_SITE_URL: '',
+    PUBLIC_SSR_ENABLED: 'true',
     ...overrides,
   }
 }

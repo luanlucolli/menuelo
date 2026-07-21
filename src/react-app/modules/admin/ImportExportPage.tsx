@@ -5,6 +5,7 @@ import type { MenuImport } from '../../../../shared/schemas'
 import { api, fieldErrorsFromError, jsonBody, messageFromError } from '../../lib/api'
 import { AdminNotice, type Notice } from './AdminNotice'
 import { useAdminMenu } from './hooks'
+import { publicChangeNotice } from './publicationNotice'
 
 interface ImportSummary {
   incoming: { categories: number; products: number; variants: number; hours: number; paymentMethods: number; deliveryZones: number }
@@ -59,8 +60,7 @@ export function BackupManager() {
     try {
       await api('/admin/api/import/apply', { method: 'POST', body: jsonBody({ mode: 'replace', confirmed: true, data }) })
       await queryClient.invalidateQueries({ queryKey: ['admin'] })
-      await queryClient.invalidateQueries({ queryKey: ['menu'] })
-      setFeedback({ kind: 'success', message: 'Dados restaurados com sucesso. Fotos antigas não utilizadas foram preservadas no armazenamento.' })
+      setFeedback(publicChangeNotice('Dados restaurados com sucesso. Fotos antigas não utilizadas foram preservadas no armazenamento.'))
       setData(null); setSummary(null); setConfirmation('')
     } catch (cause) { setFeedback({ kind: 'error', message: messageFromError(cause) }) } finally { setBusy(false) }
   }

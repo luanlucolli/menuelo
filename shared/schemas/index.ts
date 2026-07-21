@@ -233,6 +233,125 @@ export interface MenuResponse {
   categories: Category[]
 }
 
+const responseNullableText = (max: number) => z.string().max(max).nullable()
+const responseDateTime = z.string().min(1).max(50)
+
+export const businessSettingsResponseSchema = z.object({
+  id: z.number().int().positive(),
+  name: z.string().min(1).max(120),
+  slug: z.string().min(1).max(120),
+  slogan: responseNullableText(160),
+  description: responseNullableText(500),
+  whatsapp: responseNullableText(30),
+  phone: responseNullableText(30),
+  instagramUrl: z.url().max(500).nullable(),
+  facebookUrl: z.url().max(500).nullable(),
+  address: responseNullableText(300),
+  addressPostalCode: z.string().max(9).nullable(),
+  addressStreet: responseNullableText(150),
+  addressNumber: responseNullableText(20),
+  addressComplement: responseNullableText(100),
+  addressNeighborhood: responseNullableText(100),
+  addressCity: responseNullableText(100),
+  addressState: z.string().max(2).nullable(),
+  mapsUrl: z.url().max(500).nullable(),
+  timezone: z.string().min(1).max(80),
+  specialMessage: responseNullableText(300),
+  primaryColor: z.string().regex(/^#[0-9a-fA-F]{6}$/),
+  coverImageKey: coverImageKeySchema,
+  publicSiteUrl: z.url().max(500).nullable(),
+  seoTitle: responseNullableText(120),
+  seoDescription: responseNullableText(300),
+  createdAt: responseDateTime,
+  updatedAt: responseDateTime,
+})
+
+export const businessHourResponseSchema = z.object({
+  id: idSchema,
+  weekday: z.number().int().min(0).max(6),
+  opensAt: timeSchema.nullable(),
+  closesAt: timeSchema.nullable(),
+  isClosed: z.boolean(),
+  sortOrder: z.number().int().nonnegative().max(100),
+})
+
+export const paymentMethodResponseSchema = z.object({
+  id: idSchema,
+  name: z.string().min(1).max(80),
+  isActive: z.boolean(),
+  sortOrder: z.number().int().nonnegative().max(1000),
+})
+
+export const deliveryZoneResponseSchema = z.object({
+  id: idSchema,
+  name: z.string().min(1).max(100),
+  feeCents: moneySchema.nullable(),
+  notes: responseNullableText(300),
+  isActive: z.boolean(),
+  sortOrder: z.number().int().nonnegative().max(1000),
+})
+
+export const productVariantResponseSchema = z.object({
+  id: idSchema,
+  label: responseNullableText(40),
+  priceCents: positiveMoneySchema,
+  promotionalPriceCents: positiveMoneySchema.nullable(),
+  isActive: z.boolean(),
+  sortOrder: z.number().int().nonnegative().max(10_000),
+})
+
+export const productResponseSchema = z.object({
+  id: idSchema,
+  categoryId: idSchema,
+  name: z.string().min(1).max(120),
+  ingredients: responseNullableText(1000),
+  imageKey: productImageKeySchema,
+  isAvailable: z.boolean(),
+  isFeatured: z.boolean(),
+  sortOrder: z.number().int().nonnegative().max(10_000),
+  createdAt: responseDateTime,
+  updatedAt: responseDateTime,
+  variants: z.array(productVariantResponseSchema).max(20),
+})
+
+export const categoryResponseSchema = z.object({
+  id: idSchema,
+  name: z.string().min(1).max(80),
+  slug: z.string().min(1).max(160),
+  description: responseNullableText(500),
+  isActive: z.boolean(),
+  sortOrder: z.number().int().nonnegative().max(10_000),
+  createdAt: responseDateTime,
+  updatedAt: responseDateTime,
+  products: z.array(productResponseSchema).max(500),
+})
+
+export const menuResponseSchema: z.ZodType<MenuResponse> = z.object({
+  business: businessSettingsResponseSchema,
+  hours: z.array(businessHourResponseSchema).max(50),
+  paymentMethods: z.array(paymentMethodResponseSchema).max(100),
+  deliveryZones: z.array(deliveryZoneResponseSchema).max(200),
+  categories: z.array(categoryResponseSchema).max(100),
+}).superRefine((menu, context) => {
+  const productCount = menu.categories.reduce((total, category) => total + category.products.length, 0)
+  if (productCount > 500) context.addIssue({ code: 'custom', path: ['categories'], message: 'O cardápio excede o limite de 500 produtos.' })
+})
+
+export const zonedClockSchema = z.object({
+  weekday: z.number().int().min(0).max(6),
+  minutes: z.number().int().min(0).max(1439),
+})
+
+export const publicMenuBootstrapSchema = z.object({
+  schemaVersion: z.literal(1),
+  menu: menuResponseSchema,
+  renderedAt: z.iso.datetime(),
+  initialClock: zonedClockSchema,
+})
+
+export type ZonedClock = z.infer<typeof zonedClockSchema>
+export type PublicMenuBootstrap = z.infer<typeof publicMenuBootstrapSchema>
+
 export interface ApiErrorBody {
   code: string
   message: string

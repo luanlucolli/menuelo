@@ -12,10 +12,10 @@ import { AdminNotice, type Notice } from './AdminNotice'
 import { AdminState } from './DashboardPage'
 import { ConfirmDialog } from './ConfirmDialog'
 import { ProductForm } from './ProductForm'
+import { publicChangeNotice } from './publicationNotice'
 import { useAdminMenu } from './hooks'
 import { productToInput, replaceProduct } from './productInput'
 
-type ProductsNotice = Notice & { refreshToken?: string }
 type ProductFilter = 'all' | 'available' | 'unavailable' | 'promotion' | 'featured' | 'no-image'
 
 const PRODUCT_FILTERS: { value: ProductFilter; label: string }[] = [
@@ -29,10 +29,6 @@ const PRODUCT_FILTERS: { value: ProductFilter; label: string }[] = [
 
 function productFilterFrom(value: string | null): ProductFilter {
   return PRODUCT_FILTERS.some((filter) => filter.value === value) ? value as ProductFilter : 'all'
-}
-
-function successNotice(message: string): ProductsNotice {
-  return { kind: 'success', message, refreshToken: crypto.randomUUID() }
 }
 
 function SortableProduct({ product, categoryName, index, total, orderingEnabled, availabilityBusy, onMove, onEdit, onToggleAvailability, onDuplicate, onDelete }: { product: Product; categoryName: string; index: number; total: number; orderingEnabled: boolean; availabilityBusy: boolean; onMove: (direction: -1 | 1) => void; onEdit: () => void; onToggleAvailability: () => void; onDuplicate: () => void; onDelete: () => void }) {
@@ -63,7 +59,7 @@ export function ProductsPage() {
   const [deleting, setDeleting] = useState<Product | null>(null)
   const [organizing, setOrganizing] = useState(false)
   const [draftOrder, setDraftOrder] = useState<string[]>([])
-  const [feedback, setFeedback] = useState<ProductsNotice | null>(null)
+  const [feedback, setFeedback] = useState<Notice | null>(null)
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }), useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }))
   const selectedCategoryId = categoryId || 'all'
   const activeCategory = data?.categories.find((category) => category.id === selectedCategoryId)
@@ -91,8 +87,8 @@ export function ProductsPage() {
   }, [draftOrder, filteredProducts, organizing])
   const canOrganize = Boolean(activeCategory) && !search && filter === 'all'
   const orderingEnabled = canOrganize && organizing
-  const invalidate = async () => { await queryClient.invalidateQueries({ queryKey: ['admin'] }); await queryClient.invalidateQueries({ queryKey: ['menu'] }) }
-  const reorder = useMutation({ mutationFn: (ordered: Product[]) => api('/admin/api/products/reorder', { method: 'POST', body: jsonBody({ items: ordered.map((item, index) => ({ id: item.id, sortOrder: index })) }) }), onSuccess: async () => { setOrganizing(false); setDraftOrder([]); setFeedback({ kind: 'success', message: 'Ordem dos produtos salva.' }); await invalidate() }, onError: (cause) => setFeedback({ kind: 'error', message: `${messageFromError(cause)} A ordem em edição foi mantida para você tentar novamente.` }) })
+  const invalidate = async () => { await queryClient.invalidateQueries({ queryKey: ['admin'] }) }
+  const reorder = useMutation({ mutationFn: (ordered: Product[]) => api('/admin/api/products/reorder', { method: 'POST', body: jsonBody({ items: ordered.map((item, index) => ({ id: item.id, sortOrder: index })) }) }), onSuccess: async () => { setOrganizing(false); setDraftOrder([]); setFeedback(publicChangeNotice('Ordem dos produtos salva.')); await invalidate() }, onError: (cause) => setFeedback({ kind: 'error', message: `${messageFromError(cause)} A ordem em edição foi mantida para você tentar novamente.` }) })
   const availability = useMutation({
     mutationFn: ({ product, next }: { product: Product; next: boolean }) => api<Product>(`/admin/api/products/${product.id}`, { method: 'PATCH', body: jsonBody(productToInput(product, { isAvailable: next })) }),
     onMutate: async ({ product, next }) => {
@@ -107,12 +103,12 @@ export function ProductsPage() {
     },
     onSuccess: (saved) => {
       queryClient.setQueryData<MenuResponse>(['admin', 'menu'], (menu) => replaceProduct(menu, saved))
-      setFeedback(successNotice(saved.isAvailable ? 'Produto marcado como disponível.' : 'Produto marcado como indisponível.'))
+      setFeedback(publicChangeNotice(saved.isAvailable ? 'Produto marcado como disponível.' : 'Produto marcado como indisponível.'))
     },
     onSettled: invalidate,
   })
-  const duplicate = useMutation({ mutationFn: (id: string) => api<Product>(`/admin/api/products/${id}/duplicate`, { method: 'POST' }), onSuccess: async (copy) => { setFeedback(successNotice('Cópia criada. Revise os dados antes de continuar.')); await invalidate(); setEditing(copy) }, onError: (cause) => setFeedback({ kind: 'error', message: messageFromError(cause) }) })
-  const remove = useMutation({ mutationFn: (id: string) => api(`/admin/api/products/${id}`, { method: 'DELETE' }), onSuccess: async () => { setDeleting(null); setFeedback(successNotice('Produto excluído.')); await invalidate() }, onError: (cause) => setFeedback({ kind: 'error', message: messageFromError(cause) }) })
+  const duplicate = useMutation({ mutationFn: (id: string) => api<Product>(`/admin/api/products/${id}/duplicate`, { method: 'POST' }), onSuccess: async (copy) => { setFeedback(publicChangeNotice('Cópia criada. Revise os dados antes de continuar.')); await invalidate(); setEditing(copy) }, onError: (cause) => setFeedback({ kind: 'error', message: messageFromError(cause) }) })
+  const remove = useMutation({ mutationFn: (id: string) => api(`/admin/api/products/${id}`, { method: 'DELETE' }), onSuccess: async () => { setDeleting(null); setFeedback(publicChangeNotice('Produto excluído.')); await invalidate() }, onError: (cause) => setFeedback({ kind: 'error', message: messageFromError(cause) }) })
   const setOrderedProducts = (ordered: Product[]) => { if (orderingEnabled) setDraftOrder(ordered.map((product) => product.id)) }
   const onDragEnd = (event: DragEndEvent) => { if (!event.over || event.active.id === event.over.id || !orderingEnabled) return; const from = products.findIndex((item) => item.id === event.active.id); const to = products.findIndex((item) => item.id === event.over?.id); setOrderedProducts(arrayMove(products, from, to)) }
   const startOrganizing = () => { setDraftOrder(filteredProducts.map((product) => product.id)); setOrganizing(true); setFeedback(null) }
@@ -149,11 +145,11 @@ export function ProductsPage() {
   if (error || !data) return <AdminState error message={messageFromError(error)} onRetry={() => void refetch()} retrying={isFetching} />
   return <div className="admin-page">
     <div className="admin-heading"><div><p>Cardápio</p><h1>Produtos</h1><span>Edite informações, preços, tamanhos e disponibilidade dos produtos.</span></div><button className="primary-button" type="button" disabled={!data.categories.length} onClick={() => { setFeedback(null); setEditing('new') }}><Plus /> Novo produto</button></div>
-    {feedback && <AdminNotice notice={feedback} action={feedback.refreshToken ? <a className="feedback-action" href={`/?refresh=${feedback.refreshToken}`} target="_blank" rel="noreferrer">Ver no cardápio</a> : undefined} />}
+    {feedback && <AdminNotice notice={feedback} />}
     <div className="admin-filters"><label>Categoria<select value={selectedCategoryId} onChange={(event) => changeCategory(event.target.value)}><option value="all">Todas as categorias</option>{data.categories.map((category) => <option key={category.id} value={category.id}>{category.name}</option>)}</select></label><label>Mostrar<select value={filter} onChange={(event) => changeFilter(event.target.value as ProductFilter)}>{PRODUCT_FILTERS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select></label><label className="filter-search"><Search /><span>Pesquisar</span><input type="search" placeholder="Nome ou ingrediente" value={search} onChange={(event) => { setSearch(event.target.value); if (event.target.value) cancelOrganizing() }} /></label></div>
     <div className="organizing-toolbar">{organizing ? <><span>Organize por arraste ou pelos botões.</span><div><button className="secondary-button" type="button" onClick={cancelOrganizing}><X /> Cancelar</button><button className="primary-button" type="button" disabled={reorder.isPending} onClick={() => reorder.mutate(products)}><Check /> {reorder.isPending ? 'Salvando…' : 'Salvar ordem'}</button></div></> : canOrganize ? <button className="secondary-button" type="button" onClick={startOrganizing}><ListOrdered /> Organizar produtos</button> : products.length > 0 ? <span className="helper-text">Escolha uma categoria e limpe a pesquisa para organizar.</span> : null}</div>
     <section className={`admin-card list-card${organizing ? ' organizing' : ''}`}>{!products.length ? <div className="admin-empty"><strong>Nenhum produto encontrado.</strong><span>{search || filter !== 'all' ? 'Tente outra busca ou limpe os filtros.' : 'Adicione o primeiro produto para começar.'}</span>{search || filter !== 'all' ? <button className="secondary-button" type="button" onClick={clearFilters}>Limpar filtros</button> : <button className="primary-button" type="button" disabled={!data.categories.length} onClick={() => { setFeedback(null); setEditing('new') }}><Plus /> Adicionar produto</button>}</div> : <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}><SortableContext items={products.map((item) => item.id)} strategy={verticalListSortingStrategy}>{products.map((product, index) => <SortableProduct key={product.id} product={product} categoryName={categoryNames.get(product.categoryId) ?? 'Sem categoria'} index={index} total={products.length} orderingEnabled={orderingEnabled} availabilityBusy={availability.isPending && availability.variables?.product.id === product.id} onMove={(direction) => setOrderedProducts(arrayMove(products, index, index + direction))} onEdit={() => { setFeedback(null); setEditing(product) }} onToggleAvailability={() => availability.mutate({ product, next: !product.isAvailable })} onDuplicate={() => duplicate.mutate(product.id)} onDelete={() => { setFeedback(null); setDeleting(product) }} />)}</SortableContext></DndContext>}</section>
-    {editing && <ProductForm product={editing === 'new' ? null : editing} categories={data.categories} initialCategoryId={activeCategory?.id} onClose={closeProductForm} onCategoryCreated={invalidate} onSaved={async (message) => { await invalidate(); setFeedback(successNotice(message)) }} />}
+    {editing && <ProductForm product={editing === 'new' ? null : editing} categories={data.categories} initialCategoryId={activeCategory?.id} onClose={closeProductForm} onCategoryCreated={invalidate} onSaved={async (message) => { await invalidate(); setFeedback(publicChangeNotice(message)) }} />}
     {deleting && <ConfirmDialog title={`Excluir “${deleting.name}”?`} description="O produto e sua foto serão removidos permanentemente. Essa ação não pode ser desfeita." confirmLabel="Excluir produto" busy={remove.isPending} onClose={() => setDeleting(null)} onConfirm={() => remove.mutate(deleting.id)} />}
   </div>
 }

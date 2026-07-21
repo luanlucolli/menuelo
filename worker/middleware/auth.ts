@@ -2,12 +2,13 @@ import { createRemoteJWKSet, jwtVerify } from 'jose'
 import { createMiddleware } from 'hono/factory'
 import { ApiError } from '../lib/http'
 
-export type RuntimeEnv = Omit<Env, 'DEV_ADMIN_BYPASS' | 'CF_ACCESS_TEAM_DOMAIN' | 'CF_ACCESS_AUD' | 'ADMIN_EMAILS' | 'PUBLIC_SITE_URL'> & {
+export type RuntimeEnv = Omit<Env, 'DEV_ADMIN_BYPASS' | 'CF_ACCESS_TEAM_DOMAIN' | 'CF_ACCESS_AUD' | 'ADMIN_EMAILS' | 'PUBLIC_SITE_URL' | 'PUBLIC_SSR_ENABLED'> & {
   DEV_ADMIN_BYPASS: string
   CF_ACCESS_TEAM_DOMAIN: string
   CF_ACCESS_AUD: string
   ADMIN_EMAILS: string
   PUBLIC_SITE_URL: string
+  PUBLIC_SSR_ENABLED: string
 }
 
 export type AppEnvironment = {

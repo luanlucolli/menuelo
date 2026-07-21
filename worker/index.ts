@@ -3,9 +3,14 @@ import { ApiError, errorJson } from './lib/http'
 import type { AppEnvironment } from './middleware/auth'
 import { mediaRoutes, publicRoutes } from './routes/public'
 import { adminRoutes } from './routes/admin'
+import { servePublicPage, serveRobots, serveSitemap } from './routes/public-page'
 
 const app = new Hono<AppEnvironment>()
 
+app.get('/', servePublicPage)
+app.on('HEAD', '/', servePublicPage)
+app.get('/robots.txt', serveRobots)
+app.get('/sitemap.xml', serveSitemap)
 app.route('/api', publicRoutes)
 app.route('/media', mediaRoutes)
 app.route('/admin/api', adminRoutes)

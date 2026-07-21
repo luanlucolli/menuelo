@@ -59,7 +59,14 @@ describe('perfis externos de cliente', () => {
       workers_dev: false,
       preview_urls: false,
       routes: [{ pattern: 'cardapio.padaria-sol.com.br', custom_domain: true }],
+      vars: { PUBLIC_SSR_ENABLED: 'false' },
     })
+  })
+
+  it('ativa SSR somente quando o perfil autoriza', () => {
+    const parsed = clientProfileSchema.parse({ ...profile('padaria-sol', 1), features: { publicSsr: true } })
+    const config = buildWranglerConfig({}, parsed)
+    expect(config.vars.PUBLIC_SSR_ENABLED).toBe('true')
   })
 
   it('recusa recurso compartilhado entre clientes', async () => {

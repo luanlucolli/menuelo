@@ -2,14 +2,12 @@ import { Hono } from 'hono'
 import { z } from 'zod'
 import { getMenu } from '../repositories/menu'
 import type { AppEnvironment } from '../middleware/auth'
+import { preparePublicMenu } from '../services/public-menu'
 
 export const publicRoutes = new Hono<AppEnvironment>()
 
 publicRoutes.get('/menu', async (c) => {
-  const menu = await getMenu(c.env.DB)
-  if (!menu.business.publicSiteUrl) {
-    menu.business.publicSiteUrl = String(c.env.PUBLIC_SITE_URL || '') || new URL(c.req.url).origin
-  }
+  const menu = preparePublicMenu(await getMenu(c.env.DB), c.req.url, c.env.PUBLIC_SITE_URL)
   c.header('Cache-Control', 'public, max-age=30, s-maxage=60, must-revalidate')
   return c.json(menu)
 })

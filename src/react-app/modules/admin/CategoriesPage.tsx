@@ -15,6 +15,7 @@ import { AdminNotice, type Notice } from './AdminNotice'
 import { ConfirmDialog } from './ConfirmDialog'
 import { AdminState } from './DashboardPage'
 import { useAdminMenu } from './hooks'
+import { publicChangeNotice } from './publicationNotice'
 
 function SortableCategory({ category, index, total, organizing, onEdit, onDelete, onMove }: { category: Category; index: number; total: number; organizing: boolean; onEdit: () => void; onDelete: () => void; onMove: (direction: -1 | 1) => void }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: category.id, disabled: !organizing })
@@ -49,14 +50,14 @@ export function CategoriesPage() {
     if (editing === 'new') form.reset({ name: '', description: null, isActive: true, sortOrder: items.length })
   }, [editing, form, items.length])
 
-  const invalidate = async () => { await queryClient.invalidateQueries({ queryKey: ['admin'] }); await queryClient.invalidateQueries({ queryKey: ['menu'] }) }
-  const reorder = useMutation({ mutationFn: (ordered: Category[]) => api('/admin/api/categories/reorder', { method: 'POST', body: jsonBody({ items: ordered.map((item, index) => ({ id: item.id, sortOrder: index })) }) }), onSuccess: async () => { setOrganizing(false); setOrder([]); setFeedback({ kind: 'success', message: 'Ordem das categorias salva.' }); await invalidate() }, onError: (cause) => setFeedback({ kind: 'error', message: `${messageFromError(cause)} A ordem em edição foi mantida para você tentar novamente.` }) })
+  const invalidate = async () => { await queryClient.invalidateQueries({ queryKey: ['admin'] }) }
+  const reorder = useMutation({ mutationFn: (ordered: Category[]) => api('/admin/api/categories/reorder', { method: 'POST', body: jsonBody({ items: ordered.map((item, index) => ({ id: item.id, sortOrder: index })) }) }), onSuccess: async () => { setOrganizing(false); setOrder([]); setFeedback(publicChangeNotice('Ordem das categorias salva.')); await invalidate() }, onError: (cause) => setFeedback({ kind: 'error', message: `${messageFromError(cause)} A ordem em edição foi mantida para você tentar novamente.` }) })
   const save = useMutation({ mutationFn: (input: CategoryInput) => {
     if (editing === 'new') return api('/admin/api/categories', { method: 'POST', body: jsonBody(input) })
     if (!editing) throw new Error('Categoria não selecionada.')
     return api(`/admin/api/categories/${editing.id}`, { method: 'PATCH', body: jsonBody(input) })
-  }, onSuccess: async () => { setEditing(null); setFeedback({ kind: 'success', message: 'Categoria salva.' }); await invalidate() }, onError: (cause) => setFormError(messageFromError(cause)) })
-  const remove = useMutation({ mutationFn: (id: string) => api(`/admin/api/categories/${id}`, { method: 'DELETE' }), onSuccess: async () => { setDeleting(null); setFeedback({ kind: 'success', message: 'Categoria excluída.' }); await invalidate() }, onError: (cause) => { setDeleting(null); setFeedback({ kind: 'error', message: messageFromError(cause) }) } })
+  }, onSuccess: async () => { setEditing(null); setFeedback(publicChangeNotice('Categoria salva.')); await invalidate() }, onError: (cause) => setFormError(messageFromError(cause)) })
+  const remove = useMutation({ mutationFn: (id: string) => api(`/admin/api/categories/${id}`, { method: 'DELETE' }), onSuccess: async () => { setDeleting(null); setFeedback(publicChangeNotice('Categoria excluída.')); await invalidate() }, onError: (cause) => { setDeleting(null); setFeedback({ kind: 'error', message: messageFromError(cause) }) } })
 
   const setOrderedCategories = (ordered: Category[]) => { if (organizing) setOrder(ordered.map((category) => category.id)) }
   const onDragEnd = (event: DragEndEvent) => {

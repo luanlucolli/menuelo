@@ -7,7 +7,7 @@
   "assets": {
     "binding": "ASSETS",
     "not_found_handling": "single-page-application",
-    "run_worker_first": ["/api/*", "/admin/api/*", "/media/*"]
+    "run_worker_first": ["/", "/robots.txt", "/sitemap.xml", "/api/*", "/admin/api/*", "/media/*"]
   },
   "d1_databases": [
     {
@@ -28,7 +28,8 @@
     "CF_ACCESS_TEAM_DOMAIN": "",
     "CF_ACCESS_AUD": "",
     "ADMIN_EMAILS": "",
-    "PUBLIC_SITE_URL": ""
+    "PUBLIC_SITE_URL": "",
+    "PUBLIC_SSR_ENABLED": "true"
   },
   "secrets": {
     "required": []

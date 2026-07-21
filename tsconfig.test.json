@@ -7,7 +7,8 @@
     "moduleResolution": "bundler",
     "erasableSyntaxOnly": false,
     "lib": ["ES2023", "DOM"],
-    "strict": true
+    "strict": true,
+    "jsx": "react-jsx"
   },
   "include": ["test", "worker", "shared"]
 }

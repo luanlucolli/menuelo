@@ -8,6 +8,45 @@ async function menu(request: APIRequestContext): Promise<MenuResponse> {
   return response.json() as Promise<MenuResponse>
 }
 
+async function publicMenu(request: APIRequestContext): Promise<MenuResponse> {
+  const response = await request.get('/api/menu')
+  expect(response.ok()).toBeTruthy()
+  return response.json() as Promise<MenuResponse>
+}
+
+test('HTML público contém conteúdo e SEO antes do JavaScript e hidrata sem refetch', async ({ browser, page, request }) => {
+  const current = await publicMenu(request)
+  const product = current.categories.flatMap((category) => category.products)[0]
+  const response = await request.get('/')
+  expect(response.ok()).toBeTruthy()
+  const html = await response.text()
+  expect(html).toContain(current.business.name)
+  if (product) {
+    expect(html).toContain(product.name)
+    expect(html).toMatch(/R\$[^<]*\d/)
+  }
+  expect(html).toContain('<link rel="canonical"')
+  expect(html).toContain('property="og:url"')
+  expect(html).toContain('data-menu-json-ld')
+  expect(html).toContain('id="__MENU_DATA__"')
+
+  const noScriptContext = await browser.newContext({ javaScriptEnabled: false })
+  const noScriptPage = await noScriptContext.newPage()
+  await noScriptPage.goto('/')
+  await expect(noScriptPage.getByRole('heading', { level: 1, name: current.business.name })).toBeVisible()
+  if (product) await expect(noScriptPage.getByText(product.name, { exact: true }).first()).toBeVisible()
+  await noScriptContext.close()
+
+  let menuRequests = 0
+  const hydrationErrors: string[] = []
+  page.on('request', (browserRequest) => { if (new URL(browserRequest.url()).pathname === '/api/menu') menuRequests += 1 })
+  page.on('console', (message) => { if (/hydration|did not match|server rendered/i.test(message.text())) hydrationErrors.push(message.text()) })
+  await page.goto('/')
+  await expect(page.getByRole('searchbox', { name: 'Pesquisar no cardápio' })).toBeVisible()
+  expect(menuRequests).toBe(0)
+  expect(hydrationErrors).toEqual([])
+})
+
 test('cardápio público é responsivo, pesquisa sem duplicar e devolve o foco', async ({ page, request }) => {
   const current = await menu(request)
   const category = current.categories.find((item) => item.products.length > 0)
