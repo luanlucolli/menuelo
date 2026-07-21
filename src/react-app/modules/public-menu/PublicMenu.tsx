@@ -166,13 +166,13 @@ export function PublicMenu() {
 
         <div className="menu-content">
           {!allProducts.length && <div className="empty-state"><Search /><h2>{searching ? 'Nenhum item encontrado' : 'Cardápio em preparação'}</h2><p>{searching ? 'Tente outra palavra na pesquisa.' : 'Os itens serão publicados em breve.'}</p>{searching && <button type="button" className="secondary-button" onClick={() => setSearch('')}>Limpar pesquisa</button>}</div>}
-          {searching && allProducts.length > 0 ? <section className="search-results"><div className="section-title"><p>Resultados</p><h2>{allProducts.length} {allProducts.length === 1 ? 'item encontrado' : 'itens encontrados'}</h2></div><div className="product-grid">{allProducts.map((product) => <ProductCard key={product.id} product={product} onSelect={selectProduct} />)}</div></section> : <>
-          {featured.length > 0 && <section className="highlight-section"><div className="section-title"><p>Destaques</p><h2>Escolhas da casa</h2></div><div className="product-grid">{featured.map((product) => <ProductCard key={`featured-${product.id}`} product={product} onSelect={selectProduct} />)}</div></section>}
-          {promotions.length > 0 && <section className="promotion-section"><div className="section-title"><p>Promoções</p><h2>Preços especiais</h2></div><div className="product-grid">{promotions.map((product) => <ProductCard key={`promo-${product.id}`} product={product} onSelect={selectProduct} />)}</div></section>}
+          {searching && allProducts.length > 0 ? <section className="search-results"><div className="section-title"><p>Resultados</p><h2>{allProducts.length} {allProducts.length === 1 ? 'item encontrado' : 'itens encontrados'}</h2></div><div className="product-grid">{allProducts.map((product) => <ProductCard key={product.id} product={product} coverImageKey={data.business.coverImageKey} onSelect={selectProduct} />)}</div></section> : <>
+          {featured.length > 0 && <section className="highlight-section"><div className="section-title"><p>Destaques</p><h2>Escolhas da casa</h2></div><div className="product-grid">{featured.map((product) => <ProductCard key={`featured-${product.id}`} product={product} coverImageKey={data.business.coverImageKey} onSelect={selectProduct} />)}</div></section>}
+          {promotions.length > 0 && <section className="promotion-section"><div className="section-title"><p>Promoções</p><h2>Preços especiais</h2></div><div className="product-grid">{promotions.map((product) => <ProductCard key={`promo-${product.id}`} product={product} coverImageKey={data.business.coverImageKey} onSelect={selectProduct} />)}</div></section>}
           {categories.map((category) => (
             <section key={category.id} id={category.slug} data-category-section className="category-section">
               <div className="section-title"><h2>{category.name}</h2>{category.description && <p>{category.description}</p>}</div>
-              <div className="product-grid">{category.products.map((product) => <ProductCard key={product.id} product={product} onSelect={selectProduct} />)}</div>
+              <div className="product-grid">{category.products.map((product) => <ProductCard key={product.id} product={product} coverImageKey={data.business.coverImageKey} onSelect={selectProduct} />)}</div>
             </section>
           ))}</>}
         </div>
@@ -190,7 +190,7 @@ export function PublicMenu() {
       </footer>
 
       {validWhatsapp && <a className="whatsapp-fab" href={`https://wa.me/${whatsappDigits}`} target="_blank" rel="noreferrer" aria-label="Abrir conversa no WhatsApp"><img src={whatsappLogo} alt="" aria-hidden="true" /></a>}
-      {selected && <ProductDialog product={selected} onClose={closeProduct} />}
+      {selected && <ProductDialog product={selected} coverImageKey={data.business.coverImageKey} onClose={closeProduct} />}
     </div>
   )
 }

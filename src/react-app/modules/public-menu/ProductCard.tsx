@@ -1,4 +1,4 @@
-import { ImageIcon, X } from 'lucide-react'
+import { X } from 'lucide-react'
 import { useEffect, useRef } from 'react'
 import type { Product } from '../../../../shared/schemas'
 import { formatMoney } from '../../../../shared/utils'
@@ -20,13 +20,13 @@ function Prices({ product }: { product: Product }) {
   )
 }
 
-function ProductImage({ product, modal = false }: { product: Product; modal?: boolean }) {
+function ProductImage({ product, coverImageKey, modal = false }: { product: Product; coverImageKey?: string | null; modal?: boolean }) {
   return product.imageKey
     ? <img className={modal ? 'modal-product-image' : 'product-image'} src={`/media/${product.imageKey}`} alt="" loading="lazy" />
-    : <div className={modal ? 'modal-placeholder' : 'product-placeholder'} aria-hidden="true"><ImageIcon /></div>
+    : <div className={`${modal ? 'modal-placeholder' : 'product-placeholder'}${coverImageKey ? ' has-cover-image' : ''}`} aria-hidden="true">{coverImageKey && <img src={`/media/${coverImageKey}`} alt="" loading="lazy" />}</div>
 }
 
-export function ProductDialog({ product, onClose }: { product: Product; onClose: () => void }) {
+export function ProductDialog({ product, coverImageKey, onClose }: { product: Product; coverImageKey?: string | null; onClose: () => void }) {
   const ref = useRef<HTMLDialogElement>(null)
   const onCloseRef = useRef(onClose)
   useEffect(() => { onCloseRef.current = onClose }, [onClose])
@@ -45,7 +45,7 @@ export function ProductDialog({ product, onClose }: { product: Product; onClose:
     <dialog ref={ref} className="product-dialog" aria-labelledby="product-dialog-title" onClick={(event) => { if (event.target === ref.current) ref.current?.close() }}>
       <div className="dialog-sheet">
         <button className="dialog-close" type="button" aria-label="Fechar detalhes" onClick={() => ref.current?.close()}><X /></button>
-        <ProductImage product={product} modal />
+        <ProductImage product={product} coverImageKey={coverImageKey} modal />
         <div className="dialog-content">
           {!product.isAvailable && <span className="availability-badge">Indisponível</span>}
           <h2 id="product-dialog-title">{product.name}</h2>
@@ -57,10 +57,10 @@ export function ProductDialog({ product, onClose }: { product: Product; onClose:
   )
 }
 
-export function ProductCard({ product, onSelect }: { product: Product; onSelect: (product: Product, trigger: HTMLButtonElement) => void }) {
+export function ProductCard({ product, coverImageKey, onSelect }: { product: Product; coverImageKey?: string | null; onSelect: (product: Product, trigger: HTMLButtonElement) => void }) {
   return (
     <button className={`product-card${product.isAvailable ? '' : ' unavailable'}`} type="button" onClick={(event) => onSelect(product, event.currentTarget)} aria-label={`Ver detalhes de ${product.name}`}>
-      <ProductImage product={product} />
+      <ProductImage product={product} coverImageKey={coverImageKey} />
       <div className="product-copy">
         <div className="product-heading">
           <h3>{product.name}</h3>
