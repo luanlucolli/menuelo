@@ -54,8 +54,8 @@ test('painel mobile prioriza tarefas e mantém navegação acessível', async ({
   await expect(menuButton).toBeFocused()
 
   await page.goto('/admin/importar-exportar')
-  await expect(page).toHaveURL(/\/admin\/configuracoes\/importar-exportar$/)
-  await expect(page.getByRole('heading', { name: 'Cópia de segurança' })).toBeVisible()
+  await expect(page).toHaveURL(/\/admin\/configuracoes\?secao=avancado$/)
+  await expect(page.getByRole('heading', { name: 'Cópias e restauração' })).toBeVisible()
   await expect(page.getByText('Baixe uma cópia dos dados ou restaure uma cópia anterior.')).toBeVisible()
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBeTruthy()
 })
@@ -287,14 +287,11 @@ test('configurações são divididas por tarefa e restauração valida antes de 
     }
     await page.getByRole('button', { name: /Avançado/ }).click()
     await expect(page.getByRole('heading', { name: 'Opções avançadas' })).toBeVisible()
-    const copiesLink = page.getByRole('link', { name: 'Gerenciar cópias' })
-    await expect(copiesLink).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Cópias e restauração' })).toBeVisible()
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBeTruthy()
 
     const exported = await request.get('/admin/api/export')
     const copy = await exported.body()
-    await copiesLink.click()
-    await expect(page).toHaveURL(/\/admin\/configuracoes\/importar-exportar$/)
     await page.locator('input[type="file"]').setInputFiles({ name: 'copia.json', mimeType: 'application/json', buffer: copy })
     await expect(page.getByRole('heading', { name: 'Confira antes de substituir' })).toBeVisible()
     const replace = page.getByRole('button', { name: 'Substituir dados atuais' })

@@ -364,11 +364,7 @@ a { color: inherit; }
 .settings-nav button.active .settings-unsaved { color: var(--color-brand-text); background: rgb(255 255 255 / 20%); }
 .settings-subsections { display: grid; gap: 1rem; }
 .settings-grid { display: grid; gap: .8rem; }
-.backup-settings-card { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: .75rem; }
-.backup-settings-card > svg { width: 2.5rem; height: 2.5rem; border-radius: .65rem; padding: .6rem; color: var(--color-brand-strong); background: var(--color-brand-soft); }
-.backup-settings-card h2, .backup-settings-card p { margin: 0; }
-.backup-settings-card p { margin-top: .2rem; color: var(--color-muted); font-size: .84rem; line-height: 1.45; }
-.backup-settings-card .secondary-button { grid-column: 1 / -1; justify-self: stretch; }
+.settings-backup { display: grid; gap: 1rem; margin-top: 1rem; }
 .address-section { display: grid; gap: 1rem; }
 .address-heading { display: flex; align-items: start; gap: .75rem; }
 .address-heading > span { width: 2.5rem; height: 2.5rem; flex: 0 0 auto; display: grid; place-items: center; border-radius: .65rem; color: var(--color-brand-strong); background: var(--color-brand-soft); }
@@ -428,12 +424,14 @@ a { color: inherit; }
 .copy-days legend { padding-inline: .25rem; font-size: .8rem; font-weight: 800; }
 .copy-days legend small { color: var(--color-muted); font-weight: 500; }
 .compact-empty { padding-block: 1.5rem; }
-.two-card-grid { display: grid; gap: 1rem; }
-.action-card { display: flex; flex-direction: column; align-items: start; }
-.action-card > svg { color: var(--color-brand); }
-.action-card h2 { margin: .7rem 0 .2rem; }
-.action-card p { flex: 1; margin: .2rem 0 1rem; color: var(--color-muted); }
-.import-summary { margin-top: 1rem; }
+.backup-action-grid { display: grid; gap: .75rem; }
+.backup-action-card, .backup-import-summary { border: 1px solid var(--color-border); border-radius: .7rem; padding: .9rem; background: #faf8f5; }
+.backup-action-card { display: flex; flex-direction: column; align-items: start; }
+.backup-action-card > svg { width: 1.25rem; color: var(--color-brand); }
+.backup-action-card h3 { margin: .65rem 0 .2rem; font-size: 1rem; }
+.backup-action-card p { flex: 1; margin: .2rem 0 .9rem; color: var(--color-muted); font-size: .86rem; line-height: 1.45; }
+.backup-import-summary { display: grid; gap: 1rem; }
+.backup-import-summary .card-heading h3 { margin: 0; font-size: 1rem; }
 .diff-table { display: grid; border: 1px solid var(--color-border); border-radius: .65rem; overflow: hidden; }
 .diff-table > div { display: grid; grid-template-columns: 1fr 4rem 4rem; gap: .5rem; padding: .55rem .7rem; border-bottom: 1px solid var(--color-border); }
 .diff-table > div:first-child { background: #eee9e1; }
@@ -495,9 +493,7 @@ a { color: inherit; }
   .product-main-fields { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; }
   .category-field { grid-template-columns: minmax(0, 1fr) auto; align-items: end; }
   .inline-create-category { grid-template-columns: minmax(0, 1fr) auto; align-items: end; }
-  .settings-grid, .two-card-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .backup-settings-card { grid-template-columns: auto minmax(0, 1fr) auto; }
-  .backup-settings-card .secondary-button { grid-column: auto; justify-self: end; }
+  .settings-grid, .backup-action-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .settings-grid .wide { grid-column: 1 / -1; }
   .address-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
   .postal-code-field, .postal-code-feedback { grid-column: 1 / -1; }

@@ -7,7 +7,6 @@ const DashboardPage = lazy(() => import('./modules/admin/DashboardPage').then((m
 const CategoriesPage = lazy(() => import('./modules/admin/CategoriesPage').then((module) => ({ default: module.CategoriesPage })))
 const ProductsPage = lazy(() => import('./modules/admin/ProductsPage').then((module) => ({ default: module.ProductsPage })))
 const SettingsPage = lazy(() => import('./modules/admin/SettingsPage').then((module) => ({ default: module.SettingsPage })))
-const ImportExportPage = lazy(() => import('./modules/admin/ImportExportPage').then((module) => ({ default: module.ImportExportPage })))
 const QrCodePage = lazy(() => import('./modules/admin/QrCodePage').then((module) => ({ default: module.QrCodePage })))
 
 export default function App() {
@@ -20,8 +19,8 @@ export default function App() {
           <Route path="produtos" element={<ProductsPage />} />
           <Route path="categorias" element={<CategoriesPage />} />
           <Route path="configuracoes" element={<SettingsPage />} />
-          <Route path="configuracoes/importar-exportar" element={<ImportExportPage />} />
-          <Route path="importar-exportar" element={<Navigate to="/admin/configuracoes/importar-exportar" replace />} />
+          <Route path="configuracoes/importar-exportar" element={<Navigate to="/admin/configuracoes?secao=avancado" replace />} />
+          <Route path="importar-exportar" element={<Navigate to="/admin/configuracoes?secao=avancado" replace />} />
           <Route path="qrcode" element={<QrCodePage />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
