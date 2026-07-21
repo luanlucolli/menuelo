@@ -15,7 +15,7 @@ perfil externo do cliente
   ├── Worker + Static Assets
   ├── banco D1
   ├── bucket R2 privado
-  ├── domínio personalizado
+  ├── endereço workers.dev temporário ou domínio personalizado
   └── aplicação e política Cloudflare Access
 ```
 

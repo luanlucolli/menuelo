@@ -1,6 +1,6 @@
 # Menuelo
 
-Base white label para cardápios digitais com painel administrativo. Cada estabelecimento usa uma implantação isolada, com seu próprio Worker, banco D1, bucket R2, domínio e aplicação Cloudflare Access. O produto publica o cardápio e informações comerciais; não recebe pedidos.
+Base white label para cardápios digitais com painel administrativo. Cada estabelecimento usa uma implantação isolada, com seu próprio Worker, banco D1, bucket R2, endereço público e aplicação Cloudflare Access. O endereço pode começar em `workers.dev` e receber um domínio personalizado depois. O produto publica o cardápio e informações comerciais; não recebe pedidos.
 
 ## Stack
 

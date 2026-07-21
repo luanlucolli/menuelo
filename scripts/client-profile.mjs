@@ -4,6 +4,13 @@ import { z } from 'zod'
 
 const resourceName = z.string().min(3).max(63).regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'use somente letras minúsculas, números e hífens')
 const placeholder = /(example|exemplo|substitua|cole-aqui|identificador|sua-equipe|cliente[.-]com)/i
+const customDomainRouteSchema = z.object({
+  pattern: z.string().min(3),
+  customDomain: z.literal(true),
+}).strict()
+const workersDevRouteSchema = z.object({
+  workersDev: z.literal(true),
+}).strict()
 
 export const clientProfileSchema = z.object({
   key: resourceName.max(40),
@@ -19,10 +26,7 @@ export const clientProfileSchema = z.object({
       const url = new URL(value)
       return url.pathname === '/' && !url.search && !url.hash && !url.username && !url.password
     }, 'informe somente a origem pública, sem caminho, parâmetros ou credenciais'),
-  route: z.object({
-    pattern: z.string().min(3),
-    customDomain: z.literal(true),
-  }).strict(),
+  route: z.union([customDomainRouteSchema, workersDevRouteSchema]),
   access: z.object({
     teamDomain: z.url()
       .refine((value) => new URL(value).protocol === 'https:', 'use uma URL HTTPS')
@@ -35,14 +39,23 @@ export const clientProfileSchema = z.object({
     adminEmails: z.array(z.email()).min(1),
   }).strict(),
 }).strict().superRefine((profile, context) => {
-  const values = [profile.key, profile.workerName, profile.database.name, profile.database.id, profile.bucketName, profile.publicSiteUrl, profile.route.pattern, profile.access.teamDomain, profile.access.audience, ...profile.access.adminEmails]
+  const routeIdentifier = 'pattern' in profile.route ? profile.route.pattern : 'workers.dev'
+  const values = [profile.key, profile.workerName, profile.database.name, profile.database.id, profile.bucketName, profile.publicSiteUrl, routeIdentifier, profile.access.teamDomain, profile.access.audience, ...profile.access.adminEmails]
   if (values.some((value) => placeholder.test(value)) || /^0{8}-0{4}-0{4}-0{4}-0{12}$/.test(profile.database.id)) {
     context.addIssue({ code: 'custom', message: 'o perfil ainda contém valores de exemplo ou marcadores pendentes' })
   }
 
   const siteHost = new URL(profile.publicSiteUrl).hostname
-  if (profile.route.pattern !== siteHost) {
-    context.addIssue({ code: 'custom', path: ['route', 'pattern'], message: `deve ser igual ao domínio público (${siteHost})` })
+  if ('pattern' in profile.route) {
+    if (profile.route.pattern !== siteHost) {
+      context.addIssue({ code: 'custom', path: ['route', 'pattern'], message: `deve ser igual ao domínio público (${siteHost})` })
+    }
+  } else {
+    const labels = siteHost.split('.')
+    const validWorkersDevHost = labels.length === 4 && labels[0] === profile.workerName && Boolean(labels[1]) && labels[2] === 'workers' && labels[3] === 'dev'
+    if (!validWorkersDevHost) {
+      context.addIssue({ code: 'custom', path: ['publicSiteUrl'], message: `para workers.dev, use https://${profile.workerName}.SEU-SUBDOMINIO.workers.dev` })
+    }
   }
 })
 
@@ -92,7 +105,7 @@ export function assertDistinctProfiles(profiles) {
 }
 
 export function buildWranglerConfig(baseConfig, profile) {
-  return {
+  const config = {
     ...baseConfig,
     name: profile.workerName,
     d1_databases: [{
@@ -102,7 +115,6 @@ export function buildWranglerConfig(baseConfig, profile) {
       migrations_dir: './migrations',
     }],
     r2_buckets: [{ binding: 'MENU_IMAGES', bucket_name: profile.bucketName }],
-    routes: [{ pattern: profile.route.pattern, custom_domain: profile.route.customDomain }],
     vars: {
       DEV_ADMIN_BYPASS: 'false',
       CF_ACCESS_TEAM_DOMAIN: profile.access.teamDomain,
@@ -111,4 +123,16 @@ export function buildWranglerConfig(baseConfig, profile) {
       PUBLIC_SITE_URL: profile.publicSiteUrl,
     },
   }
+
+  delete config.route
+  delete config.routes
+  config.preview_urls = false
+  if ('pattern' in profile.route) {
+    config.workers_dev = false
+    config.routes = [{ pattern: profile.route.pattern, custom_domain: true }]
+  } else {
+    config.workers_dev = true
+  }
+
+  return config
 }

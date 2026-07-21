@@ -37,7 +37,23 @@ Use [deploy/client-profile.example.json](../deploy/client-profile.example.json) 
 /home/usuario/menuelo-clientes/lanchonete-b.json
 ```
 
-Preencha nomes exclusivos, ID real do D1, domínio HTTPS, domínio da equipe Access, AUD e e-mails. O domínio de `route.pattern` deve ser igual ao hostname de `publicSiteUrl`.
+Preencha nomes exclusivos, ID real do D1, endereço HTTPS, domínio da equipe Access, AUD e e-mails.
+
+Para uma implantação definitiva com domínio próprio, mantenha o formato do arquivo de exemplo. O valor de `route.pattern` deve ser igual ao hostname de `publicSiteUrl`.
+
+Enquanto o cliente ainda não tiver domínio, use o endereço atribuído à sua conta Workers:
+
+```json
+{
+  "workerName": "menuelo-rafas-dog",
+  "publicSiteUrl": "https://menuelo-rafas-dog.SEU-SUBDOMINIO.workers.dev",
+  "route": {
+    "workersDev": true
+  }
+}
+```
+
+Substitua `SEU-SUBDOMINIO` pelo subdomínio Workers da sua conta. O nome antes dele deve ser exatamente o mesmo de `workerName`. Nesse modo, URLs de preview permanecem desativadas. Configure o Cloudflare Access para proteger somente `/admin` e `/admin/*`, deixando o cardápio público.
 
 Valide as duas instâncias juntas para detectar reutilização acidental:
 
@@ -60,7 +76,7 @@ npm run client:deploy -- /caminho/lanchonete-a.json
 
 - `build` e `dry-run` não publicam;
 - `client:db:migrate:remote` altera somente o D1 indicado;
-- `client:deploy` publica somente o Worker, assets e rota do perfil indicado;
+- `client:deploy` publica somente o Worker, assets e o endereço do perfil indicado;
 - não existe comando de seed remoto: configure o cliente pelo painel ou importe uma cópia revisada.
 
 O arquivo Wrangler temporário é ignorado pelo Git e removido ao fim. O build emitido contém a configuração da instância; não o versione.

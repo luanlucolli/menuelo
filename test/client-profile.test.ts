@@ -3,6 +3,9 @@ import { mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
+// O helper de implantação é JavaScript executado diretamente pelo Node.
+// @ts-expect-error Não há declaração TypeScript para este script operacional.
+import { buildWranglerConfig, clientProfileSchema } from '../scripts/client-profile.mjs'
 
 const repositoryRoot = resolve(import.meta.dirname, '..')
 const commandPath = resolve(repositoryRoot, 'scripts/client-command.mjs')
@@ -48,6 +51,17 @@ describe('perfis externos de cliente', () => {
     })
   })
 
+  it('preserva o roteamento dos perfis com domínio personalizado', () => {
+    const customDomainProfile = clientProfileSchema.parse(profile('padaria-sol', 1))
+    const config = buildWranglerConfig({}, customDomainProfile)
+
+    expect(config).toMatchObject({
+      workers_dev: false,
+      preview_urls: false,
+      routes: [{ pattern: 'cardapio.padaria-sol.com.br', custom_domain: true }],
+    })
+  })
+
   it('recusa recurso compartilhado entre clientes', async () => {
     await withProfiles(async (directory) => {
       const first = profile('padaria-sol', 1)
@@ -64,5 +78,29 @@ describe('perfis externos de cliente', () => {
 
   it('recusa perfis reais armazenados dentro do repositório', () => {
     expect(() => execFileSync(process.execPath, [commandPath, 'check', resolve(repositoryRoot, 'deploy/client-profile.example.json')], { cwd: repositoryRoot, stdio: 'pipe' })).toThrow()
+  })
+
+  it('aceita uma URL temporária workers.dev e gera roteamento sem domínio personalizado', () => {
+    const temporaryProfile = {
+      ...profile('rafas-dog', 3),
+      publicSiteUrl: 'https://menuelo-rafas-dog.menuelo-clientes.workers.dev',
+      route: { workersDev: true },
+    }
+    const parsed = clientProfileSchema.parse(temporaryProfile)
+    const config = buildWranglerConfig({ routes: [{ pattern: 'rota-antiga.test', custom_domain: true }] }, parsed)
+
+    expect(config).toMatchObject({ workers_dev: true, preview_urls: false })
+    expect(config).not.toHaveProperty('routes')
+    expect(config.vars.PUBLIC_SITE_URL).toBe(temporaryProfile.publicSiteUrl)
+  })
+
+  it('recusa workers.dev cujo hostname não corresponde ao Worker', () => {
+    const temporaryProfile = {
+      ...profile('rafas-dog', 3),
+      publicSiteUrl: 'https://outro-worker.menuelo-clientes.workers.dev',
+      route: { workersDev: true },
+    }
+
+    expect(() => clientProfileSchema.parse(temporaryProfile)).toThrow(/menuelo-rafas-dog/)
   })
 })
