@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { AtSign, Clock3, ExternalLink, MapPin, Megaphone, Phone, Search, Store, UtensilsCrossed, X } from 'lucide-react'
+import { AtSign, Clock3, ExternalLink, MapPin, Megaphone, Phone, Search, Store, X } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
 import type { MenuResponse, Product } from '../../../../shared/schemas'
 import { buildGoogleMapsDirectionsUrl, calculateOpenStatus, formatBrazilianPhone, formatMoney, formatStructuredAddress, getZonedClock, normalizeSearch, readableBrandText } from '../../../../shared/utils'
@@ -131,7 +131,6 @@ export function PublicMenu() {
       <Seo menu={data} />
       <header className="cover relative h-64 overflow-hidden md:h-72" style={data.business.coverImageKey ? { backgroundImage: `url(/media/${data.business.coverImageKey})` } : undefined}>
         <div className="absolute inset-0 z-0 bg-gradient-to-t bg-linear-to-t from-black/90 via-black/40 to-transparent" aria-hidden="true" />
-        <div className="cover-pattern" aria-hidden="true"><UtensilsCrossed /></div>
         <div className="cover-content relative z-10 mx-auto flex h-full w-full max-w-6xl flex-col items-center justify-end px-4 pb-6 text-center">
           <p className="eyebrow">Cardápio digital</p>
           <h1 className="text-center text-3xl font-bold text-white sm:text-4xl lg:text-5xl">{data.business.name}</h1>
