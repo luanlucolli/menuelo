@@ -64,14 +64,9 @@ a { color: inherit; }
 .special-message { width: min(calc(100% - 2rem), 70rem); display: flex; align-items: center; gap: .65rem; margin: -1rem auto 1rem; position: relative; z-index: 2; border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: .85rem 1rem; background: var(--color-surface-strong); box-shadow: var(--shadow-sm); font-weight: 650; }
 .special-message svg { flex: 0 0 auto; width: 1.25rem; color: var(--color-brand); }
 .business-info { width: min(calc(100% - 2rem), 70rem); margin: .75rem auto; border: 1px solid var(--color-border); border-radius: var(--radius-md); overflow: hidden; background: var(--color-surface-strong); box-shadow: var(--shadow-sm); }
-.business-info > summary { min-height: 3.2rem; display: flex; align-items: center; gap: .65rem; padding: .55rem .75rem; list-style: none; cursor: pointer; }
-.business-info > summary::-webkit-details-marker { display: none; }
-.business-info > summary > svg:first-child { width: 1.1rem; flex: 0 0 auto; color: var(--color-brand); }
-.business-info > summary > svg:last-child { width: 1.05rem; flex: 0 0 auto; margin-left: auto; color: var(--color-muted); transition: transform .18s ease; }
-.business-info[open] > summary > svg:last-child { transform: rotate(180deg); }
-.business-info-summary { min-width: 0; display: grid; gap: .05rem; }
-.business-info-summary strong { font-size: .82rem; }
-.business-info-summary > span { overflow: hidden; color: var(--color-muted); font-size: .7rem; text-overflow: ellipsis; white-space: nowrap; }
+.business-info-heading { min-height: 3.2rem; display: flex; align-items: center; gap: .65rem; padding: .55rem .75rem; }
+.business-info-heading > svg { width: 1.1rem; flex: 0 0 auto; color: var(--color-brand); }
+.business-info-heading strong { font-size: .82rem; }
 .business-info-content { display: grid; border-top: 1px solid var(--color-border); padding: .2rem .9rem; }
 .business-info-item { min-width: 0; min-height: 4.25rem; display: flex; align-items: center; gap: .75rem; border: 0; border-top: 1px solid var(--color-border); padding: .75rem 0; background: transparent; color: var(--color-text); text-decoration: none; }
 .business-info-item:first-child { border-top: 0; }

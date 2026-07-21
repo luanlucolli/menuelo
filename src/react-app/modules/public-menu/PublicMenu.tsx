@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { AtSign, ChevronDown, Clock3, ExternalLink, MapPin, Megaphone, Phone, Search, Store, UtensilsCrossed, X } from 'lucide-react'
+import { AtSign, Clock3, ExternalLink, MapPin, Megaphone, Phone, Search, Store, UtensilsCrossed, X } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
 import type { MenuResponse, Product } from '../../../../shared/schemas'
 import { buildGoogleMapsDirectionsUrl, calculateOpenStatus, formatBrazilianPhone, formatMoney, formatStructuredAddress, getZonedClock, normalizeSearch, readableBrandText } from '../../../../shared/utils'
@@ -111,7 +111,6 @@ export function PublicMenu() {
     ? [data.business.addressCity, data.business.addressState].filter(Boolean).join(', ')
     : null
   const showBusinessInfo = Boolean(validWhatsapp || showPhone || (businessAddress && mapsUrl) || data.business.instagramUrl)
-  const businessInfoSummary = [validWhatsapp && 'WhatsApp', showPhone && 'telefone', businessAddress && mapsUrl && 'endereço', data.business.instagramUrl && 'Instagram'].filter(Boolean).join(' · ')
   const specialMessage = data.business.specialMessage?.trim()
   const publicTheme: PublicThemeStyle = {
     '--color-brand': data.business.primaryColor,
@@ -143,15 +142,15 @@ export function PublicMenu() {
 
       <main>
         {specialMessage && <div className="special-message"><Megaphone aria-hidden="true" /><span>{specialMessage}</span></div>}
-        {showBusinessInfo && <details className="business-info">
-          <summary><Store aria-hidden="true" /><span className="business-info-summary"><strong>Informações da loja</strong><span>{businessInfoSummary}</span></span><ChevronDown aria-hidden="true" /></summary>
+        {showBusinessInfo && <section className="business-info" aria-labelledby="business-info-title">
+          <div className="business-info-heading"><Store aria-hidden="true" /><strong id="business-info-title">Informações da loja</strong></div>
           <div className="business-info-content">
           {validWhatsapp && <a className="business-info-item" href={`https://wa.me/${whatsappDigits}`} target="_blank" rel="noreferrer" aria-label={`Abrir WhatsApp: ${formattedWhatsapp}`}><img className="business-info-logo" src={whatsappLogo} alt="" aria-hidden="true" /><div><strong>{formattedWhatsapp}</strong><span>WhatsApp</span></div><ExternalLink aria-hidden="true" /></a>}
           {showPhone && <a className="business-info-item" href={`tel:${phoneDigits}`}><Phone /><div><strong>{formattedPhone}</strong><span>Telefone</span></div></a>}
           {businessAddress && mapsUrl && <a className="business-info-item location" href={mapsUrl} target="_blank" rel="noreferrer" aria-label={`Ver localização: ${businessAddress}`}><MapPin /><div><strong>{locationTitle}</strong>{locationSubtitle && <span>{locationSubtitle}</span>}</div><ExternalLink aria-hidden="true" /></a>}
           {data.business.instagramUrl && <a className="business-info-item" href={data.business.instagramUrl} target="_blank" rel="noreferrer"><AtSign /><div><strong>Instagram</strong><span>Abrir perfil</span></div><ExternalLink aria-hidden="true" /></a>}
           </div>
-        </details>}
+        </section>}
         <div className="search-wrap">
           <Search aria-hidden="true" />
           <label className="sr-only" htmlFor="menu-search">Pesquisar no cardápio</label>
