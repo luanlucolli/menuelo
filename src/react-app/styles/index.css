@@ -344,7 +344,7 @@ a { color: inherit; }
 .confirm-dialog .form-dialog-heading > div > svg { width: 1.35rem; color: var(--color-danger); }
 .confirm-dialog > p { margin: .4rem 0 1rem; color: var(--color-muted); line-height: 1.55; }
 .sticky-actions { position: sticky; bottom: 0; margin-inline: -1rem; padding: .8rem 1rem; border-top: 1px solid var(--color-border); background: var(--color-surface-strong); }
-.settings-main-form { display: grid; gap: 1rem; }
+.settings-main-form { display: grid; gap: 1rem; margin-top: 1rem; }
 .settings-section { margin-top: 1rem; }
 .settings-main-form .settings-section { margin-top: 0; }
 .settings-nav { position: sticky; top: 4rem; z-index: 20; display: flex; gap: .4rem; overflow-x: auto; margin-inline: -1rem; padding: .65rem 1rem; border-block: 1px solid var(--color-border); background: rgb(242 240 236 / 94%); backdrop-filter: blur(10px); scrollbar-width: none; }
@@ -355,6 +355,8 @@ a { color: inherit; }
 .settings-unsaved { border-radius: 999px; padding: .16rem .35rem; color: var(--color-brand-strong); background: var(--color-brand-soft); font-size: .62rem; font-weight: 850; }
 .settings-nav button.active .settings-unsaved { color: var(--color-brand-text); background: rgb(255 255 255 / 20%); }
 .settings-subsections { display: grid; gap: 1rem; }
+.settings-page > .settings-subsections { margin-top: 1rem; }
+.settings-page > .settings-subsections > .settings-section { margin-top: 0; }
 .settings-grid { display: grid; gap: .8rem; }
 .settings-backup { display: grid; gap: 1rem; margin-top: 1rem; }
 .address-section { display: grid; gap: 1rem; }
