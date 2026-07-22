@@ -27,7 +27,7 @@ export const clientProfileSchema = z.object({
       return url.pathname === '/' && !url.search && !url.hash && !url.username && !url.password
     }, 'informe somente a origem pública, sem caminho, parâmetros ou credenciais'),
   route: z.union([customDomainRouteSchema, workersDevRouteSchema]),
-  features: z.object({ publicSsr: z.boolean() }).strict().default({ publicSsr: false }),
+  features: z.object({ publicSsr: z.boolean() }).strict().default({ publicSsr: true }),
   access: z.object({
     teamDomain: z.url()
       .refine((value) => new URL(value).protocol === 'https:', 'use uma URL HTTPS')

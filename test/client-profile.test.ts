@@ -51,7 +51,7 @@ describe('perfis externos de cliente', () => {
     })
   })
 
-  it('preserva o roteamento dos perfis com domínio personalizado', () => {
+  it('ativa SSR por padrão nos perfis com domínio personalizado', () => {
     const customDomainProfile = clientProfileSchema.parse(profile('padaria-sol', 1))
     const config = buildWranglerConfig({}, customDomainProfile)
 
@@ -59,14 +59,14 @@ describe('perfis externos de cliente', () => {
       workers_dev: false,
       preview_urls: false,
       routes: [{ pattern: 'cardapio.padaria-sol.com.br', custom_domain: true }],
-      vars: { PUBLIC_SSR_ENABLED: 'false' },
+      vars: { PUBLIC_SSR_ENABLED: 'true' },
     })
   })
 
-  it('ativa SSR somente quando o perfil autoriza', () => {
-    const parsed = clientProfileSchema.parse({ ...profile('padaria-sol', 1), features: { publicSsr: true } })
+  it('permite desativar SSR explicitamente para rollback', () => {
+    const parsed = clientProfileSchema.parse({ ...profile('padaria-sol', 1), features: { publicSsr: false } })
     const config = buildWranglerConfig({}, parsed)
-    expect(config.vars.PUBLIC_SSR_ENABLED).toBe('true')
+    expect(config.vars.PUBLIC_SSR_ENABLED).toBe('false')
   })
 
   it('recusa recurso compartilhado entre clientes', async () => {

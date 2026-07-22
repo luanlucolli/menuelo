@@ -11,6 +11,9 @@
     "pattern": "cardapio.cliente.com.br",
     "customDomain": true
   },
+  "features": {
+    "publicSsr": true
+  },
   "access": {
     "teamDomain": "https://equipe.cloudflareaccess.com",
     "audience": "cole-aqui-o-aud-do-cloudflare-access",

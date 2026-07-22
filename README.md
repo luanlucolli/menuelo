@@ -52,6 +52,8 @@ O seed de demonstração é deliberadamente neutro e substitui apenas os dados l
 
 As quatro últimas operações que recebem um único arquivo recusam execução ambígua. Perfis reais devem permanecer fora do repositório e são validados antes que qualquer comando seja iniciado.
 
+O SSR público fica ativado por padrão em toda nova instância. A propriedade opcional `features.publicSsr: false` existe somente como rollback temporário e explícito.
+
 ## Estrutura
 
 ```text
