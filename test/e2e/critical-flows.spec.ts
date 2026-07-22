@@ -62,12 +62,21 @@ test('cardápio público é responsivo, pesquisa sem duplicar e devolve o foco',
 
   await page.setViewportSize({ width: 390, height: 844 })
   await page.getByRole('searchbox', { name: 'Pesquisar no cardápio' }).fill(product.name)
-  await expect(page.getByRole('heading', { name: /item encontrado|itens encontrados/ })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Resultados da busca' })).toBeVisible()
+  await expect(page.getByText(/item encontrado|itens encontrados/)).toBeVisible()
   await expect(page.getByRole('navigation', { name: 'Categorias do cardápio' })).toBeHidden()
   const result = page.getByRole('button', { name: `Ver detalhes de ${product.name}` })
   await expect(result).toHaveCount(1)
   await result.click()
-  await expect(page.getByRole('dialog')).toBeVisible()
+  const dialog = page.getByRole('dialog')
+  await expect(dialog).toBeVisible()
+  const dialogBox = await dialog.boundingBox()
+  const closeBox = await page.getByRole('button', { name: 'Fechar detalhes' }).boundingBox()
+  expect(Math.round(dialogBox?.x ?? -1)).toBe(0)
+  expect(Math.round(dialogBox?.width ?? -1)).toBe(390)
+  expect(((dialogBox?.y ?? 845) + (dialogBox?.height ?? 0)) <= 844).toBeTruthy()
+  expect((closeBox?.width ?? 0) >= 44).toBeTruthy()
+  expect((closeBox?.height ?? 0) >= 44).toBeTruthy()
   await page.getByRole('button', { name: 'Fechar detalhes' }).click()
   await expect(result).toBeFocused()
   await page.getByRole('button', { name: 'Limpar pesquisa' }).click()
@@ -75,7 +84,7 @@ test('cardápio público é responsivo, pesquisa sem duplicar e devolve o foco',
   const last = current.categories.filter((item) => item.products.length > 0).at(-1)
   if (last) {
     await page.locator(`#${last.slug}`).evaluate((element) => element.scrollIntoView({ block: 'start' }))
-    await expect(page.locator(`.category-nav button[data-category="${last.slug}"]`)).toHaveClass(/active/)
+    await expect(page.locator(`.menu-category-nav button[data-category="${last.slug}"]`)).toHaveClass(/active/)
   }
 })
 
