@@ -31,6 +31,7 @@ const validImport: MenuImport = {
     seoTitle: null,
     seoDescription: null,
     coverImageKey: null,
+    faviconKey: null,
   },
   hours: [{ weekday: 1, opensAt: null, closesAt: null, isClosed: true, sortOrder: 0 }],
   paymentMethods: [],

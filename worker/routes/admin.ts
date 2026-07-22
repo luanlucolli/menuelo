@@ -56,11 +56,30 @@ function isWebp(bytes: Uint8Array): boolean {
     && String.fromCharCode(...bytes.slice(8, 12)) === 'WEBP'
 }
 
+function isIco(bytes: Uint8Array): boolean {
+  return bytes.length >= 22
+    && bytes[0] === 0
+    && bytes[1] === 0
+    && bytes[2] === 1
+    && bytes[3] === 0
+    && (bytes[4] !== 0 || bytes[5] !== 0)
+}
+
 async function readWebp(request: Request): Promise<Uint8Array> {
   const contentType = (request.headers.get('content-type') ?? '').split(';')[0].trim().toLowerCase()
   if (contentType !== 'image/webp') throw new ApiError(415, 'WEBP_REQUIRED', 'Envie uma imagem WebP.')
   const body = await readBytesLimited(request, 800 * 1024, 'A imagem final deve ter no máximo 800 KB.')
   if (!isWebp(body)) throw new ApiError(422, 'INVALID_WEBP', 'O arquivo não é uma imagem WebP válida.')
+  return body
+}
+
+async function readFavicon(request: Request): Promise<Uint8Array> {
+  const contentType = (request.headers.get('content-type') ?? '').split(';')[0].trim().toLowerCase()
+  if (!['image/x-icon', 'image/vnd.microsoft.icon', 'application/octet-stream'].includes(contentType)) {
+    throw new ApiError(415, 'ICO_REQUIRED', 'Envie um ícone no formato ICO.')
+  }
+  const body = await readBytesLimited(request, 256 * 1024, 'O ícone deve ter no máximo 256 KB.')
+  if (!isIco(body)) throw new ApiError(422, 'INVALID_ICO', 'O arquivo não é um ícone ICO válido.')
   return body
 }
 
@@ -321,6 +340,28 @@ adminRoutes.delete('/settings/cover-image', async (c) => {
   const previous = (await getMenu(c.env.DB, true)).business.coverImageKey
   await c.env.DB.prepare(`UPDATE business_settings SET cover_image_key=NULL, updated_at=strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE id=1`).run()
   await deleteObjectBestEffort(c.env.MENU_IMAGES, previous, 'remove cover image')
+  return c.json({ success: true })
+})
+
+adminRoutes.post('/settings/favicon', async (c) => {
+  const previous = (await getMenu(c.env.DB, true)).business.faviconKey
+  const body = await readFavicon(c.req.raw)
+  const newKey = `favicons/${crypto.randomUUID()}.ico`
+  await c.env.MENU_IMAGES.put(newKey, body, { httpMetadata: { contentType: 'image/x-icon' } })
+  try {
+    await c.env.DB.prepare(`UPDATE business_settings SET favicon_key=?, updated_at=strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE id=1`).bind(newKey).run()
+  } catch (error) {
+    await deleteObjectBestEffort(c.env.MENU_IMAGES, newKey, 'favicon upload rollback')
+    throw error
+  }
+  await deleteObjectBestEffort(c.env.MENU_IMAGES, previous, 'replace favicon')
+  return c.json({ faviconKey: newKey })
+})
+
+adminRoutes.delete('/settings/favicon', async (c) => {
+  const previous = (await getMenu(c.env.DB, true)).business.faviconKey
+  await c.env.DB.prepare(`UPDATE business_settings SET favicon_key=NULL, updated_at=strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE id=1`).run()
+  await deleteObjectBestEffort(c.env.MENU_IMAGES, previous, 'remove favicon')
   return c.json({ success: true })
 })
 

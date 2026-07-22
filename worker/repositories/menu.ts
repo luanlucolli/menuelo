@@ -32,6 +32,7 @@ interface SettingsRow {
   special_message: string | null
   primary_color: string
   cover_image_key: string | null
+  favicon_key: string | null
   public_site_url: string | null
   seo_title: string | null
   seo_description: string | null
@@ -70,6 +71,7 @@ function mapSettings(row: SettingsRow): BusinessSettings {
     specialMessage: row.special_message,
     primaryColor: row.primary_color,
     coverImageKey: row.cover_image_key,
+    faviconKey: row.favicon_key,
     publicSiteUrl: row.public_site_url,
     seoTitle: row.seo_title,
     seoDescription: row.seo_description,

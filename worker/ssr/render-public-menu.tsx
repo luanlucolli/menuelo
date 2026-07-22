@@ -47,6 +47,7 @@ function documentRewriter(markup: string, bootstrap: PublicMenuBootstrap, seo: P
     `<link rel="canonical" href="${escapeHtmlAttribute(seo.canonical)}">`,
     `<meta property="og:url" content="${escapeHtmlAttribute(seo.canonical)}">`,
     seo.image ? `<meta property="og:image" content="${escapeHtmlAttribute(seo.image)}">` : '',
+    seo.favicon ? `<link rel="icon" href="${escapeHtmlAttribute(seo.favicon)}" type="image/x-icon" sizes="any">` : '',
     `<script type="application/ld+json" data-menu-json-ld nonce="${nonce}">${jsonLd}</script>`,
   ].join('')
   const stateScript = `<script id="__MENU_DATA__" type="application/json" nonce="${nonce}">${state}</script>`

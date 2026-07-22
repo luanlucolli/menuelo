@@ -9,6 +9,7 @@ export interface PublicSeoData {
   canonical: string
   themeColor: string
   image: string | null
+  favicon: string | null
   jsonLd: Record<string, unknown>
 }
 
@@ -28,6 +29,7 @@ export function buildPublicSeo(menu: MenuResponse, publicOrigin: string): Public
   const title = business.seoTitle || `${business.name} | Cardápio digital`
   const description = business.seoDescription || business.description || `Consulte o cardápio digital da ${business.name}.`
   const image = business.coverImageKey ? new URL(`/media/${business.coverImageKey}`, canonical).toString() : null
+  const favicon = business.faviconKey ? new URL(`/media/${business.faviconKey}`, canonical).toString() : null
   const jsonLd: Record<string, unknown> = {
     '@context': 'https://schema.org',
     '@type': 'Restaurant',
@@ -60,5 +62,5 @@ export function buildPublicSeo(menu: MenuResponse, publicOrigin: string): Public
     }))
   }
 
-  return { title, description, canonical, themeColor: business.primaryColor, image, jsonLd }
+  return { title, description, canonical, themeColor: business.primaryColor, image, favicon, jsonLd }
 }

@@ -86,6 +86,7 @@ export const settingsRow = {
   special_message: 'Fechado às segundas-feiras.',
   primary_color: '#374151',
   cover_image_key: null,
+  favicon_key: null,
   public_site_url: null,
   seo_title: null,
   seo_description: null,

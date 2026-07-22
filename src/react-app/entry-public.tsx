@@ -42,6 +42,17 @@ function applyClientSeo(menu: MenuResponse) {
     document.head.append(canonical)
   }
   canonical.href = seo.canonical
+  const favicon = document.head.querySelector<HTMLLinkElement>('link[rel="icon"]')
+  if (seo.favicon) {
+    const icon = favicon ?? document.createElement('link')
+    icon.rel = 'icon'
+    icon.type = 'image/x-icon'
+    icon.sizes = 'any'
+    icon.href = seo.favicon
+    if (!favicon) document.head.append(icon)
+  } else {
+    favicon?.remove()
+  }
   let jsonLd = document.head.querySelector<HTMLScriptElement>('script[data-menu-json-ld]')
   if (!jsonLd) {
     jsonLd = document.createElement('script')

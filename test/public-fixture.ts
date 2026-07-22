@@ -27,6 +27,7 @@ export function publicMenuFixture(): MenuResponse {
       specialMessage: 'Hoje tem promoção.',
       primaryColor: '#FB5D01',
       coverImageKey: 'covers/123e4567-e89b-12d3-a456-426614174000.webp',
+      faviconKey: 'favicons/123e4567-e89b-12d3-a456-426614174000.ico',
       publicSiteUrl: 'https://cardapio.exemplo.com.br',
       seoTitle: null,
       seoDescription: null,

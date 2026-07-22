@@ -125,10 +125,14 @@ export const deliveryZoneInputSchema = z.object({
 
 const productImageKeySchema = z.string().trim().max(180).regex(/^products\/[0-9a-f-]+\.webp$/).nullable()
 const coverImageKeySchema = z.string().trim().max(180).regex(/^covers\/[0-9a-f-]+\.webp$/).nullable()
+const faviconKeySchema = z.string().trim().max(180).regex(/^favicons\/[0-9a-f-]+\.ico$/).nullable()
 
 const importProductSchema = productInputSchema.omit({ categoryId: true }).extend({ imageKey: productImageKeySchema })
 const importCategorySchema = categoryInputSchema.extend({ products: z.array(importProductSchema).max(500) })
-const importBusinessSchema = settingsInputSchema.safeExtend({ coverImageKey: coverImageKeySchema })
+const importBusinessSchema = settingsInputSchema.safeExtend({
+  coverImageKey: coverImageKeySchema,
+  faviconKey: faviconKeySchema.default(null),
+})
 
 const menuImportDataSchema = z.object({
   schemaVersion: z.literal(1),
@@ -182,6 +186,7 @@ export type MenuImport = z.infer<typeof menuImportSchema>
 export interface BusinessSettings extends SettingsInput {
   id: number
   coverImageKey: string | null
+  faviconKey: string | null
   createdAt: string
   updatedAt: string
 }
@@ -259,6 +264,7 @@ export const businessSettingsResponseSchema = z.object({
   specialMessage: responseNullableText(300),
   primaryColor: z.string().regex(/^#[0-9a-fA-F]{6}$/),
   coverImageKey: coverImageKeySchema,
+  faviconKey: faviconKeySchema,
   publicSiteUrl: z.url().max(500).nullable(),
   seoTitle: responseNullableText(120),
   seoDescription: responseNullableText(300),

@@ -10,6 +10,7 @@ describe('SEO público', () => {
       canonical: 'https://cardapio.exemplo.com.br/',
       themeColor: '#FB5D01',
       image: 'https://cardapio.exemplo.com.br/media/covers/123e4567-e89b-12d3-a456-426614174000.webp',
+      favicon: 'https://cardapio.exemplo.com.br/media/favicons/123e4567-e89b-12d3-a456-426614174000.ico',
     })
     expect(seo.jsonLd).toMatchObject({
       '@type': 'Restaurant',
@@ -23,6 +24,7 @@ describe('SEO público', () => {
   it('omite dados opcionais ausentes ou inseguros', () => {
     const menu = publicMenuFixture()
     menu.business.coverImageKey = null
+    menu.business.faviconKey = null
     menu.business.phone = null
     menu.business.whatsapp = null
     menu.business.address = null
@@ -36,6 +38,7 @@ describe('SEO público', () => {
     menu.hours = menu.hours.slice(0, 2)
     const seo = buildPublicSeo(menu, 'https://cardapio.exemplo.com.br')
     expect(seo.image).toBeNull()
+    expect(seo.favicon).toBeNull()
     expect(seo.jsonLd).not.toHaveProperty('telephone')
     expect(seo.jsonLd).not.toHaveProperty('address')
     expect(seo.jsonLd).not.toHaveProperty('sameAs')

@@ -31,6 +31,7 @@ function withoutMetadata(menu: Awaited<ReturnType<typeof getMenu>>): MenuImport 
       seoTitle: menu.business.seoTitle,
       seoDescription: menu.business.seoDescription,
       coverImageKey: menu.business.coverImageKey,
+      faviconKey: menu.business.faviconKey,
     },
     hours: menu.hours.map((hour) => ({ weekday: hour.weekday, opensAt: hour.opensAt, closesAt: hour.closesAt, isClosed: hour.isClosed, sortOrder: hour.sortOrder })),
     paymentMethods: menu.paymentMethods.map((method) => ({ name: method.name, isActive: method.isActive, sortOrder: method.sortOrder })),
@@ -66,6 +67,7 @@ export async function serializeExport(db: D1Database): Promise<MenuImport> {
 function collectImageKeys(data: MenuImport): string[] {
   const keys = new Set<string>()
   if (data.business.coverImageKey) keys.add(data.business.coverImageKey)
+  if (data.business.faviconKey) keys.add(data.business.faviconKey)
   for (const category of data.categories) {
     for (const product of category.products) if (product.imageKey) keys.add(product.imageKey)
   }
@@ -112,7 +114,7 @@ export async function applyImport(db: D1Database, bucket: R2Bucket, data: MenuIm
   const summary = await summarizeImport(db, bucket, data)
   const missing = new Set(summary.missingImageKeys)
   const statements: D1PreparedStatement[] = [
-    db.prepare(`UPDATE business_settings SET name=?, slug=?, slogan=?, description=?, whatsapp=?, phone=?, instagram_url=?, facebook_url=?, address=?, address_postal_code=?, address_street=?, address_number=?, address_complement=?, address_neighborhood=?, address_city=?, address_state=?, maps_url=?, timezone=?, special_message=?, primary_color=?, cover_image_key=?, public_site_url=?, seo_title=?, seo_description=?, updated_at=strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE id=1`).bind(
+    db.prepare(`UPDATE business_settings SET name=?, slug=?, slogan=?, description=?, whatsapp=?, phone=?, instagram_url=?, facebook_url=?, address=?, address_postal_code=?, address_street=?, address_number=?, address_complement=?, address_neighborhood=?, address_city=?, address_state=?, maps_url=?, timezone=?, special_message=?, primary_color=?, cover_image_key=?, favicon_key=?, public_site_url=?, seo_title=?, seo_description=?, updated_at=strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE id=1`).bind(
       data.business.name,
       data.business.slug,
       data.business.slogan,
@@ -134,6 +136,7 @@ export async function applyImport(db: D1Database, bucket: R2Bucket, data: MenuIm
       data.business.specialMessage,
       data.business.primaryColor,
       data.business.coverImageKey && !missing.has(data.business.coverImageKey) ? data.business.coverImageKey : null,
+      data.business.faviconKey && !missing.has(data.business.faviconKey) ? data.business.faviconKey : null,
       data.business.publicSiteUrl,
       data.business.seoTitle,
       data.business.seoDescription,
