@@ -180,12 +180,11 @@
 /* Mensagem especial */
 
 .menu-special-message {
+  position: relative;
   display: flex;
-  width: min(100%, 1120px);
+  width: 100%;
   min-height: 46px;
-  margin: 0 auto;
-  padding: 12px 18px;
-  gap: 10px;
+  overflow: hidden;
   align-items: center;
   border-bottom: 1px solid
     color-mix(
@@ -200,15 +199,85 @@
       #ffffff
     );
   color: var(--menu-text);
-  font-size: 0.9rem;
-  font-weight: 650;
 }
 
-.menu-special-message svg {
-  width: 18px;
-  height: 18px;
+.menu-special-marquee {
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    #000 18px,
+    #000 calc(100% - 18px),
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    #000 18px,
+    #000 calc(100% - 18px),
+    transparent 100%
+  );
+}
+
+.menu-special-marquee-track {
+  display: flex;
+  width: max-content;
+  transform: translate3d(0, 0, 0);
+  animation-name: menu-special-message-marquee;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  backface-visibility: hidden;
+  will-change: transform;
+}
+
+.menu-special-marquee-group {
+  --menu-special-marquee-spacing: clamp(36px, 8vw, 72px);
+
+  display: flex;
+  padding-right: var(--menu-special-marquee-spacing);
+  gap: var(--menu-special-marquee-spacing);
+  flex: 0 0 auto;
+  align-items: center;
+}
+
+.menu-special-marquee-item {
+  display: inline-flex;
+  min-height: 46px;
+  gap: var(--menu-special-marquee-spacing);
+  flex: 0 0 auto;
+  align-items: center;
+  color: var(--menu-text);
+  font-size: 0.86rem;
+  font-weight: 700;
+  letter-spacing: 0.005em;
+  white-space: nowrap;
+}
+
+.menu-special-marquee-item svg {
+  width: 17px;
+  height: 17px;
   flex: 0 0 auto;
   color: var(--color-brand);
+  stroke-width: 2.2;
+}
+
+@media (hover: hover) {
+  .menu-special-message:hover
+    .menu-special-marquee-track {
+    animation-play-state: paused;
+  }
+}
+
+@keyframes menu-special-message-marquee {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
 }
 
 /* Informações da loja */
@@ -1152,11 +1221,6 @@
     padding-left: 24px;
   }
 
-  .menu-special-message {
-    padding-right: 24px;
-    padding-left: 24px;
-  }
-
   .menu-store-disclosure > summary {
     padding-right: 24px;
     padding-left: 24px;
@@ -1324,5 +1388,38 @@
 
   .menu-product-dialog {
     scroll-behavior: auto;
+  }
+
+  .menu-special-marquee {
+    overflow: visible;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+
+  .menu-special-marquee-track {
+    width: 100%;
+    transform: none;
+    animation: none;
+    will-change: auto;
+  }
+
+  .menu-special-marquee-group {
+    display: none;
+  }
+
+  .menu-special-marquee-group:first-child {
+    display: flex;
+    width: 100%;
+    padding: 0 18px;
+  }
+
+  .menu-special-marquee-item {
+    display: none;
+    min-height: 46px;
+    white-space: normal;
+  }
+
+  .menu-special-marquee-item:first-child {
+    display: inline-flex;
   }
 }

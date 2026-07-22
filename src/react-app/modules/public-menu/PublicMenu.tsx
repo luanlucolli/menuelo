@@ -165,6 +165,26 @@ export function PublicMenu({
   const specialMessage =
     menu.business.specialMessage?.trim()
 
+  const marqueeCopies = specialMessage
+    ? specialMessage.length <= 20
+      ? 6
+      : specialMessage.length <= 50
+        ? 4
+        : specialMessage.length <= 100
+          ? 3
+          : 2
+    : 0
+
+  const marqueeDuration = specialMessage
+    ? Math.max(
+        26,
+        Math.min(
+          120,
+          marqueeCopies * (specialMessage.length * 0.22 + 5),
+        ),
+      )
+    : 0
+
   const publicTheme: PublicThemeStyle = {
     '--color-brand': menu.business.primaryColor,
     '--color-brand-text': readableBrandText(
@@ -239,8 +259,39 @@ export function PublicMenu({
       <main>
         {specialMessage && (
           <div className="menu-special-message">
-            <Megaphone aria-hidden="true" />
-            <span>{specialMessage}</span>
+            <span className="sr-only">{specialMessage}</span>
+
+            <div
+              className="menu-special-marquee"
+              aria-hidden="true"
+            >
+              <div
+                className="menu-special-marquee-track"
+                style={{
+                  animationDuration: `${marqueeDuration}s`,
+                }}
+              >
+                {[0, 1].map((groupIndex) => (
+                  <div
+                    className="menu-special-marquee-group"
+                    key={groupIndex}
+                  >
+                    {Array.from(
+                      { length: marqueeCopies },
+                      (_, itemIndex) => (
+                        <span
+                          className="menu-special-marquee-item"
+                          key={`${groupIndex}-${itemIndex}`}
+                        >
+                          <Megaphone aria-hidden="true" />
+                          <span>{specialMessage}</span>
+                        </span>
+                      ),
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         )}
 
