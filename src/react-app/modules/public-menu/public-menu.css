@@ -1291,8 +1291,8 @@
     border-bottom: 1px solid var(--menu-border);
   }
 
-  .menu-product-image,
-  .menu-product-placeholder {
+  .menu-product-card .menu-product-image,
+  .menu-product-card .menu-product-placeholder {
     width: 108px;
     height: 108px;
   }
