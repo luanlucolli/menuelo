@@ -307,7 +307,15 @@ export function PublicMenu({
                   rel="noopener noreferrer"
                   aria-label={`Ver localização: ${businessAddress}`}
                 >
-                  <MapPin aria-hidden="true" />
+                  <div
+                    className="menu-location-thumb"
+                    aria-hidden="true"
+                  >
+                    <span className="menu-location-road menu-location-road--a" />
+                    <span className="menu-location-road menu-location-road--b" />
+                    <span className="menu-location-road menu-location-road--c" />
+                    <span className="menu-location-pin" />
+                  </div>
 
                   <div>
                     <strong>{locationTitle}</strong>
