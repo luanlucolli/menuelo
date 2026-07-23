@@ -17,6 +17,11 @@ export function formatBrazilianPhone(value: string): string {
   return value.trim()
 }
 
+export function normalizeWhatsappNumber(value: string | null | undefined): string | null {
+  const digits = (value ?? '').replace(/\D/g, '')
+  return /^\d{10,15}$/.test(digits) ? digits : null
+}
+
 export function normalizeSearch(value: string): string {
   return value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase('pt-BR').trim()
 }

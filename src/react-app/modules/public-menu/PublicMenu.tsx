@@ -9,7 +9,7 @@ import {
   Search,
   X,
 } from 'lucide-react'
-import type { CSSProperties } from 'react'
+import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import type {
   MenuResponse,
   ZonedClock,
@@ -21,10 +21,14 @@ import {
   formatBrazilianPhone,
   formatMoney,
   formatStructuredAddress,
+  normalizeWhatsappNumber,
   readableBrandText,
 } from '../../../../shared/utils'
 import whatsappLogo from '../../../assets/WhatsApp-logo.webp'
+import { CartBar } from './CartBar'
+import { CartDialog } from './CartDialog'
 import { ProductCard, ProductDialog } from './ProductCard'
+import { useCart } from './cart/useCart'
 import { usePublicMenuInteractions } from './usePublicMenuInteractions'
 
 const WEEKDAYS = [
@@ -62,6 +66,16 @@ export function PublicMenu({
     setSearch,
     scrollToCategory,
   } = usePublicMenuInteractions(menu, initialClock)
+  const cart = useCart(menu)
+  const [cartOpen, setCartOpen] = useState(false)
+  const [itemAddedFeedback, setItemAddedFeedback] = useState<string | null>(null)
+  const cartTriggerRef = useRef<HTMLButtonElement | null>(null)
+
+  useEffect(() => {
+    if (!itemAddedFeedback) return
+    const timeout = window.setTimeout(() => setItemAddedFeedback(null), 2800)
+    return () => window.clearTimeout(timeout)
+  }, [itemAddedFeedback])
 
   const allProducts = categories.flatMap(
     (category) => category.products,
@@ -90,11 +104,8 @@ export function PublicMenu({
     clock.minutes,
   )
 
-  const whatsappDigits = (
-    menu.business.whatsapp ?? ''
-  ).replace(/\D/g, '')
-
-  const validWhatsapp = /^\d{10,15}$/.test(whatsappDigits)
+  const whatsappDigits = normalizeWhatsappNumber(menu.business.whatsapp)
+  const validWhatsapp = Boolean(whatsappDigits)
 
   const phoneDigits = (
     menu.business.phone ?? ''
@@ -193,7 +204,10 @@ export function PublicMenu({
   }
 
   return (
-    <div className="public-shell" style={publicTheme}>
+    <div
+      className={`public-shell${cart.lines.length ? ' public-shell--with-cart' : ''}`}
+      style={publicTheme}
+    >
       <header
         className="menu-hero"
         style={
@@ -312,7 +326,7 @@ export function PublicMenu({
             </summary>
 
             <div className="menu-store-grid">
-              {validWhatsapp && (
+              {whatsappDigits && (
                 <a
                   className="menu-store-item"
                   href={`https://wa.me/${whatsappDigits}`}
@@ -779,7 +793,7 @@ export function PublicMenu({
         </p>
       </footer>
 
-      {validWhatsapp && (
+      {whatsappDigits && !cart.lines.length && (
         <a
           className="menu-whatsapp-fab"
           href={`https://wa.me/${whatsappDigits}`}
@@ -800,6 +814,57 @@ export function PublicMenu({
         <ProductDialog
           product={selected}
           onClose={closeProduct}
+          onAdd={(product, variant, quantity, note) => {
+            cart.addItem(product, variant, quantity, note)
+            setItemAddedFeedback('Item adicionado ao pedido')
+          }}
+        />
+      )}
+
+      {cart.lines.length > 0 && (
+        <CartBar
+          itemCount={cart.itemCount}
+          totalCents={cart.totalCents}
+          onOpen={(trigger) => {
+            cartTriggerRef.current = trigger
+            setCartOpen(true)
+          }}
+        />
+      )}
+
+      {(itemAddedFeedback || cart.restorationNotice) && (
+        <div className="menu-cart-feedback" role="status">
+          <span>{itemAddedFeedback ?? cart.restorationNotice}</span>
+          {cart.restorationNotice && !itemAddedFeedback && (
+            <button
+              type="button"
+              aria-label="Fechar aviso"
+              onClick={cart.dismissRestorationNotice}
+            >
+              <X aria-hidden="true" />
+            </button>
+          )}
+        </div>
+      )}
+
+      {cartOpen && (
+        <CartDialog
+          businessName={menu.business.name}
+          whatsapp={menu.business.whatsapp}
+          lines={cart.lines}
+          totalCents={cart.totalCents}
+          onIncrease={cart.increase}
+          onDecrease={cart.decrease}
+          onRemove={cart.remove}
+          onUpdateNote={cart.updateNote}
+          onClear={cart.clear}
+          onClose={() => {
+            setCartOpen(false)
+            requestAnimationFrame(() => {
+              if (cartTriggerRef.current?.isConnected) cartTriggerRef.current.focus()
+              else document.getElementById('menu-search')?.focus()
+            })
+          }}
         />
       )}
     </div>

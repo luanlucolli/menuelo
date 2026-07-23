@@ -1,13 +1,9 @@
 import { X } from 'lucide-react'
-import { useEffect, useRef } from 'react'
-import type { Product } from '../../../../shared/schemas'
+import { useEffect, useId, useRef, useState } from 'react'
+import type { Product, ProductVariant } from '../../../../shared/schemas'
 import { formatMoney } from '../../../../shared/utils'
-
-function getActiveVariants(product: Product) {
-  return [...product.variants]
-    .filter((variant) => variant.isActive)
-    .sort((first, second) => first.sortOrder - second.sortOrder)
-}
+import { CART_NOTE_MAX_LENGTH, CART_QUANTITY_MAX, getActiveVariants, getVariantPriceCents } from './cart/cart-utils'
+import { QuantityControl } from './QuantityControl'
 
 function hasActivePromotion(product: Product): boolean {
   return getActiveVariants(product)
@@ -23,7 +19,7 @@ function CardPrice({ product }: { product: Product }) {
 
   if (activeVariants.length === 1) {
     const variant = activeVariants[0]
-    const finalPrice = variant.promotionalPriceCents ?? variant.priceCents
+    const finalPrice = getVariantPriceCents(variant)
 
     return (
       <div className="menu-card-price">
@@ -38,7 +34,7 @@ function CardPrice({ product }: { product: Product }) {
 
   const lowestPrice = Math.min(
     ...activeVariants.map(
-      (variant) => variant.promotionalPriceCents ?? variant.priceCents,
+      (variant) => getVariantPriceCents(variant),
     ),
   )
 
@@ -46,42 +42,6 @@ function CardPrice({ product }: { product: Product }) {
     <div className="menu-card-price menu-card-price--starting">
       <span>A partir de</span>
       <strong>{formatMoney(lowestPrice)}</strong>
-    </div>
-  )
-}
-
-function VariantPrices({ product }: { product: Product }) {
-  const activeVariants = getActiveVariants(product)
-
-  if (!activeVariants.length) {
-    return (
-      <div className="menu-variant-empty">
-        Preço ainda não informado.
-      </div>
-    )
-  }
-
-  return (
-    <div className="menu-variant-list" aria-label="Preços disponíveis">
-      {activeVariants.map((variant) => (
-        <div key={variant.id} className="menu-variant-row">
-          <span className="menu-variant-name">
-            {variant.label || (activeVariants.length === 1 ? 'Valor' : 'Opção')}
-          </span>
-
-          <span className="menu-variant-values">
-            {variant.promotionalPriceCents !== null && (
-              <del>{formatMoney(variant.priceCents)}</del>
-            )}
-
-            <strong>
-              {formatMoney(
-                variant.promotionalPriceCents ?? variant.priceCents,
-              )}
-            </strong>
-          </span>
-        </div>
-      ))}
     </div>
   )
 }
@@ -125,13 +85,26 @@ function ProductImage({
 export function ProductDialog({
   product,
   onClose,
+  onAdd,
 }: {
   product: Product
   onClose: () => void
+  onAdd: (product: Product, variant: ProductVariant, quantity: number, note: string) => void
 }) {
   const dialogRef = useRef<HTMLDialogElement>(null)
   const onCloseRef = useRef(onClose)
+  const activeVariants = getActiveVariants(product)
+  const [selectedVariantId, setSelectedVariantId] = useState(
+    activeVariants.length === 1 ? activeVariants[0].id : '',
+  )
+  const [quantity, setQuantity] = useState(1)
+  const [note, setNote] = useState('')
+  const optionGroupId = useId()
   const promoted = hasActivePromotion(product)
+  const selectedVariant = activeVariants.find((variant) => variant.id === selectedVariantId)
+  const canConfigure = product.isAvailable && activeVariants.length > 0
+  const canAdd = canConfigure && Boolean(selectedVariant)
+  const totalCents = selectedVariant ? getVariantPriceCents(selectedVariant) * quantity : null
 
   useEffect(() => {
     onCloseRef.current = onClose
@@ -189,7 +162,15 @@ export function ProductDialog({
           </button>
         </div>
 
-        <div className="menu-dialog-content">
+        <form
+          className="menu-dialog-content"
+          onSubmit={(event) => {
+            event.preventDefault()
+            if (!selectedVariant || !canAdd) return
+            onAdd(product, selectedVariant, quantity, note)
+            dialogRef.current?.close()
+          }}
+        >
           <div className="menu-dialog-badges">
             {promoted && (
               <span className="menu-offer-badge">Oferta</span>
@@ -210,8 +191,89 @@ export function ProductDialog({
             </p>
           )}
 
-          <VariantPrices product={product} />
-        </div>
+          {!product.isAvailable && (
+            <p className="menu-dialog-unavailable-note">
+              Este item não pode ser adicionado ao pedido no momento.
+            </p>
+          )}
+
+          {!activeVariants.length && (
+            <div className="menu-variant-empty">Preço indisponível</div>
+          )}
+
+          {activeVariants.length === 1 && selectedVariant && (
+            <div className="menu-selected-price">
+              <span>Preço</span>
+              <span className="menu-variant-values">
+                {selectedVariant.promotionalPriceCents !== null && (
+                  <del>{formatMoney(selectedVariant.priceCents)}</del>
+                )}
+                <strong>{formatMoney(getVariantPriceCents(selectedVariant))}</strong>
+              </span>
+            </div>
+          )}
+
+          {activeVariants.length > 1 && (
+            <fieldset className="menu-option-group" aria-describedby={`${optionGroupId}-help`}>
+              <legend>Escolha uma opção</legend>
+              <p id={`${optionGroupId}-help`}>Selecione uma opção para continuar.</p>
+              <div>
+                {activeVariants.map((variant, index) => (
+                  <label
+                    className={selectedVariantId === variant.id ? 'menu-option--selected' : ''}
+                    key={variant.id}
+                  >
+                    <input
+                      type="radio"
+                      name={optionGroupId}
+                      value={variant.id}
+                      checked={selectedVariantId === variant.id}
+                      onChange={() => setSelectedVariantId(variant.id)}
+                    />
+                    <span>{variant.label?.trim() || `Opção ${index + 1}`}</span>
+                    <span className="menu-variant-values">
+                      {variant.promotionalPriceCents !== null && (
+                        <del>{formatMoney(variant.priceCents)}</del>
+                      )}
+                      <strong>{formatMoney(getVariantPriceCents(variant))}</strong>
+                    </span>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+          )}
+
+          <section className="menu-item-quantity" aria-labelledby={`${optionGroupId}-quantity`}>
+            <h3 id={`${optionGroupId}-quantity`}>Quantidade</h3>
+            <QuantityControl
+              itemName={product.name}
+              quantity={quantity}
+              decreaseDisabled={!canConfigure || quantity <= 1}
+              increaseDisabled={!canConfigure || quantity >= CART_QUANTITY_MAX}
+              onDecrease={() => setQuantity((current) => Math.max(1, current - 1))}
+              onIncrease={() => setQuantity((current) => Math.min(CART_QUANTITY_MAX, current + 1))}
+            />
+          </section>
+
+          <div className="menu-item-note">
+            <label htmlFor={`${optionGroupId}-note`}>Observação deste item <span>(opcional)</span></label>
+            <textarea
+              id={`${optionGroupId}-note`}
+              value={note}
+              maxLength={CART_NOTE_MAX_LENGTH}
+              rows={3}
+              placeholder="Ex.: sem cebola, cortar ao meio"
+              onChange={(event) => setNote(event.target.value)}
+            />
+            <small>A observação vale para esta quantidade.</small>
+          </div>
+
+          <button className="menu-add-to-cart" type="submit" disabled={!canAdd}>
+            {totalCents === null
+              ? 'Adicionar ao pedido'
+              : `Adicionar ao pedido · ${formatMoney(totalCents)}`}
+          </button>
+        </form>
       </article>
     </dialog>
   )
