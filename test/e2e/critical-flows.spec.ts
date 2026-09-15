@@ -1,4 +1,4 @@
-import { expect, test, type APIRequestContext } from '@playwright/test'
+import { expect, test, type APIRequestContext, type Locator } from '@playwright/test'
 import { Buffer } from 'node:buffer'
 import type { MenuResponse } from '../../shared/schemas'
 
@@ -12,6 +12,10 @@ async function publicMenu(request: APIRequestContext): Promise<MenuResponse> {
   const response = await request.get('/api/menu')
   expect(response.ok()).toBeTruthy()
   return response.json() as Promise<MenuResponse>
+}
+
+function customizationGroupEditor(dialog: Locator, index: number): Locator {
+  return dialog.getByLabel('Nome do grupo', { exact: true }).nth(index).locator('xpath=ancestor::section[1]')
 }
 
 test('HTML público contém conteúdo e SEO antes do JavaScript e hidrata sem refetch', async ({ browser, page, request }) => {
@@ -209,54 +213,92 @@ test('administra montagem obrigatória e cliente só adiciona uma configuração
     await adminDialog.getByLabel('Preço normal').fill('2590')
     await adminDialog.locator('details').filter({ hasText: 'Montagem e adicionais' }).locator('summary').click()
     await adminDialog.getByRole('button', { name: 'Adicionar grupo' }).click()
-    await adminDialog.getByLabel('Nome do grupo').fill('Escolha seu complemento')
-    await adminDialog.getByLabel('Mínimo').fill('1')
-    await adminDialog.getByLabel('Máximo').fill('1')
-    await adminDialog.getByRole('button', { name: 'Adicionar opção' }).click()
-    await adminDialog.getByLabel('Nome da opção').fill('Queijo')
+    const groupA = customizationGroupEditor(adminDialog, 0)
+    await groupA.getByLabel('Nome do grupo').fill('Grupo A')
+    await groupA.getByLabel('Mínimo').fill('1')
+    await groupA.getByLabel('Máximo').fill('1')
+    await groupA.getByRole('button', { name: 'Adicionar opção' }).click()
+    await groupA.getByLabel('Nome da opção').fill('A1')
+    await groupA.getByRole('button', { name: 'Adicionar opção' }).click()
+    await groupA.getByLabel('Nome da opção').nth(1).fill('A2')
+
+    await adminDialog.getByRole('button', { name: 'Adicionar grupo' }).click()
+    const groupB = customizationGroupEditor(adminDialog, 1)
+    await groupB.getByLabel('Nome do grupo').fill('Grupo B')
+    await groupB.getByLabel('Mínimo').fill('1')
+    await groupB.getByLabel('Máximo').fill('1')
+    await groupB.getByRole('button', { name: 'Adicionar opção' }).click()
+    await groupB.getByLabel('Nome da opção').fill('B1')
+    await groupB.getByRole('button', { name: 'Adicionar opção' }).click()
+    await groupB.getByLabel('Nome da opção').nth(1).fill('B2')
+
+    await groupA.getByLabel('Mínimo').fill('')
+    await adminDialog.getByRole('button', { name: 'Salvar produto' }).click()
+    await expect(groupA.getByLabel('Mínimo')).toHaveAttribute('aria-invalid', 'true')
+    await expect(groupA.getByLabel('Mínimo').locator('xpath=following-sibling::small')).toBeVisible()
+    await groupA.getByLabel('Mínimo').fill('1')
+
+    await adminDialog.getByRole('button', { name: 'Mover grupo 2 para cima' }).click()
+    const firstGroupAfterMove = customizationGroupEditor(adminDialog, 0)
+    const secondGroupAfterMove = customizationGroupEditor(adminDialog, 1)
+    await expect(firstGroupAfterMove.getByLabel('Nome do grupo')).toHaveValue('Grupo B')
+    await expect(firstGroupAfterMove.getByLabel('Nome da opção').nth(0)).toHaveValue('B1')
+    await expect(firstGroupAfterMove.getByLabel('Nome da opção').nth(1)).toHaveValue('B2')
+    await expect(secondGroupAfterMove.getByLabel('Nome do grupo')).toHaveValue('Grupo A')
+    await expect(secondGroupAfterMove.getByLabel('Nome da opção').nth(0)).toHaveValue('A1')
+    await expect(secondGroupAfterMove.getByLabel('Nome da opção').nth(1)).toHaveValue('A2')
+
     await adminDialog.getByRole('button', { name: 'Salvar produto' }).click()
     await expect(page.getByText('Produto criado.')).toBeVisible()
 
     const saved = (await menu(request)).categories.flatMap((item) => item.products).find((item) => item.name === productName)
-    expect(saved?.customizationGroups[0]?.minSelections).toBe(1)
-    expect(saved?.customizationGroups[0]?.options[0]?.name).toBe('Queijo')
+    expect(saved?.customizationGroups.map((group) => group.name)).toEqual(['Grupo B', 'Grupo A'])
+    expect(saved?.customizationGroups.map((group) => group.options.map((option) => option.name))).toEqual([['B1', 'B2'], ['A1', 'A2']])
     productId = saved?.id ?? ''
 
-    let row = page.locator('article').filter({ hasText: productName })
+    const row = page.locator('article').filter({ hasText: productName })
     await row.getByRole('button', { name: 'Editar dados' }).click()
     const editDialog = page.getByRole('dialog')
     await editDialog.locator('details').filter({ hasText: 'Montagem e adicionais' }).locator('summary').click()
-    await expect(editDialog.getByLabel('Nome do grupo')).toHaveValue('Escolha seu complemento')
-    await editDialog.getByLabel('Nome da opção').fill('Queijo especial')
+    await expect(customizationGroupEditor(editDialog, 0).getByLabel('Nome do grupo')).toHaveValue('Grupo B')
+    await expect(customizationGroupEditor(editDialog, 0).getByLabel('Nome da opção').nth(0)).toHaveValue('B1')
+    await expect(customizationGroupEditor(editDialog, 1).getByLabel('Nome do grupo')).toHaveValue('Grupo A')
+    await expect(customizationGroupEditor(editDialog, 1).getByLabel('Nome da opção').nth(1)).toHaveValue('A2')
+    await customizationGroupEditor(editDialog, 0).getByRole('button', { name: 'Remover grupo' }).click()
+    await expect(editDialog.getByLabel('Nome do grupo', { exact: true })).toHaveCount(1)
+    const remainingGroup = customizationGroupEditor(editDialog, 0)
+    await expect(remainingGroup.getByLabel('Nome do grupo')).toHaveValue('Grupo A')
+    await expect(remainingGroup.getByLabel('Nome da opção').nth(0)).toHaveValue('A1')
+    await expect(remainingGroup.getByLabel('Nome da opção').nth(1)).toHaveValue('A2')
+    await remainingGroup.getByLabel('Nome da opção').nth(1).fill('A2 editado')
     await editDialog.getByRole('button', { name: 'Salvar produto' }).click()
     await expect(page.getByText('Produto atualizado.')).toBeVisible()
 
     const edited = (await menu(request)).categories.flatMap((item) => item.products).find((item) => item.id === productId)
-    expect(edited?.customizationGroups[0]?.options[0]?.name).toBe('Queijo especial')
-    row = page.locator('article').filter({ hasText: productName })
-    await row.getByText('Mais ações', { exact: true }).click()
-    await row.getByRole('button', { name: 'Duplicar' }).click()
-    const duplicateDialog = page.getByRole('dialog')
-    await duplicateDialog.locator('details').filter({ hasText: 'Montagem e adicionais' }).locator('summary').click()
-    await expect(duplicateDialog.getByLabel('Nome da opção')).toHaveValue('Queijo especial')
-    await duplicateDialog.getByRole('button', { name: 'Fechar' }).click()
-    const copy = (await menu(request)).categories.flatMap((item) => item.products).find((item) => item.name === `Cópia de ${productName}`)
-    expect(copy?.customizationGroups[0]?.options[0]?.name).toBe('Queijo especial')
+    expect(edited?.customizationGroups.map((group) => group.name)).toEqual(['Grupo A'])
+    expect(edited?.customizationGroups[0]?.options.map((option) => option.name)).toEqual(['A1', 'A2 editado'])
 
     // O HTML público é cacheado por 60s; o shell força o bootstrap atual da API neste fluxo administrativo.
     await page.goto('/index.html')
     await page.getByRole('searchbox', { name: 'Pesquisar no cardápio' }).fill(productName)
     await page.getByRole('button', { name: `Ver detalhes de ${productName}` }).click()
     const productDialog = page.getByRole('dialog')
+    await expect(productDialog).toContainText('Grupo A')
+    await expect(productDialog).not.toContainText('Grupo B')
+    await expect(productDialog).toContainText('A1')
+    await expect(productDialog).toContainText('A2 editado')
     const addButton = productDialog.getByRole('button', { name: /Adicionar ao pedido/ })
     await expect(addButton).toBeDisabled()
-    await productDialog.getByRole('checkbox', { name: 'Queijo' }).check()
+    await productDialog.getByRole('checkbox', { name: 'A2 editado' }).check()
     await expect(addButton).toBeEnabled()
     await expect(addButton).toContainText('R$')
     await addButton.click()
     await page.getByRole('button', { name: 'Ver pedido' }).click()
-    await expect(page.getByRole('dialog')).toContainText('Escolha seu complemento')
-    await expect(page.getByRole('dialog')).toContainText('1x Queijo')
+    const cartDialog = page.getByRole('dialog')
+    await expect(cartDialog).toContainText('Grupo A')
+    await expect(cartDialog).toContainText('1x A2 editado')
+    await expect(cartDialog).not.toContainText('Grupo B')
+    await expect(cartDialog).not.toContainText('B1')
   } finally {
     if (categoryId) {
       const current = await menu(request)

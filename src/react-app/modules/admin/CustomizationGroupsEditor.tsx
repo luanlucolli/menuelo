@@ -24,6 +24,7 @@ function CustomizationGroupEditor({ form, index, groupId, total, onMove, onRemov
   const optionErrors = groupError?.options
   const optionErrorList = Array.isArray(optionErrors) ? optionErrors : []
   const groupNameError = errorMessage(groupError?.name)
+  const groupMinError = errorMessage(groupError?.minSelections)
   const groupMaxError = errorMessage(groupError?.maxSelections)
   const groupOptionsError = errorMessage(groupError?.options)
 
@@ -56,7 +57,8 @@ function CustomizationGroupEditor({ form, index, groupId, total, onMove, onRemov
         </label>
         <div className="customization-count-fields">
           <label>Mínimo
-            <input type="number" min={0} max={99} {...form.register(`${groupName}.minSelections`, { valueAsNumber: true })} />
+            <input type="number" min={0} max={99} aria-invalid={Boolean(groupError?.minSelections)} {...form.register(`${groupName}.minSelections`, { valueAsNumber: true })} />
+            {groupMinError && <small className="field-error">{groupMinError}</small>}
           </label>
           <label>Máximo
             <input type="number" min={0} max={99} aria-invalid={Boolean(groupError?.maxSelections)} {...form.register(`${groupName}.maxSelections`, { valueAsNumber: true })} />
@@ -108,7 +110,8 @@ export function CustomizationGroupsEditor({ form }: { form: UseFormReturn<Produc
     <div className="customization-groups-intro"><p>Crie escolhas que o cliente combina antes de adicionar o produto. O mínimo e o máximo consideram a soma das quantidades.</p><button className="secondary-button" type="button" disabled={groups.fields.length >= 20} onClick={appendGroup}><Plus /> Adicionar grupo</button></div>
     {!groups.fields.length && <p className="field-help">Nenhum grupo configurado. O produto continuará funcionando como antes.</p>}
     <div className="customization-group-list">
-      {groups.fields.map((group, index) => <CustomizationGroupEditor key={group.id} form={form} index={index} groupId={group.id} total={groups.fields.length} onMove={groups.move} onRemove={groups.remove} />)}
+      {/* O índice no key força remount após move/remove; o useFieldArray aninhado nunca troca de name em uma mesma instância. */}
+      {groups.fields.map((group, index) => <CustomizationGroupEditor key={`${group.id}-${index}`} form={form} index={index} groupId={group.id} total={groups.fields.length} onMove={groups.move} onRemove={groups.remove} />)}
     </div>
     {groups.fields.length >= 20 && <small className="field-help">Você atingiu o limite de 20 grupos neste produto.</small>}
   </div>

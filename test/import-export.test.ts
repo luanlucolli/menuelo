@@ -99,6 +99,14 @@ describe('exportação e importação', () => {
     }
   })
 
+  it('rejeita backup v2 sem customizationGroups', () => {
+    const malformed = JSON.parse(JSON.stringify(validImport)) as Record<string, unknown>
+    const categories = malformed.categories as Array<Record<string, unknown>>
+    const products = categories[0]!.products as Array<Record<string, unknown>>
+    delete products[0]!.customizationGroups
+    expect(menuImportSchema.safeParse(malformed).success).toBe(false)
+  })
+
   it('continua aceitando cópias antigas sem os campos estruturados', () => {
     const legacy = JSON.parse(JSON.stringify(validImport)) as { business: Record<string, unknown> }
     for (const field of ['primaryColor', 'addressPostalCode', 'addressStreet', 'addressNumber', 'addressComplement', 'addressNeighborhood', 'addressCity', 'addressState']) delete legacy.business[field]

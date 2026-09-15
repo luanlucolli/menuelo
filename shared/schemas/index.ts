@@ -194,6 +194,7 @@ export const menuImportSchema = z.preprocess((value) => {
   const source = value as Record<string, unknown>
   const business = source.business
   if (!business || typeof business !== 'object') return value
+  const isLegacy = source.schemaVersion === 1
   const categories = Array.isArray(source.categories)
     ? source.categories.map((category) => {
       if (!category || typeof category !== 'object') return category
@@ -203,7 +204,10 @@ export const menuImportSchema = z.preprocess((value) => {
         products: Array.isArray(categoryRecord.products)
           ? categoryRecord.products.map((product) => {
             if (!product || typeof product !== 'object') return product
-            return { ...(product as Record<string, unknown>), customizationGroups: (product as Record<string, unknown>).customizationGroups ?? [] }
+            const productRecord = product as Record<string, unknown>
+            return isLegacy && !('customizationGroups' in productRecord)
+              ? { ...productRecord, customizationGroups: [] }
+              : productRecord
           })
           : categoryRecord.products,
       }
@@ -211,7 +215,7 @@ export const menuImportSchema = z.preprocess((value) => {
     : source.categories
   return {
     ...source,
-    schemaVersion: source.schemaVersion === 1 ? 2 : source.schemaVersion,
+    schemaVersion: isLegacy ? 2 : source.schemaVersion,
     business: {
       primaryColor: DEFAULT_PRIMARY_COLOR,
       addressPostalCode: null,

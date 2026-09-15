@@ -53,6 +53,12 @@ describe('schemas de montagem', () => {
     expect(productCustomizationGroupInputSchema.safeParse({ ...groupInput, options: groupInput.options.map((option) => ({ ...option, isActive: false })) }).success).toBe(false)
   })
 
+  it('rejeita mínimo vazio, negativo ou acima de 99', () => {
+    expect(productCustomizationGroupInputSchema.safeParse({ ...groupInput, minSelections: undefined }).success).toBe(false)
+    expect(productCustomizationGroupInputSchema.safeParse({ ...groupInput, minSelections: -1 }).success).toBe(false)
+    expect(productCustomizationGroupInputSchema.safeParse({ ...groupInput, minSelections: 100 }).success).toBe(false)
+  })
+
   it('inclui a configuração em um ProductInput', () => {
     expect(productInputSchema.safeParse({ categoryId: 'category-1', name: 'Combo', ingredients: null, isAvailable: true, isFeatured: false, sortOrder: 0, variants: [{ label: null, priceCents: 1000, promotionalPriceCents: null, isActive: true, sortOrder: 0 }], customizationGroups: [groupInput] }).success).toBe(true)
   })

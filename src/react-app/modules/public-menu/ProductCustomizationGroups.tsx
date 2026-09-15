@@ -2,6 +2,7 @@ import { formatMoney } from '../../../../shared/utils'
 import type { Product } from '../../../../shared/schemas'
 import {
   countCustomizationSelections,
+  customizationRuleText,
   getActiveCustomizationGroups,
   selectSingleCustomizationOption,
   updateCustomizationQuantity,
@@ -17,13 +18,7 @@ export function ProductCustomizationGroups({ product, draft, onChange }: { produ
     {groups.map((group) => {
       const selectedCount = countCustomizationSelections(group, draft[group.id])
       const selectionValid = selectedCount >= group.minSelections && selectedCount <= group.maxSelections
-      const rule = group.minSelections === 0 && group.maxSelections === 0
-        ? 'Opcional'
-        : group.minSelections === 0
-          ? `Opcional · escolha até ${group.maxSelections}`
-          : group.minSelections === group.maxSelections
-            ? `Escolha ${group.minSelections}`
-            : `Escolha de ${group.minSelections} a ${group.maxSelections}`
+      const rule = customizationRuleText(group)
       return <fieldset className="menu-customization-group" key={group.id} aria-describedby={`customization-help-${group.id}`}>
         <legend>{group.name}</legend>
         <p id={`customization-help-${group.id}`} className="menu-customization-rule"><span>{rule}</span><span aria-live="polite">{selectedCount}/{group.maxSelections}</span></p>

@@ -63,7 +63,9 @@ export function ProductForm({ product, categories, initialCategoryId, onClose, o
   })
   const variants = useFieldArray({ control: form.control, name: 'variants' })
   const watchedVariants = useWatch({ control: form.control, name: 'variants' })
+  const watchedCustomizationGroups = useWatch({ control: form.control, name: 'customizationGroups' })
   const hasMultipleSizes = variants.fields.length > 1
+  const customizationGroupCount = watchedCustomizationGroups?.length ?? 0
   const categoryOptions = createdCategory && !categories.some((category) => category.id === createdCategory.id)
     ? [...categories.map((category) => ({ id: category.id, name: category.name })), createdCategory]
     : categories.map((category) => ({ id: category.id, name: category.name }))
@@ -265,7 +267,7 @@ export function ProductForm({ product, categories, initialCategoryId, onClose, o
         {variants.fields.length >= 20 && <small className="field-help">Você atingiu o limite de 20 tamanhos neste produto.</small>}
       </div></details>
 
-      <details className="progressive-section customization-section" open={customizationOpen} onToggle={(event) => setCustomizationOpen(event.currentTarget.open)}><summary>Montagem e adicionais <span>{product?.customizationGroups.length ? `${product.customizationGroups.length} grupos` : 'Opcional'}</span></summary><div><CustomizationGroupsEditor form={form} /></div></details>
+      <details className="progressive-section customization-section" open={customizationOpen} onToggle={(event) => setCustomizationOpen(event.currentTarget.open)}><summary>Montagem e adicionais <span>{customizationGroupCount ? `${customizationGroupCount} ${customizationGroupCount === 1 ? 'grupo' : 'grupos'}` : 'Opcional'}</span></summary><div><CustomizationGroupsEditor form={form} /></div></details>
 
       <details className="progressive-section" open={ingredientsOpen} onToggle={(event) => setIngredientsOpen(event.currentTarget.open)}><summary>Ingredientes ou descrição <span>Opcional</span></summary><div><label>Texto exibido no cardápio<textarea rows={4} {...form.register('ingredients', { setValueAs: (value) => value || null })} /></label></div></details>
 
