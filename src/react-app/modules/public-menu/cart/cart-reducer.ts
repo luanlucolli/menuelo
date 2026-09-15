@@ -1,5 +1,6 @@
 import type { CartLine, CartState } from './cart-types'
 import { clampCartQuantity, normalizeCartNote } from './cart-utils'
+import { customizationSignature } from '../customizations'
 
 export const emptyCartState: CartState = { lines: [] }
 
@@ -23,7 +24,8 @@ export function cartReducer(state: CartState, action: CartAction): CartState {
       const existingIndex = state.lines.findIndex((line) =>
         line.productId === incoming.productId &&
         line.variantId === incoming.variantId &&
-        line.note === incoming.note)
+        customizationSignature(line.customizations) === customizationSignature(incoming.customizations) &&
+        normalizeCartNote(line.note) === incoming.note)
 
       if (existingIndex < 0) return { lines: [...state.lines, incoming] }
 

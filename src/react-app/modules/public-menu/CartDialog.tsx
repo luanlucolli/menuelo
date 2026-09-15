@@ -41,6 +41,21 @@ function CartLineItem({
         Valor unitário: {formatMoney(line.unitPriceCents)}
       </p>
 
+      {line.customizationDetails && line.customizationDetails.length > 0 && (
+        <div className="menu-cart-customizations">
+          {line.customizationDetails.map((group) => (
+            <div key={group.groupId}>
+              <strong>{group.name}</strong>
+              <ul>
+                {group.options.map((option) => (
+                  <li key={option.optionId}>{option.quantity}x {option.name}{option.priceDeltaCents > 0 && ` (+ ${formatMoney(option.priceDeltaCents)})`}</li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      )}
+
       {line.note && !editingNote && (
         <div className="menu-cart-line-note">
           <strong>Observação</strong>

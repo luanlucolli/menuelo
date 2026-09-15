@@ -190,6 +190,85 @@ test('cria produto, valida promoção, alterna disponibilidade, duplica e exclui
   }
 })
 
+test('administra montagem obrigatória e cliente só adiciona uma configuração válida', async ({ page, request }) => {
+  const suffix = Date.now().toString(36)
+  const categoryName = `Categoria montagem ${suffix}`
+  const productName = `Combo montagem ${suffix}`
+  let categoryId = ''
+  let productId = ''
+
+  try {
+    const categoryResponse = await request.post('/admin/api/categories', { data: { name: categoryName, description: null, isActive: true, sortOrder: 0 } })
+    expect(categoryResponse.ok()).toBeTruthy()
+    categoryId = (await categoryResponse.json() as { id: string }).id
+
+    await page.setViewportSize({ width: 390, height: 844 })
+    await page.goto(`/admin/produtos?categoria=${categoryId}&acao=novo`)
+    const adminDialog = page.getByRole('dialog')
+    await adminDialog.getByLabel('Nome do produto').fill(productName)
+    await adminDialog.getByLabel('Preço normal').fill('2590')
+    await adminDialog.locator('details').filter({ hasText: 'Montagem e adicionais' }).locator('summary').click()
+    await adminDialog.getByRole('button', { name: 'Adicionar grupo' }).click()
+    await adminDialog.getByLabel('Nome do grupo').fill('Escolha seu complemento')
+    await adminDialog.getByLabel('Mínimo').fill('1')
+    await adminDialog.getByLabel('Máximo').fill('1')
+    await adminDialog.getByRole('button', { name: 'Adicionar opção' }).click()
+    await adminDialog.getByLabel('Nome da opção').fill('Queijo')
+    await adminDialog.getByRole('button', { name: 'Salvar produto' }).click()
+    await expect(page.getByText('Produto criado.')).toBeVisible()
+
+    const saved = (await menu(request)).categories.flatMap((item) => item.products).find((item) => item.name === productName)
+    expect(saved?.customizationGroups[0]?.minSelections).toBe(1)
+    expect(saved?.customizationGroups[0]?.options[0]?.name).toBe('Queijo')
+    productId = saved?.id ?? ''
+
+    let row = page.locator('article').filter({ hasText: productName })
+    await row.getByRole('button', { name: 'Editar dados' }).click()
+    const editDialog = page.getByRole('dialog')
+    await editDialog.locator('details').filter({ hasText: 'Montagem e adicionais' }).locator('summary').click()
+    await expect(editDialog.getByLabel('Nome do grupo')).toHaveValue('Escolha seu complemento')
+    await editDialog.getByLabel('Nome da opção').fill('Queijo especial')
+    await editDialog.getByRole('button', { name: 'Salvar produto' }).click()
+    await expect(page.getByText('Produto atualizado.')).toBeVisible()
+
+    const edited = (await menu(request)).categories.flatMap((item) => item.products).find((item) => item.id === productId)
+    expect(edited?.customizationGroups[0]?.options[0]?.name).toBe('Queijo especial')
+    row = page.locator('article').filter({ hasText: productName })
+    await row.getByText('Mais ações', { exact: true }).click()
+    await row.getByRole('button', { name: 'Duplicar' }).click()
+    const duplicateDialog = page.getByRole('dialog')
+    await duplicateDialog.locator('details').filter({ hasText: 'Montagem e adicionais' }).locator('summary').click()
+    await expect(duplicateDialog.getByLabel('Nome da opção')).toHaveValue('Queijo especial')
+    await duplicateDialog.getByRole('button', { name: 'Fechar' }).click()
+    const copy = (await menu(request)).categories.flatMap((item) => item.products).find((item) => item.name === `Cópia de ${productName}`)
+    expect(copy?.customizationGroups[0]?.options[0]?.name).toBe('Queijo especial')
+
+    // O HTML público é cacheado por 60s; o shell força o bootstrap atual da API neste fluxo administrativo.
+    await page.goto('/index.html')
+    await page.getByRole('searchbox', { name: 'Pesquisar no cardápio' }).fill(productName)
+    await page.getByRole('button', { name: `Ver detalhes de ${productName}` }).click()
+    const productDialog = page.getByRole('dialog')
+    const addButton = productDialog.getByRole('button', { name: /Adicionar ao pedido/ })
+    await expect(addButton).toBeDisabled()
+    await productDialog.getByRole('checkbox', { name: 'Queijo' }).check()
+    await expect(addButton).toBeEnabled()
+    await expect(addButton).toContainText('R$')
+    await addButton.click()
+    await page.getByRole('button', { name: 'Ver pedido' }).click()
+    await expect(page.getByRole('dialog')).toContainText('Escolha seu complemento')
+    await expect(page.getByRole('dialog')).toContainText('1x Queijo')
+  } finally {
+    if (categoryId) {
+      const current = await menu(request)
+      const temporaryCategory = current.categories.find((category) => category.id === categoryId)
+      for (const product of temporaryCategory?.products ?? []) await request.delete(`/admin/api/products/${product.id}`)
+      await request.delete(`/admin/api/categories/${categoryId}`)
+    } else if (productId) {
+      await request.delete(`/admin/api/products/${productId}`)
+    }
+  }
+})
+
 test('organização oferece alternativa aos gestos de arrastar e filtros persistem', async ({ page, request }) => {
   const current = await menu(request)
   const category = current.categories.find((item) => item.products.length > 1)

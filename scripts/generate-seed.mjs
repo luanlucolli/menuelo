@@ -18,6 +18,8 @@ const statements = [
 
 let productCount = 0
 let variantCount = 0
+let customizationGroupCount = 0
+let customizationOptionCount = 0
 
 for (const [categoryIndex, category] of menu.categories.entries()) {
   const categoryId = `demo-category-${String(categoryIndex + 1).padStart(2, '0')}`
@@ -34,6 +36,17 @@ for (const [categoryIndex, category] of menu.categories.entries()) {
       const variantId = `demo-variant-${String(variantCount).padStart(3, '0')}`
       statements.push(`INSERT INTO product_variants (id, product_id, label, price_cents, promotional_price_cents, is_active, sort_order) VALUES (${sqlString(variantId)}, ${sqlString(productId)}, ${sqlString(variant.label)}, ${variant.price_cents}, ${sqlString(variant.promotional_price_cents)}, 1, ${variantIndex});`)
     }
+
+    for (const [groupIndex, group] of (product.customization_groups ?? []).entries()) {
+      customizationGroupCount += 1
+      const groupId = `demo-customization-group-${String(customizationGroupCount).padStart(3, '0')}`
+      statements.push(`INSERT INTO product_customization_groups (id, product_id, name, min_selections, max_selections, is_active, sort_order) VALUES (${sqlString(groupId)}, ${sqlString(productId)}, ${sqlString(group.name)}, ${group.min_selections}, ${group.max_selections}, 1, ${groupIndex});`)
+      for (const [optionIndex, option] of (group.options ?? []).entries()) {
+        customizationOptionCount += 1
+        const optionId = `demo-customization-option-${String(customizationOptionCount).padStart(3, '0')}`
+        statements.push(`INSERT INTO product_customization_options (id, group_id, name, description, price_delta_cents, is_active, sort_order) VALUES (${sqlString(optionId)}, ${sqlString(groupId)}, ${sqlString(option.name)}, ${sqlString(option.description ?? null)}, ${option.price_delta_cents}, 1, ${optionIndex});`)
+      }
+    }
   }
 }
 
@@ -44,4 +57,4 @@ if (menu.categories.length === 0 || productCount === 0) {
 await mkdir(resolve(root, 'seeds'), { recursive: true })
 await writeFile(sourcePath, `${JSON.stringify(menu, null, 2)}\n`)
 await writeFile(outputPath, `${statements.join('\n')}\n`)
-console.log(`Demonstração gerada: ${menu.categories.length} categorias, ${productCount} produtos e ${variantCount} preços.`)
+console.log(`Demonstração gerada: ${menu.categories.length} categorias, ${productCount} produtos, ${variantCount} preços, ${customizationGroupCount} grupos e ${customizationOptionCount} opções.`)

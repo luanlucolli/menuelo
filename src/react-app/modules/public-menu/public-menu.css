@@ -1186,6 +1186,145 @@
   accent-color: var(--color-brand);
 }
 
+.menu-customization-groups {
+  display: grid;
+  margin-top: 24px;
+  gap: 22px;
+}
+
+.menu-customization-group {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.menu-customization-group legend {
+  max-width: 100%;
+  padding: 0;
+  color: var(--menu-text);
+  font-size: 1rem;
+  font-weight: 780;
+  overflow-wrap: anywhere;
+}
+
+.menu-customization-rule {
+  display: flex;
+  margin: 5px 0 11px;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--menu-muted);
+  font-size: .78rem;
+}
+
+.menu-customization-rule span:last-child {
+  flex: 0 0 auto;
+  font-variant-numeric: tabular-nums;
+}
+
+.menu-customization-error {
+  margin: 0 0 9px;
+  color: var(--menu-danger);
+  font-size: .76rem;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.menu-customization-options {
+  display: grid;
+  min-width: 0;
+  gap: 8px;
+}
+
+.menu-customization-option {
+  display: flex;
+  min-width: 0;
+  min-height: 70px;
+  padding: 10px 12px;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid var(--menu-border);
+  border-radius: 12px;
+  background: var(--menu-surface);
+}
+
+.menu-customization-option--single {
+  cursor: pointer;
+}
+
+.menu-customization-option--single:focus-within {
+  outline: 3px solid color-mix(in srgb, var(--color-brand) 28%, transparent);
+  outline-offset: 2px;
+}
+
+.menu-customization-option input {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 auto;
+  margin: 0;
+  accent-color: var(--color-brand);
+}
+
+.menu-customization-option.menu-option--selected {
+  border-color: var(--color-brand);
+  background: color-mix(in srgb, var(--color-brand) 7%, #ffffff);
+}
+
+.menu-customization-option-copy {
+  display: grid;
+  min-width: 0;
+  flex: 1 1 auto;
+  gap: 3px;
+}
+
+.menu-customization-option-copy strong {
+  min-width: 0;
+  font-size: .87rem;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.menu-customization-option-copy small {
+  color: var(--menu-muted);
+  font-size: .74rem;
+  font-weight: 500;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.menu-customization-price {
+  flex: 0 0 auto;
+  color: var(--color-brand);
+  font-size: .8rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.menu-customization-option-end {
+  display: flex;
+  min-width: 0;
+  flex: 0 0 auto;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.menu-customization-option-end .menu-quantity-control {
+  grid-template-columns: 36px 34px 36px;
+}
+
+.menu-customization-option-end .menu-quantity-control button {
+  width: 36px;
+  height: 40px;
+}
+
+.menu-customization-option-end .menu-quantity-control output {
+  font-size: .9rem;
+}
+
 .menu-item-quantity {
   display: flex;
   margin-top: 24px;
@@ -1652,6 +1791,38 @@
   flex: 0 0 auto;
   font-size: 0.98rem;
   font-weight: 820;
+}
+
+.menu-cart-customizations {
+  display: grid;
+  margin-top: 11px;
+  gap: 8px;
+  border-left: 2px solid color-mix(in srgb, var(--color-brand) 45%, var(--menu-border));
+  padding-left: 10px;
+}
+
+.menu-cart-customizations > div {
+  min-width: 0;
+}
+
+.menu-cart-customizations strong {
+  font-size: .75rem;
+  font-weight: 780;
+}
+
+.menu-cart-customizations ul {
+  display: grid;
+  margin: 3px 0 0;
+  padding: 0;
+  gap: 2px;
+  list-style: none;
+}
+
+.menu-cart-customizations li {
+  color: var(--menu-muted);
+  font-size: .76rem;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
 }
 
 .menu-cart-line-note {

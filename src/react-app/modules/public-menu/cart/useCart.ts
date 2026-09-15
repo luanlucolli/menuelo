@@ -3,6 +3,7 @@ import type { MenuResponse, Product, ProductVariant } from '../../../../../share
 import { cartReducer, emptyCartState, type CartAction } from './cart-reducer'
 import { getCartStorageKey, readCart, writeCart } from './cart-storage'
 import type { CartState } from './cart-types'
+import { normalizeCustomizations, resolveCustomizations, type CustomizationSelection } from '../customizations'
 import {
   calculateCartItemCount,
   calculateCartTotal,
@@ -49,6 +50,15 @@ function menuCartContextKey(menu: MenuResponse): string {
         variant.promotionalPriceCents,
         variant.isActive,
       ]),
+      product.customizationGroups.map((group) => [
+        group.id,
+        group.name,
+        group.minSelections,
+        group.maxSelections,
+        group.isActive,
+        group.sortOrder,
+        group.options.map((option) => [option.id, option.name, option.description, option.priceDeltaCents, option.isActive, option.sortOrder]),
+      ]),
     ])
   return JSON.stringify([menu.business.slug, products])
 }
@@ -89,7 +99,11 @@ export function useCart(menu: MenuResponse) {
     variant: ProductVariant,
     quantity: number,
     note: string,
+    customizations: CustomizationSelection[],
   ) => {
+    const normalizedCustomizations = normalizeCustomizations(product, customizations)
+    const customizationDetails = resolveCustomizations(product, normalizedCustomizations ?? [])
+    if (!normalizedCustomizations || !customizationDetails) return
     send({
       type: 'add',
       line: {
@@ -100,7 +114,9 @@ export function useCart(menu: MenuResponse) {
         note: normalizeCartNote(note),
         productName: product.name,
         variantLabel: variant.label?.trim() || null,
-        unitPriceCents: getVariantPriceCents(variant),
+        unitPriceCents: getVariantPriceCents(variant) + customizationDetails.reduce((total, group) => total + group.options.reduce((groupTotal, option) => groupTotal + option.priceDeltaCents * option.quantity, 0), 0),
+        customizations: normalizedCustomizations,
+        customizationDetails,
       },
     })
   }, [send])

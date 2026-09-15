@@ -74,7 +74,7 @@ describe('schemas', () => {
 
   it('valida um produto completo e exige ao menos uma variação', () => {
     expect(productInputSchema.safeParse({ categoryId: 'cat', name: 'Produto', ingredients: null, isAvailable: true, isFeatured: false, sortOrder: 0, variants: [] }).success).toBe(false)
-    expect(productInputSchema.safeParse({ categoryId: 'cat', name: 'Produto', ingredients: null, isAvailable: true, isFeatured: false, sortOrder: 0, variants: [{ label: null, priceCents: 1000, promotionalPriceCents: null, isActive: true, sortOrder: 0 }] }).success).toBe(true)
+    expect(productInputSchema.safeParse({ categoryId: 'cat', name: 'Produto', ingredients: null, isAvailable: true, isFeatured: false, sortOrder: 0, variants: [{ label: null, priceCents: 1000, promotionalPriceCents: null, isActive: true, sortOrder: 0 }], customizationGroups: [] }).success).toBe(true)
   })
 
   it('rejeita importação com versão desconhecida', () => {

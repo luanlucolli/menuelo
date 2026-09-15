@@ -4,7 +4,7 @@
 
 O Vite entrega uma SPA React por Workers Static Assets. `/api/*`, `/admin/api/*` e `/media/*` executam primeiro o Worker Hono; as demais rotas usam fallback da SPA. `GET /api/menu` agrega configurações, horários, pagamentos, regiões, categorias, produtos e preços. Schemas Zod em `shared/` validam contratos nos dois lados.
 
-O cardápio público e o painel leem a identidade do banco. Nome, inicial e cor não são constantes de uma lanchonete. Quando o estabelecimento ainda não foi configurado, o bootstrap mostra um estado neutro e não inventa contatos ou dados comerciais.
+O cardápio público e o painel leem a identidade do banco. Nome, inicial e cor não são constantes de uma lanchonete. Produtos podem ter variantes e grupos de montagem com opções; a seleção vive no carrinho local e é enviada à loja por WhatsApp. Quando o estabelecimento ainda não foi configurado, o bootstrap mostra um estado neutro e não inventa contatos ou dados comerciais.
 
 ## Isolamento white label
 
@@ -35,4 +35,4 @@ Substituição de imagem grava o objeto novo, atualiza o banco e só então tent
 
 ## Limites deliberados
 
-Não há pedidos, carrinho, checkout, consumidores, pagamento, frete, PWA, impressão, histórico, multi-tenancy ou autenticação própria. A criação dos recursos Cloudflare e do Access continua sendo uma etapa operacional explícita para cada cliente.
+Não há backend de pedidos, checkout, consumidores, pagamento, frete, PWA, impressão, histórico, multi-tenancy ou autenticação própria. Há carrinho frontend/local e envio do pedido montado por WhatsApp. A criação dos recursos Cloudflare e do Access continua sendo uma etapa operacional explícita para cada cliente.

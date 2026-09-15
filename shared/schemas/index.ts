@@ -33,7 +33,41 @@ export const variantInputSchema = z.object({
   }
 })
 
-export const productInputSchema = z.object({
+const selectionCountSchema = z.number().int().min(0).max(99)
+
+export const productCustomizationOptionInputSchema = z.object({
+  name: z.string().trim().min(1, 'Informe o nome do adicional.').max(120),
+  description: nullableText(500),
+  priceDeltaCents: moneySchema,
+  isActive: z.boolean(),
+  sortOrder: z.number().int().nonnegative().max(10_000),
+})
+
+export const productCustomizationGroupInputSchema = z.object({
+  name: z.string().trim().min(1, 'Informe o nome do grupo.').max(120),
+  minSelections: selectionCountSchema,
+  maxSelections: selectionCountSchema,
+  isActive: z.boolean(),
+  sortOrder: z.number().int().nonnegative().max(10_000),
+  options: z.array(productCustomizationOptionInputSchema).max(50),
+}).superRefine((group, context) => {
+  if (group.maxSelections < group.minSelections) {
+    context.addIssue({
+      code: 'custom',
+      path: ['maxSelections'],
+      message: 'O máximo não pode ser menor que o mínimo.',
+    })
+  }
+  if (group.isActive && group.minSelections > 0 && !group.options.some((option) => option.isActive)) {
+    context.addIssue({
+      code: 'custom',
+      path: ['options'],
+      message: 'Adicione pelo menos uma opção ativa para um grupo obrigatório.',
+    })
+  }
+})
+
+export const productInputFormSchema = z.object({
   categoryId: idSchema,
   name: z.string().trim().min(1, 'Informe o nome.').max(120),
   ingredients: nullableText(1000),
@@ -41,7 +75,13 @@ export const productInputSchema = z.object({
   isFeatured: z.boolean(),
   sortOrder: z.number().int().nonnegative().max(10_000),
   variants: z.array(variantInputSchema).min(1, 'Adicione ao menos um preço.').max(20),
+  customizationGroups: z.array(productCustomizationGroupInputSchema).max(20),
 })
+
+export const productInputSchema = z.preprocess((value) => {
+  if (!value || typeof value !== 'object' || 'customizationGroups' in value) return value
+  return { ...value, customizationGroups: [] }
+}, productInputFormSchema)
 
 export const categoryInputSchema = z.object({
   name: z.string().trim().min(1, 'Informe o nome.').max(80),
@@ -127,7 +167,7 @@ const productImageKeySchema = z.string().trim().max(180).regex(/^products\/[0-9a
 const coverImageKeySchema = z.string().trim().max(180).regex(/^covers\/[0-9a-f-]+\.webp$/).nullable()
 const faviconKeySchema = z.string().trim().max(180).regex(/^favicons\/[0-9a-f-]+\.ico$/).nullable()
 
-const importProductSchema = productInputSchema.omit({ categoryId: true }).extend({ imageKey: productImageKeySchema })
+const importProductSchema = productInputFormSchema.omit({ categoryId: true }).extend({ imageKey: productImageKeySchema })
 const importCategorySchema = categoryInputSchema.extend({ products: z.array(importProductSchema).max(500) })
 const importBusinessSchema = settingsInputSchema.safeExtend({
   coverImageKey: coverImageKeySchema,
@@ -135,7 +175,7 @@ const importBusinessSchema = settingsInputSchema.safeExtend({
 })
 
 const menuImportDataSchema = z.object({
-  schemaVersion: z.literal(1),
+  schemaVersion: z.literal(2),
   exportedAt: z.iso.datetime(),
   business: importBusinessSchema,
   hours: z.array(hourInputSchema).max(50),
@@ -151,10 +191,27 @@ const menuImportDataSchema = z.object({
 
 export const menuImportSchema = z.preprocess((value) => {
   if (!value || typeof value !== 'object' || !('business' in value)) return value
-  const business = value.business
+  const source = value as Record<string, unknown>
+  const business = source.business
   if (!business || typeof business !== 'object') return value
+  const categories = Array.isArray(source.categories)
+    ? source.categories.map((category) => {
+      if (!category || typeof category !== 'object') return category
+      const categoryRecord = category as Record<string, unknown>
+      return {
+        ...categoryRecord,
+        products: Array.isArray(categoryRecord.products)
+          ? categoryRecord.products.map((product) => {
+            if (!product || typeof product !== 'object') return product
+            return { ...(product as Record<string, unknown>), customizationGroups: (product as Record<string, unknown>).customizationGroups ?? [] }
+          })
+          : categoryRecord.products,
+      }
+    })
+    : source.categories
   return {
-    ...value,
+    ...source,
+    schemaVersion: source.schemaVersion === 1 ? 2 : source.schemaVersion,
     business: {
       primaryColor: DEFAULT_PRIMARY_COLOR,
       addressPostalCode: null,
@@ -166,6 +223,7 @@ export const menuImportSchema = z.preprocess((value) => {
       addressState: null,
       ...business,
     },
+    categories,
   }
 }, menuImportDataSchema)
 
@@ -176,6 +234,8 @@ export const importApplySchema = z.object({
 })
 
 export type ProductInput = z.infer<typeof productInputSchema>
+export type ProductCustomizationOptionInput = z.infer<typeof productCustomizationOptionInputSchema>
+export type ProductCustomizationGroupInput = z.infer<typeof productCustomizationGroupInputSchema>
 export type CategoryInput = z.infer<typeof categoryInputSchema>
 export type SettingsInput = z.infer<typeof settingsInputSchema>
 export type HourInput = z.infer<typeof hourInputSchema>
@@ -204,6 +264,25 @@ export interface ProductVariant {
   sortOrder: number
 }
 
+export interface ProductCustomizationOption {
+  id: string
+  name: string
+  description: string | null
+  priceDeltaCents: number
+  isActive: boolean
+  sortOrder: number
+}
+
+export interface ProductCustomizationGroup {
+  id: string
+  name: string
+  minSelections: number
+  maxSelections: number
+  isActive: boolean
+  sortOrder: number
+  options: ProductCustomizationOption[]
+}
+
 export interface Product {
   id: string
   categoryId: string
@@ -216,6 +295,7 @@ export interface Product {
   createdAt: string
   updatedAt: string
   variants: ProductVariant[]
+  customizationGroups: ProductCustomizationGroup[]
 }
 
 export interface Category {
@@ -306,6 +386,32 @@ export const productVariantResponseSchema = z.object({
   sortOrder: z.number().int().nonnegative().max(10_000),
 })
 
+export const productCustomizationOptionResponseSchema = z.object({
+  id: idSchema,
+  name: z.string().min(1).max(120),
+  description: responseNullableText(500),
+  priceDeltaCents: moneySchema,
+  isActive: z.boolean(),
+  sortOrder: z.number().int().nonnegative().max(10_000),
+})
+
+export const productCustomizationGroupResponseSchema = z.object({
+  id: idSchema,
+  name: z.string().min(1).max(120),
+  minSelections: selectionCountSchema,
+  maxSelections: selectionCountSchema,
+  isActive: z.boolean(),
+  sortOrder: z.number().int().nonnegative().max(10_000),
+  options: z.array(productCustomizationOptionResponseSchema).max(50),
+}).superRefine((group, context) => {
+  if (group.maxSelections < group.minSelections) {
+    context.addIssue({ code: 'custom', path: ['maxSelections'], message: 'O máximo não pode ser menor que o mínimo.' })
+  }
+  if (group.isActive && group.minSelections > 0 && !group.options.some((option) => option.isActive)) {
+    context.addIssue({ code: 'custom', path: ['options'], message: 'Adicione pelo menos uma opção ativa para um grupo obrigatório.' })
+  }
+})
+
 export const productResponseSchema = z.object({
   id: idSchema,
   categoryId: idSchema,
@@ -318,6 +424,7 @@ export const productResponseSchema = z.object({
   createdAt: responseDateTime,
   updatedAt: responseDateTime,
   variants: z.array(productVariantResponseSchema).max(20),
+  customizationGroups: z.array(productCustomizationGroupResponseSchema).max(20),
 })
 
 export const categoryResponseSchema = z.object({

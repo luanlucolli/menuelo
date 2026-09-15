@@ -14,6 +14,15 @@ export function publicHtmlCacheKey(requestUrl: string): Request {
   return new Request(url, { method: 'GET' })
 }
 
+export async function invalidatePublicHtmlCache(requestUrl: string): Promise<void> {
+  const cache = (caches as CacheStorage & { readonly default: Cache }).default
+  try {
+    await cache.delete(publicHtmlCacheKey(requestUrl))
+  } catch (error) {
+    logPublicError('public HTML cache invalidation failed', error, requestUrl)
+  }
+}
+
 function responseForMethod(response: Response, method: string, cacheStatus: 'HIT' | 'MISS'): Response {
   const headers = new Headers(response.headers)
   headers.set('X-Menuelo-Cache', cacheStatus)

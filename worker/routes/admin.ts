@@ -16,6 +16,7 @@ import { formatStructuredAddress, slugify } from '../../shared/utils'
 import { ApiError, parseJson, readBytesLimited, requireId } from '../lib/http'
 import { requireAdmin, type AppEnvironment } from '../middleware/auth'
 import { getMenu, getProduct } from '../repositories/menu'
+import { invalidatePublicHtmlCache } from './public-page'
 import { applyImport, serializeExport, summarizeImport } from '../services/import-export'
 import { preparePublicMenu } from '../services/public-menu'
 
@@ -45,9 +46,21 @@ async function uniqueCategorySlug(db: D1Database, name: string, excludeId?: stri
 }
 
 function productStatements(db: D1Database, productId: string, input: ProductInput): D1PreparedStatement[] {
-  return input.variants.map((variant) => db.prepare(
+  const statements = input.variants.map((variant) => db.prepare(
     'INSERT INTO product_variants (id, product_id, label, price_cents, promotional_price_cents, is_active, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?)',
   ).bind(crypto.randomUUID(), productId, variant.label, variant.priceCents, variant.promotionalPriceCents, variant.isActive ? 1 : 0, variant.sortOrder))
+  for (const group of input.customizationGroups) {
+    const groupId = crypto.randomUUID()
+    statements.push(db.prepare(
+      'INSERT INTO product_customization_groups (id, product_id, name, min_selections, max_selections, is_active, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?)',
+    ).bind(groupId, productId, group.name, group.minSelections, group.maxSelections, group.isActive ? 1 : 0, group.sortOrder))
+    for (const option of group.options) {
+      statements.push(db.prepare(
+        'INSERT INTO product_customization_options (id, group_id, name, description, price_delta_cents, is_active, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?)',
+      ).bind(crypto.randomUUID(), groupId, option.name, option.description, option.priceDeltaCents, option.isActive ? 1 : 0, option.sortOrder))
+    }
+  }
+  return statements
 }
 
 function isWebp(bytes: Uint8Array): boolean {
@@ -172,6 +185,7 @@ adminRoutes.post('/products', async (c) => {
       .bind(id, input.categoryId, input.name, input.ingredients, input.isAvailable ? 1 : 0, input.isFeatured ? 1 : 0, sortOrder),
     ...productStatements(c.env.DB, id, input),
   ])
+  await invalidatePublicHtmlCache(c.req.url)
   return c.json(await getProduct(c.env.DB, id), 201)
 })
 
@@ -184,8 +198,10 @@ adminRoutes.patch('/products/:id', async (c) => {
     c.env.DB.prepare(`UPDATE products SET category_id=?, name=?, ingredients=?, is_available=?, is_featured=?, sort_order=?, updated_at=strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE id=?`)
       .bind(input.categoryId, input.name, input.ingredients, input.isAvailable ? 1 : 0, input.isFeatured ? 1 : 0, input.sortOrder, id),
     c.env.DB.prepare('DELETE FROM product_variants WHERE product_id = ?').bind(id),
+    c.env.DB.prepare('DELETE FROM product_customization_groups WHERE product_id = ?').bind(id),
     ...productStatements(c.env.DB, id, input),
   ])
+  await invalidatePublicHtmlCache(c.req.url)
   return c.json(await getProduct(c.env.DB, id))
 })
 
@@ -195,6 +211,7 @@ adminRoutes.delete('/products/:id', async (c) => {
   if (!product) throw new ApiError(404, 'PRODUCT_NOT_FOUND', 'Produto não encontrado.')
   await c.env.DB.prepare('DELETE FROM products WHERE id = ?').bind(id).run()
   await deleteObjectBestEffort(c.env.MENU_IMAGES, product.imageKey, 'delete product')
+  await invalidatePublicHtmlCache(c.req.url)
   return c.json({ success: true })
 })
 
@@ -217,11 +234,21 @@ adminRoutes.post('/products/:id/duplicate', async (c) => {
         .bind(id, source.categoryId, `Cópia de ${source.name}`.slice(0, 120), source.ingredients, imageKey, source.isAvailable ? 1 : 0, false, (max?.value ?? -1) + 1),
       ...source.variants.map((variant) => c.env.DB.prepare('INSERT INTO product_variants (id, product_id, label, price_cents, promotional_price_cents, is_active, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?)')
         .bind(crypto.randomUUID(), id, variant.label, variant.priceCents, variant.promotionalPriceCents, variant.isActive ? 1 : 0, variant.sortOrder)),
+      ...source.customizationGroups.flatMap((group) => {
+        const groupId = crypto.randomUUID()
+        return [
+          c.env.DB.prepare('INSERT INTO product_customization_groups (id, product_id, name, min_selections, max_selections, is_active, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?)')
+            .bind(groupId, id, group.name, group.minSelections, group.maxSelections, group.isActive ? 1 : 0, group.sortOrder),
+          ...group.options.map((option) => c.env.DB.prepare('INSERT INTO product_customization_options (id, group_id, name, description, price_delta_cents, is_active, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?)')
+            .bind(crypto.randomUUID(), groupId, option.name, option.description, option.priceDeltaCents, option.isActive ? 1 : 0, option.sortOrder)),
+        ]
+      }),
     ])
   } catch (error) {
     await deleteObjectBestEffort(c.env.MENU_IMAGES, imageKey, 'duplicate rollback')
     throw error
   }
+  await invalidatePublicHtmlCache(c.req.url)
   return c.json(await getProduct(c.env.DB, id), 201)
 })
 
@@ -438,5 +465,7 @@ adminRoutes.post('/import/validate', async (c) => {
 
 adminRoutes.post('/import/apply', async (c) => {
   const input = await parseJson(c.req.raw, importApplySchema, 2_000_000)
-  return c.json({ success: true, summary: await applyImport(c.env.DB, c.env.MENU_IMAGES, input.data) })
+  const summary = await applyImport(c.env.DB, c.env.MENU_IMAGES, input.data)
+  await invalidatePublicHtmlCache(c.req.url)
+  return c.json({ success: true, summary })
 })

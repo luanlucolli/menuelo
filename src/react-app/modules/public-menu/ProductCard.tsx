@@ -3,6 +3,8 @@ import { useEffect, useId, useRef, useState } from 'react'
 import type { Product, ProductVariant } from '../../../../shared/schemas'
 import { formatMoney } from '../../../../shared/utils'
 import { CART_NOTE_MAX_LENGTH, CART_QUANTITY_MAX, getActiveVariants, getVariantPriceCents } from './cart/cart-utils'
+import { ProductCustomizationGroups } from './ProductCustomizationGroups'
+import { calculateCustomizationCost, draftToCustomizations, emptyCustomizationDraft, normalizeCustomizations, type CustomizationSelection } from './customizations'
 import { QuantityControl } from './QuantityControl'
 
 function hasActivePromotion(product: Product): boolean {
@@ -89,7 +91,7 @@ export function ProductDialog({
 }: {
   product: Product
   onClose: () => void
-  onAdd: (product: Product, variant: ProductVariant, quantity: number, note: string) => void
+  onAdd: (product: Product, variant: ProductVariant, quantity: number, note: string, customizations: CustomizationSelection[]) => void
 }) {
   const dialogRef = useRef<HTMLDialogElement>(null)
   const onCloseRef = useRef(onClose)
@@ -99,12 +101,16 @@ export function ProductDialog({
   )
   const [quantity, setQuantity] = useState(1)
   const [note, setNote] = useState('')
+  const [customizationDraft, setCustomizationDraft] = useState(() => emptyCustomizationDraft(product))
   const optionGroupId = useId()
   const promoted = hasActivePromotion(product)
   const selectedVariant = activeVariants.find((variant) => variant.id === selectedVariantId)
   const canConfigure = product.isAvailable && activeVariants.length > 0
-  const canAdd = canConfigure && Boolean(selectedVariant)
-  const totalCents = selectedVariant ? getVariantPriceCents(selectedVariant) * quantity : null
+  const customizations = draftToCustomizations(product, customizationDraft)
+  const customizationValid = normalizeCustomizations(product, customizations) !== null
+  const canAdd = canConfigure && Boolean(selectedVariant) && customizationValid
+  const unitPriceCents = selectedVariant ? getVariantPriceCents(selectedVariant) + calculateCustomizationCost(product, customizations) : null
+  const totalCents = unitPriceCents === null ? null : unitPriceCents * quantity
 
   useEffect(() => {
     onCloseRef.current = onClose
@@ -167,7 +173,7 @@ export function ProductDialog({
           onSubmit={(event) => {
             event.preventDefault()
             if (!selectedVariant || !canAdd) return
-            onAdd(product, selectedVariant, quantity, note)
+            onAdd(product, selectedVariant, quantity, note, customizations)
             dialogRef.current?.close()
           }}
         >
@@ -242,6 +248,8 @@ export function ProductDialog({
               </div>
             </fieldset>
           )}
+
+          <ProductCustomizationGroups product={product} draft={customizationDraft} onChange={setCustomizationDraft} />
 
           <section className="menu-item-quantity" aria-labelledby={`${optionGroupId}-quantity`}>
             <h3 id={`${optionGroupId}-quantity`}>Quantidade</h3>

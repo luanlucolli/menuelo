@@ -814,8 +814,8 @@ export function PublicMenu({
         <ProductDialog
           product={selected}
           onClose={closeProduct}
-          onAdd={(product, variant, quantity, note) => {
-            cart.addItem(product, variant, quantity, note)
+          onAdd={(product, variant, quantity, note, customizations) => {
+            cart.addItem(product, variant, quantity, note, customizations)
             setItemAddedFeedback('Item adicionado ao pedido')
           }}
         />

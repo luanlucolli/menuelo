@@ -4,11 +4,12 @@ import { ImageIcon, Plus, RotateCcw, Trash2, X } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { Controller, useFieldArray, useForm, useWatch } from 'react-hook-form'
 import type { Category, CategoryInput, Product, ProductInput } from '../../../../shared/schemas'
-import { productInputSchema } from '../../../../shared/schemas'
+import { productInputFormSchema } from '../../../../shared/schemas'
 import { api, jsonBody, messageFromError, uploadBlob } from '../../lib/api'
 import { prepareImage } from '../../lib/image'
 import { AdminDialog } from './AdminDialog'
 import { AdminNotice } from './AdminNotice'
+import { CustomizationGroupsEditor } from './CustomizationGroupsEditor'
 import { MoneyInput } from './MoneyInput'
 
 interface CreatedCategory {
@@ -36,11 +37,12 @@ export function ProductForm({ product, categories, initialCategoryId, onClose, o
   const [pricingOpen, setPricingOpen] = useState(!product)
   const [pricingFocus, setPricingFocus] = useState<string | null>(null)
   const [ingredientsOpen, setIngredientsOpen] = useState(false)
+  const [customizationOpen, setCustomizationOpen] = useState(false)
   const [imageOpen, setImageOpen] = useState(Boolean(product?.imageKey))
   const errorRef = useRef<HTMLDivElement>(null)
   const pricingRef = useRef<HTMLDetailsElement>(null)
   const form = useForm<ProductInput>({
-    resolver: zodResolver(productInputSchema),
+    resolver: zodResolver(productInputFormSchema),
     defaultValues: product ? {
       categoryId: product.categoryId,
       name: product.name,
@@ -49,7 +51,15 @@ export function ProductForm({ product, categories, initialCategoryId, onClose, o
       isFeatured: product.isFeatured,
       sortOrder: product.sortOrder,
       variants: product.variants.map((variant) => ({ label: variant.label, priceCents: variant.priceCents, promotionalPriceCents: variant.promotionalPriceCents, isActive: variant.isActive, sortOrder: variant.sortOrder })),
-    } : { categoryId: categories.some((category) => category.id === initialCategoryId) ? initialCategoryId! : categories[0]?.id ?? '', name: '', ingredients: null, isAvailable: true, isFeatured: false, sortOrder: 0, variants: [{ label: null, priceCents: 0, promotionalPriceCents: null, isActive: true, sortOrder: 0 }] },
+      customizationGroups: product.customizationGroups.map((group) => ({
+        name: group.name,
+        minSelections: group.minSelections,
+        maxSelections: group.maxSelections,
+        isActive: group.isActive,
+        sortOrder: group.sortOrder,
+        options: group.options.map((option) => ({ name: option.name, description: option.description, priceDeltaCents: option.priceDeltaCents, isActive: option.isActive, sortOrder: option.sortOrder })),
+      })),
+    } : { categoryId: categories.some((category) => category.id === initialCategoryId) ? initialCategoryId! : categories[0]?.id ?? '', name: '', ingredients: null, isAvailable: true, isFeatured: false, sortOrder: 0, variants: [{ label: null, priceCents: 0, promotionalPriceCents: null, isActive: true, sortOrder: 0 }], customizationGroups: [] },
   })
   const variants = useFieldArray({ control: form.control, name: 'variants' })
   const watchedVariants = useWatch({ control: form.control, name: 'variants' })
@@ -209,9 +219,19 @@ export function ProductForm({ product, categories, initialCategoryId, onClose, o
     }
     if (firstLabelError >= 0) return focusPricingError()
     const singlePrice = input.variants.length === 1
-    save.mutate({ ...input, variants: input.variants.map((variant, index) => ({ ...variant, label: singlePrice ? null : variant.label?.trim() || null, isActive: singlePrice ? true : variant.isActive, sortOrder: index })) })
+    save.mutate({
+      ...input,
+      variants: input.variants.map((variant, index) => ({ ...variant, label: singlePrice ? null : variant.label?.trim() || null, isActive: singlePrice ? true : variant.isActive, sortOrder: index })),
+      customizationGroups: input.customizationGroups.map((group, groupIndex) => ({
+        ...group,
+        name: group.name.trim(),
+        sortOrder: groupIndex,
+        options: group.options.map((option, optionIndex) => ({ ...option, name: option.name.trim(), description: option.description?.trim() || null, sortOrder: optionIndex })),
+      })),
+    })
   }, (errors) => {
     if (errors.variants) focusPricingError()
+    if (errors.customizationGroups) setCustomizationOpen(true)
   })
 
   return <AdminDialog onClose={requestClose}><section className="admin-form-dialog product-form-dialog" aria-labelledby="product-form-title">
@@ -244,6 +264,8 @@ export function ProductForm({ product, categories, initialCategoryId, onClose, o
         {hasMultipleSizes && <button className="secondary-button add-variant-option" type="button" disabled={variants.fields.length >= 20} onClick={addAnotherSize}><Plus /> Adicionar outro tamanho</button>}
         {variants.fields.length >= 20 && <small className="field-help">Você atingiu o limite de 20 tamanhos neste produto.</small>}
       </div></details>
+
+      <details className="progressive-section customization-section" open={customizationOpen} onToggle={(event) => setCustomizationOpen(event.currentTarget.open)}><summary>Montagem e adicionais <span>{product?.customizationGroups.length ? `${product.customizationGroups.length} grupos` : 'Opcional'}</span></summary><div><CustomizationGroupsEditor form={form} /></div></details>
 
       <details className="progressive-section" open={ingredientsOpen} onToggle={(event) => setIngredientsOpen(event.currentTarget.open)}><summary>Ingredientes ou descrição <span>Opcional</span></summary><div><label>Texto exibido no cardápio<textarea rows={4} {...form.register('ingredients', { setValueAs: (value) => value || null })} /></label></div></details>
 

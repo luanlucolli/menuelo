@@ -7,6 +7,9 @@ export function buildWhatsappOrder(businessName: string, lines: CartLine[]): str
     const details = [
       `*${index + 1}. ${line.quantity}x ${line.productName}*`,
       line.variantLabel?.trim() ? `Opção: ${line.variantLabel.trim()}` : null,
+      line.customizationDetails?.length
+        ? ['Montagem:', ...line.customizationDetails.map((group) => `- ${group.name}: ${group.options.map((option) => `${option.quantity}x ${option.name}${option.priceDeltaCents > 0 ? ` (+ ${formatMoney(option.priceDeltaCents)})` : ''}`).join(', ')}`)].join('\n')
+        : null,
       `Valor unitário: ${formatMoney(line.unitPriceCents)}`,
       `Subtotal: ${formatMoney(calculateLineSubtotal(line))}`,
       normalizeCartNote(line.note) ? `Observação: ${normalizeCartNote(line.note)}` : null,

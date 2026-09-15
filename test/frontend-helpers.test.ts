@@ -15,6 +15,7 @@ const product: Product = {
   createdAt: '2026-01-01T00:00:00.000Z',
   updatedAt: '2026-01-01T00:00:00.000Z',
   variants: [{ id: 'variant-1', label: null, priceCents: 1800, promotionalPriceCents: null, isActive: true, sortOrder: 0 }],
+  customizationGroups: [],
 }
 
 describe('entrada monetária administrativa', () => {
@@ -35,6 +36,7 @@ describe('atualizações rápidas de produto', () => {
       isFeatured: false,
       sortOrder: 0,
       variants: [{ label: null, priceCents: 1800, promotionalPriceCents: null, isActive: true, sortOrder: 0 }],
+      customizationGroups: [],
     })
   })
 

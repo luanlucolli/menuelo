@@ -339,6 +339,27 @@ a { color: inherit; }
 .add-variant-option { align-self: start; justify-self: start; }
 .field-help { display: block; margin-top: .35rem; color: var(--color-muted); font-size: .78rem; }
 .optional-label { color: var(--color-muted); font-weight: 500; }
+.customization-groups-editor, .customization-group-list, .customization-group-editor, .customization-option-list { display: grid; gap: .8rem; }
+.customization-groups-intro { display: flex; align-items: start; justify-content: space-between; gap: .8rem; }
+.customization-groups-intro p { margin: 0; max-width: 42rem; color: var(--color-muted); font-size: .8rem; line-height: 1.45; }
+.customization-groups-intro .secondary-button { flex: 0 0 auto; }
+.customization-group-editor { min-width: 0; border: 1px solid var(--color-border); border-radius: .75rem; padding: .85rem; background: #faf8f4; }
+.customization-editor-heading, .customization-option-heading, .customization-options-heading { display: flex; align-items: start; justify-content: space-between; gap: .65rem; }
+.customization-editor-heading > div:first-child, .customization-options-heading > div:first-child { display: grid; gap: .15rem; }
+.customization-editor-heading small, .customization-options-heading small { color: var(--color-muted); font-size: .72rem; }
+.customization-editor-actions, .customization-option-heading > div { display: flex; align-items: center; gap: .2rem; flex-wrap: wrap; justify-content: flex-end; }
+.icon-text-button { display: inline-grid; width: 36px; height: 36px; place-items: center; border: 1px solid var(--color-border); border-radius: .45rem; background: white; color: var(--color-text); cursor: pointer; }
+.icon-text-button:disabled { cursor: not-allowed; opacity: .4; }
+.icon-text-button svg { width: 1rem; }
+.customization-editor-actions .remove-option, .customization-option-heading .remove-option { min-height: 36px; padding: .35rem; }
+.customization-group-fields { display: grid; gap: .7rem; }
+.customization-count-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .7rem; }
+.customization-option-list { border-top: 1px solid var(--color-border); padding-top: .8rem; }
+.customization-option-editor { display: grid; gap: .65rem; border: 1px solid var(--color-border); border-radius: .65rem; padding: .75rem; background: white; }
+.customization-option-editor textarea { min-height: 66px; }
+.customization-option-heading strong { font-size: .82rem; }
+.customization-option-editor .check-field { margin-top: -.2rem; }
+.customization-section > div { min-width: 0; }
 .confirm-dialog { width: min(100%, 31rem); }
 .confirm-dialog .form-dialog-heading > div { display: flex; align-items: center; gap: .55rem; }
 .confirm-dialog .form-dialog-heading > div > svg { width: 1.35rem; color: var(--color-danger); }

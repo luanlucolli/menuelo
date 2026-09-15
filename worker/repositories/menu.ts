@@ -6,6 +6,8 @@ import type {
   MenuResponse,
   PaymentMethod,
   Product,
+  ProductCustomizationGroup,
+  ProductCustomizationOption,
   ProductVariant,
 } from '../../shared/schemas'
 
@@ -46,6 +48,8 @@ interface ZoneRow { id: string; name: string; fee_cents: number | null; notes: s
 interface CategoryRow { id: string; name: string; slug: string; description: string | null; is_active: number; sort_order: number; created_at: string; updated_at: string }
 interface ProductRow { id: string; category_id: string; name: string; ingredients: string | null; image_key: string | null; is_available: number; is_featured: number; sort_order: number; created_at: string; updated_at: string }
 interface VariantRow { id: string; product_id: string; label: string | null; price_cents: number; promotional_price_cents: number | null; is_active: number; sort_order: number }
+interface CustomizationGroupRow { id: string; product_id: string; name: string; min_selections: number; max_selections: number; is_active: number; sort_order: number }
+interface CustomizationOptionRow { id: string; group_id: string; name: string; description: string | null; price_delta_cents: number; is_active: number; sort_order: number }
 
 function mapSettings(row: SettingsRow): BusinessSettings {
   return {
@@ -96,9 +100,32 @@ function mapVariant(row: VariantRow): ProductVariant {
   return { id: row.id, label: row.label, priceCents: row.price_cents, promotionalPriceCents: row.promotional_price_cents, isActive: Boolean(row.is_active), sortOrder: row.sort_order }
 }
 
+function mapCustomizationOption(row: CustomizationOptionRow): ProductCustomizationOption {
+  return {
+    id: row.id,
+    name: row.name,
+    description: row.description,
+    priceDeltaCents: row.price_delta_cents,
+    isActive: Boolean(row.is_active),
+    sortOrder: row.sort_order,
+  }
+}
+
+function mapCustomizationGroup(row: CustomizationGroupRow, options: ProductCustomizationOption[]): ProductCustomizationGroup {
+  return {
+    id: row.id,
+    name: row.name,
+    minSelections: row.min_selections,
+    maxSelections: row.max_selections,
+    isActive: Boolean(row.is_active),
+    sortOrder: row.sort_order,
+    options,
+  }
+}
+
 export async function getMenu(db: D1Database, includeInactive = false): Promise<MenuResponse> {
   const visibility = includeInactive ? '' : 'WHERE is_active = 1'
-  const [settings, hours, payments, zones, categories, products, variants] = await Promise.all([
+  const [settings, hours, payments, zones, categories, products, variants, customizationGroups, customizationOptions] = await Promise.all([
     db.prepare('SELECT * FROM business_settings WHERE id = 1').first<SettingsRow>(),
     db.prepare('SELECT * FROM business_hours ORDER BY weekday, sort_order, id').all<HourRow>(),
     db.prepare(`SELECT * FROM payment_methods ${visibility} ORDER BY sort_order, name`).all<PaymentRow>(),
@@ -106,6 +133,8 @@ export async function getMenu(db: D1Database, includeInactive = false): Promise<
     db.prepare(`SELECT * FROM categories ${visibility} ORDER BY sort_order, name`).all<CategoryRow>(),
     db.prepare('SELECT * FROM products ORDER BY category_id, sort_order, name').all<ProductRow>(),
     db.prepare(`SELECT * FROM product_variants ${visibility} ORDER BY product_id, sort_order, id`).all<VariantRow>(),
+    db.prepare(`SELECT * FROM product_customization_groups ${visibility} ORDER BY product_id, sort_order, id`).all<CustomizationGroupRow>(),
+    db.prepare(`SELECT * FROM product_customization_options ${visibility} ORDER BY group_id, sort_order, id`).all<CustomizationOptionRow>(),
   ])
 
   if (!settings) throw new Error('Configuração do estabelecimento não encontrada. Aplique as migrations.')
@@ -115,6 +144,20 @@ export async function getMenu(db: D1Database, includeInactive = false): Promise<
     const list = variantsByProduct.get(row.product_id) ?? []
     list.push(mapVariant(row))
     variantsByProduct.set(row.product_id, list)
+  }
+
+  const optionsByGroup = new Map<string, ProductCustomizationOption[]>()
+  for (const row of customizationOptions.results) {
+    const list = optionsByGroup.get(row.group_id) ?? []
+    list.push(mapCustomizationOption(row))
+    optionsByGroup.set(row.group_id, list)
+  }
+
+  const customizationGroupsByProduct = new Map<string, ProductCustomizationGroup[]>()
+  for (const row of customizationGroups.results) {
+    const list = customizationGroupsByProduct.get(row.product_id) ?? []
+    list.push(mapCustomizationGroup(row, optionsByGroup.get(row.id) ?? []))
+    customizationGroupsByProduct.set(row.product_id, list)
   }
 
   const productsByCategory = new Map<string, Product[]>()
@@ -131,6 +174,7 @@ export async function getMenu(db: D1Database, includeInactive = false): Promise<
       createdAt: row.created_at,
       updatedAt: row.updated_at,
       variants: variantsByProduct.get(row.id) ?? [],
+      customizationGroups: customizationGroupsByProduct.get(row.id) ?? [],
     }
     const list = productsByCategory.get(row.category_id) ?? []
     list.push(product)
@@ -161,7 +205,19 @@ export async function getMenu(db: D1Database, includeInactive = false): Promise<
 export async function getProduct(db: D1Database, id: string): Promise<Product | null> {
   const row = await db.prepare('SELECT * FROM products WHERE id = ?').bind(id).first<ProductRow>()
   if (!row) return null
-  const variants = await db.prepare('SELECT * FROM product_variants WHERE product_id = ? ORDER BY sort_order, id').bind(id).all<VariantRow>()
+  const [variants, customizationGroups, customizationOptions] = await Promise.all([
+    db.prepare('SELECT * FROM product_variants WHERE product_id = ? ORDER BY sort_order, id').bind(id).all<VariantRow>(),
+    db.prepare('SELECT * FROM product_customization_groups WHERE product_id = ? ORDER BY sort_order, id').bind(id).all<CustomizationGroupRow>(),
+    db.prepare(`SELECT options.* FROM product_customization_options options
+      INNER JOIN product_customization_groups groups ON groups.id = options.group_id
+      WHERE groups.product_id = ? ORDER BY options.group_id, options.sort_order, options.id`).bind(id).all<CustomizationOptionRow>(),
+  ])
+  const optionsByGroup = new Map<string, ProductCustomizationOption[]>()
+  for (const option of customizationOptions.results) {
+    const list = optionsByGroup.get(option.group_id) ?? []
+    list.push(mapCustomizationOption(option))
+    optionsByGroup.set(option.group_id, list)
+  }
   return {
     id: row.id,
     categoryId: row.category_id,
@@ -174,5 +230,6 @@ export async function getProduct(db: D1Database, id: string): Promise<Product | 
     createdAt: row.created_at,
     updatedAt: row.updated_at,
     variants: variants.results.map(mapVariant),
+    customizationGroups: customizationGroups.results.map((group) => mapCustomizationGroup(group, optionsByGroup.get(group.id) ?? [])),
   }
 }

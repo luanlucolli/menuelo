@@ -8,8 +8,8 @@ import { useAdminMenu } from './hooks'
 import { publicChangeNotice } from './publicationNotice'
 
 interface ImportSummary {
-  incoming: { categories: number; products: number; variants: number; hours: number; paymentMethods: number; deliveryZones: number }
-  current: { categories: number; products: number; variants: number; hours: number; paymentMethods: number; deliveryZones: number }
+  incoming: { categories: number; products: number; variants: number; customizationGroups: number; customizationOptions: number; hours: number; paymentMethods: number; deliveryZones: number }
+  current: { categories: number; products: number; variants: number; customizationGroups: number; customizationOptions: number; hours: number; paymentMethods: number; deliveryZones: number }
   missingImageKeys: string[]
 }
 
@@ -70,6 +70,8 @@ export function BackupManager() {
     ['Categorias', summary.current.categories, summary.incoming.categories],
     ['Produtos', summary.current.products, summary.incoming.products],
     ['Tamanhos e opções', summary.current.variants, summary.incoming.variants],
+    ['Grupos de montagem', summary.current.customizationGroups, summary.incoming.customizationGroups],
+    ['Opções de montagem', summary.current.customizationOptions, summary.incoming.customizationOptions],
     ['Horários', summary.current.hours, summary.incoming.hours],
     ['Formas de pagamento', summary.current.paymentMethods, summary.incoming.paymentMethods],
     ['Regiões', summary.current.deliveryZones, summary.incoming.deliveryZones],

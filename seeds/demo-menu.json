@@ -16,6 +16,25 @@
               "price_cents": 2890,
               "promotional_price_cents": 2490
             }
+          ],
+          "customization_groups": [
+            {
+              "name": "Escolha seu complemento",
+              "min_selections": 1,
+              "max_selections": 2,
+              "options": [
+                {
+                  "name": "Queijo",
+                  "description": "Muçarela",
+                  "price_delta_cents": 0
+                },
+                {
+                  "name": "Bacon",
+                  "description": "Bacon crocante",
+                  "price_delta_cents": 490
+                }
+              ]
+            }
           ]
         },
         {

@@ -4,7 +4,7 @@ import { getMenu } from '../repositories/menu'
 
 function withoutMetadata(menu: Awaited<ReturnType<typeof getMenu>>): MenuImport {
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     exportedAt: new Date().toISOString(),
     business: {
       name: menu.business.name,
@@ -55,6 +55,20 @@ function withoutMetadata(menu: Awaited<ReturnType<typeof getMenu>>): MenuImport 
           isActive: variant.isActive,
           sortOrder: variant.sortOrder,
         })),
+        customizationGroups: product.customizationGroups.map((group) => ({
+          name: group.name,
+          minSelections: group.minSelections,
+          maxSelections: group.maxSelections,
+          isActive: group.isActive,
+          sortOrder: group.sortOrder,
+          options: group.options.map((option) => ({
+            name: option.name,
+            description: option.description,
+            priceDeltaCents: option.priceDeltaCents,
+            isActive: option.isActive,
+            sortOrder: option.sortOrder,
+          })),
+        })),
       })),
     })),
   }
@@ -86,8 +100,8 @@ export async function findMissingImages(bucket: R2Bucket, data: MenuImport): Pro
 }
 
 export interface ImportSummary {
-  incoming: { categories: number; products: number; variants: number; hours: number; paymentMethods: number; deliveryZones: number }
-  current: { categories: number; products: number; variants: number; hours: number; paymentMethods: number; deliveryZones: number }
+  incoming: { categories: number; products: number; variants: number; customizationGroups: number; customizationOptions: number; hours: number; paymentMethods: number; deliveryZones: number }
+  current: { categories: number; products: number; variants: number; customizationGroups: number; customizationOptions: number; hours: number; paymentMethods: number; deliveryZones: number }
   missingImageKeys: string[]
 }
 
@@ -95,10 +109,14 @@ function counts(menu: Awaited<ReturnType<typeof getMenu>> | MenuImport) {
   const categories = menu.categories.length
   const products = menu.categories.reduce((sum, category) => sum + category.products.length, 0)
   const variants = menu.categories.reduce((sum, category) => sum + category.products.reduce((inner, product) => inner + product.variants.length, 0), 0)
+  const customizationGroups = menu.categories.reduce((sum, category) => sum + category.products.reduce((inner, product) => inner + product.customizationGroups.length, 0), 0)
+  const customizationOptions = menu.categories.reduce((sum, category) => sum + category.products.reduce((inner, product) => inner + product.customizationGroups.reduce((groupTotal, group) => groupTotal + group.options.length, 0), 0), 0)
   return {
     categories,
     products,
     variants,
+    customizationGroups,
+    customizationOptions,
     hours: menu.hours.length,
     paymentMethods: menu.paymentMethods.length,
     deliveryZones: menu.deliveryZones.length,
@@ -192,6 +210,17 @@ export async function applyImport(db: D1Database, bucket: R2Bucket, data: MenuIm
         statements.push(db.prepare('INSERT INTO product_variants (id, product_id, label, price_cents, promotional_price_cents, is_active, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?)').bind(
           crypto.randomUUID(), productId, variant.label, variant.priceCents, variant.promotionalPriceCents, variant.isActive ? 1 : 0, variant.sortOrder,
         ))
+      }
+      for (const group of product.customizationGroups) {
+        const groupId = crypto.randomUUID()
+        statements.push(db.prepare('INSERT INTO product_customization_groups (id, product_id, name, min_selections, max_selections, is_active, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?)').bind(
+          groupId, productId, group.name, group.minSelections, group.maxSelections, group.isActive ? 1 : 0, group.sortOrder,
+        ))
+        for (const option of group.options) {
+          statements.push(db.prepare('INSERT INTO product_customization_options (id, group_id, name, description, price_delta_cents, is_active, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?)').bind(
+            crypto.randomUUID(), groupId, option.name, option.description, option.priceDeltaCents, option.isActive ? 1 : 0, option.sortOrder,
+          ))
+        }
       }
     }
   }

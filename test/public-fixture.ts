@@ -72,6 +72,7 @@ export function publicMenuFixture(): MenuResponse {
           isActive: true,
           sortOrder: 0,
         }],
+        customizationGroups: [],
       }],
     }],
   }

@@ -4,7 +4,7 @@ import { applyImport, serializeExport } from '../worker/services/import-export'
 import { FakeDatabase, fakeBucket, settingsRow } from './fakes'
 
 const validImport: MenuImport = {
-  schemaVersion: 1,
+  schemaVersion: 2,
   exportedAt: '2026-07-18T12:00:00.000Z',
   business: {
     name: 'Lanchonete de teste',
@@ -48,7 +48,8 @@ const validImport: MenuImport = {
       isAvailable: true,
       isFeatured: false,
       sortOrder: 0,
-      variants: [{ label: null, priceCents: 1000, promotionalPriceCents: null, isActive: true, sortOrder: 0 }],
+              variants: [{ label: null, priceCents: 1000, promotionalPriceCents: null, isActive: true, sortOrder: 0 }],
+              customizationGroups: [],
     }],
   }],
 }
@@ -60,10 +61,13 @@ describe('exportação e importação', () => {
       categories: [{ id: 'cat-local', name: 'Categoria', slug: 'categoria', description: null, is_active: 1, sort_order: 0, created_at: 'now', updated_at: 'now' }],
       products: [{ id: 'product-local', category_id: 'cat-local', name: 'Produto', ingredients: null, image_key: null, is_available: 1, is_featured: 0, sort_order: 0, created_at: 'now', updated_at: 'now' }],
       variants: [{ id: 'variant-local', product_id: 'product-local', label: null, price_cents: 1000, promotional_price_cents: null, is_active: 1, sort_order: 0 }],
+      customizationGroups: [{ id: 'group-local', product_id: 'product-local', name: 'Adicionais', min_selections: 0, max_selections: 2, is_active: 1, sort_order: 0 }],
+      customizationOptions: [{ id: 'option-local', group_id: 'group-local', name: 'Bacon', description: null, price_delta_cents: 490, is_active: 1, sort_order: 0 }],
     })
     const exported = await serializeExport(database.asBinding())
-    expect(exported.schemaVersion).toBe(1)
+    expect(exported.schemaVersion).toBe(2)
     expect(exported.categories[0]?.products[0]?.name).toBe('Produto')
+    expect(exported.categories[0]?.products[0]?.customizationGroups[0]?.options[0]?.priceDeltaCents).toBe(490)
     expect(JSON.stringify(exported)).not.toContain('product-local')
     expect(menuImportSchema.safeParse(exported).success).toBe(true)
   })
@@ -79,6 +83,20 @@ describe('exportação e importação', () => {
   it('rejeita schemaVersion inválido antes da aplicação', () => {
     const invalid = { ...validImport, schemaVersion: 99 }
     expect(menuImportSchema.safeParse(invalid).success).toBe(false)
+  })
+
+  it('normaliza uma exportação v1 sem montagem para a versão atual', () => {
+    const legacy = JSON.parse(JSON.stringify(validImport)) as Record<string, unknown>
+    legacy.schemaVersion = 1
+    const categories = legacy.categories as Array<Record<string, unknown>>
+    const products = categories[0]!.products as Array<Record<string, unknown>>
+    delete products[0]!.customizationGroups
+    const result = menuImportSchema.safeParse(legacy)
+    expect(result.success).toBe(true)
+    if (result.success) {
+      expect(result.data.schemaVersion).toBe(2)
+      expect(result.data.categories[0]?.products[0]?.customizationGroups).toEqual([])
+    }
   })
 
   it('continua aceitando cópias antigas sem os campos estruturados', () => {

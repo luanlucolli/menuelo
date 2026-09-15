@@ -9,6 +9,8 @@ interface FakeRows {
   categories?: Record<string, unknown>[]
   products?: Record<string, unknown>[]
   variants?: Record<string, unknown>[]
+  customizationGroups?: Record<string, unknown>[]
+  customizationOptions?: Record<string, unknown>[]
 }
 
 function partialMock<T extends object>(value: Partial<T>): T {
@@ -44,6 +46,8 @@ export class FakeDatabase {
   }
   first(sql: string): Record<string, unknown> | null {
     if (sql.includes('business_settings')) return this.rows.settings ?? null
+    if (sql.includes('FROM products WHERE id')) return this.rows.products?.[0] ?? null
+    if (sql.includes('FROM categories WHERE id')) return this.rows.categories?.[0] ?? null
     return null
   }
   all(sql: string): Record<string, unknown>[] {
@@ -52,6 +56,8 @@ export class FakeDatabase {
     if (sql.includes('delivery_zones')) return this.rows.zones ?? []
     if (sql.includes('FROM categories')) return this.rows.categories ?? []
     if (sql.includes('FROM products')) return this.rows.products ?? []
+    if (sql.includes('product_customization_options')) return this.rows.customizationOptions ?? []
+    if (sql.includes('product_customization_groups')) return this.rows.customizationGroups ?? []
     if (sql.includes('product_variants')) return this.rows.variants ?? []
     return []
   }

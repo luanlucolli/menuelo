@@ -1,6 +1,6 @@
 # Especificação do Menuelo
 
-Menuelo é uma base white label de cardápio digital público com painel administrativo, sem pedidos, carrinho ou checkout.
+Menuelo é uma base white label de cardápio digital público com painel administrativo, carrinho frontend/local e envio do pedido por WhatsApp, sem backend de pedidos, checkout ou pagamentos.
 
 ## Produto
 
