@@ -1,5 +1,4 @@
-import './react-app/styles/index.css'
-import './react-app/modules/public-menu/public-menu.css'
+import './react-app/styles/tailwind.css'
 
 if (window.location.pathname.startsWith('/admin')) {
   void import('./react-app/entry-admin')

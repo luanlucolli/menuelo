@@ -6,6 +6,7 @@ import { CART_NOTE_MAX_LENGTH, CART_QUANTITY_MAX, getActiveVariants, getVariantP
 import { ProductCustomizationGroups } from './ProductCustomizationGroups'
 import { calculateCustomizationCost, draftToCustomizations, emptyCustomizationDraft, normalizeCustomizations, type CustomizationSelection } from './customizations'
 import { QuantityControl } from './QuantityControl'
+import { cn, focusRing } from '../../lib/tailwind'
 
 function hasActivePromotion(product: Product): boolean {
   return getActiveVariants(product)
@@ -16,7 +17,7 @@ function CardPrice({ product }: { product: Product }) {
   const activeVariants = getActiveVariants(product)
 
   if (!activeVariants.length) {
-    return <span className="menu-card-price-empty">Preço não informado</span>
+    return <span className="mt-auto pt-[9px] text-[.76rem] text-menu-muted">Preço não informado</span>
   }
 
   if (activeVariants.length === 1) {
@@ -24,12 +25,12 @@ function CardPrice({ product }: { product: Product }) {
     const finalPrice = getVariantPriceCents(variant)
 
     return (
-      <div className="menu-card-price">
+      <div className="mt-auto flex min-h-[26px] flex-wrap items-baseline gap-[7px] pt-[9px]">
         {variant.promotionalPriceCents !== null && (
-          <del>{formatMoney(variant.priceCents)}</del>
+          <del className="text-[.73rem] text-[#938d85]">{formatMoney(variant.priceCents)}</del>
         )}
 
-        <strong>{formatMoney(finalPrice)}</strong>
+        <strong className="text-base font-[820] tracking-[-.02em] text-menu-text">{formatMoney(finalPrice)}</strong>
       </div>
     )
   }
@@ -41,9 +42,9 @@ function CardPrice({ product }: { product: Product }) {
   )
 
   return (
-    <div className="menu-card-price menu-card-price--starting">
-      <span>A partir de</span>
-      <strong>{formatMoney(lowestPrice)}</strong>
+    <div className="mt-auto flex min-h-[26px] flex-wrap items-baseline gap-[5px] pt-[9px]">
+      <span className="text-[.7rem] text-menu-muted">A partir de</span>
+      <strong className="text-base font-[820] tracking-[-.02em] text-menu-text">{formatMoney(lowestPrice)}</strong>
     </div>
   )
 }
@@ -61,9 +62,7 @@ function ProductImage({
   if (product.imageKey) {
     return (
       <img
-        className={`menu-product-image${
-          modal ? ' menu-product-image--modal' : ''
-        }`}
+        className={modal ? 'block aspect-[16/10] max-h-[360px] min-h-[220px] w-full object-cover' : cn('block h-[104px] w-[104px] rounded-[14px] bg-menu-surface-muted object-cover max-[359px]:h-[92px] max-[359px]:w-[92px] min-[650px]:h-[108px] min-[650px]:w-[108px]', !product.isAvailable && 'grayscale-[.35] opacity-[.72]')}
         src={`/media/${product.imageKey}`}
         alt=""
         loading={modal ? 'eager' : 'lazy'}
@@ -74,12 +73,10 @@ function ProductImage({
 
   return (
     <div
-      className={`menu-product-placeholder${
-        modal ? ' menu-product-placeholder--modal' : ''
-      }`}
+        className={modal ? 'grid aspect-[16/10] max-h-[360px] min-h-[220px] w-full place-items-center bg-menu-surface-muted' : cn('grid h-[104px] w-[104px] place-items-center rounded-[14px] bg-[color-mix(in_srgb,var(--color-brand)_8%,var(--color-menu-surface-muted))] text-[color-mix(in_srgb,var(--color-brand)_58%,#5f5850)] max-[359px]:h-[92px] max-[359px]:w-[92px] min-[650px]:h-[108px] min-[650px]:w-[108px]', !product.isAvailable && 'grayscale-[.35] opacity-[.72]')}
       aria-hidden="true"
     >
-      <span>{initial}</span>
+      <span className={modal ? 'text-[3rem]' : 'text-[1.55rem] font-[820]'}>{initial}</span>
     </div>
   )
 }
@@ -141,7 +138,7 @@ export function ProductDialog({
   return (
     <dialog
       ref={dialogRef}
-      className="menu-product-dialog"
+      className="fixed inset-0 m-auto h-auto max-h-[90dvh] w-[min(calc(100%_-_30px),560px)] max-w-none overflow-visible border-0 bg-transparent p-0 text-menu-text max-[639px]:inset-auto max-[639px]:right-0 max-[639px]:bottom-0 max-[639px]:left-0 max-[639px]:m-0 max-[639px]:max-h-[calc(100dvh_-_max(8px,env(safe-area-inset-top)))] max-[639px]:w-full max-[639px]:overflow-hidden backdrop:bg-[rgb(24_21_18_/_68%)] backdrop:backdrop-blur-[2px]"
       aria-labelledby="menu-product-dialog-title"
       aria-describedby={
         product.ingredients
@@ -154,12 +151,12 @@ export function ProductDialog({
         }
       }}
     >
-      <article className="menu-dialog-sheet">
-        <div className="menu-dialog-media">
+      <article className="w-full max-h-[90dvh] overflow-y-auto overscroll-contain rounded-[22px] bg-menu-surface shadow-[0_28px_70px_rgb(0_0_0_/_34%)] max-[639px]:max-h-[calc(100dvh_-_max(8px,env(safe-area-inset-top)))] max-[639px]:rounded-[22px_22px_0_0]">
+        <div className="relative min-h-[220px] overflow-hidden bg-menu-surface-muted">
           <ProductImage product={product} modal />
 
           <button
-            className="menu-dialog-close"
+            className={`absolute right-3 top-3 z-[1] grid h-10 w-10 place-items-center rounded-full border border-[rgb(255_255_255_/_42%)] bg-[rgb(20_19_17_/_68%)] text-white backdrop-blur-[8px] max-[639px]:h-11 max-[639px]:w-11 ${focusRing}`}
             type="button"
             aria-label="Fechar detalhes"
             onClick={() => dialogRef.current?.close()}
@@ -169,7 +166,7 @@ export function ProductDialog({
         </div>
 
         <form
-          className="menu-dialog-content"
+          className="px-5 pb-6 pt-[22px] max-[639px]:px-[18px] max-[639px]:pb-[max(24px,calc(16px_+_env(safe-area-inset-bottom)))]"
           onSubmit={(event) => {
             event.preventDefault()
             if (!selectedVariant || !canAdd) return
@@ -177,59 +174,60 @@ export function ProductDialog({
             dialogRef.current?.close()
           }}
         >
-          <div className="menu-dialog-badges">
+          <div className="flex flex-wrap items-center gap-[7px]">
             {promoted && (
-              <span className="menu-offer-badge">Oferta</span>
+              <span className="inline-flex min-h-[21px] items-center rounded-[6px] bg-[color-mix(in_srgb,var(--color-brand)_11%,#fff)] px-[7px] py-[3px] text-[.67rem] font-[780] leading-none text-[color-mix(in_srgb,var(--color-brand)_76%,#211f1c)]">Oferta</span>
             )}
 
             {!product.isAvailable && (
-              <span className="menu-unavailable-badge">
+              <span className="inline-flex min-h-[21px] items-center rounded-[6px] bg-menu-danger-background px-[7px] py-[3px] text-[.67rem] font-[780] leading-none text-menu-danger">
                 Indisponível no momento
               </span>
             )}
           </div>
 
-          <h2 id="menu-product-dialog-title">{product.name}</h2>
+          <h2 className="m-0 mt-[10px] text-[clamp(1.45rem,6vw,2rem)] font-[820] leading-[1.12] tracking-[-.04em] [text-wrap:balance] [overflow-wrap:anywhere]" id="menu-product-dialog-title">{product.name}</h2>
 
           {product.ingredients && (
-            <p id="menu-product-dialog-description">
+            <p className="mt-[11px] text-[.93rem] leading-[1.55] text-menu-muted [overflow-wrap:anywhere]" id="menu-product-dialog-description">
               {product.ingredients}
             </p>
           )}
 
           {!product.isAvailable && (
-            <p className="menu-dialog-unavailable-note">
+            <p className="rounded-[10px] bg-menu-danger-background px-3 py-2 font-[650] text-menu-danger">
               Este item não pode ser adicionado ao pedido no momento.
             </p>
           )}
 
           {!activeVariants.length && (
-            <div className="menu-variant-empty">Preço indisponível</div>
+            <div className="mt-5 text-[.86rem] text-menu-muted">Preço indisponível</div>
           )}
 
           {activeVariants.length === 1 && selectedVariant && (
-            <div className="menu-selected-price">
+            <div className="my-5 flex min-h-[60px] items-center justify-between gap-[18px] border-y border-menu-border py-3 text-[.9rem] font-[700]">
               <span>Preço</span>
-              <span className="menu-variant-values">
+              <span className="flex flex-wrap items-baseline justify-end gap-2">
                 {selectedVariant.promotionalPriceCents !== null && (
-                  <del>{formatMoney(selectedVariant.priceCents)}</del>
+                  <del className="text-[.76rem] text-[#948e87]">{formatMoney(selectedVariant.priceCents)}</del>
                 )}
-                <strong>{formatMoney(getVariantPriceCents(selectedVariant))}</strong>
+                <strong className="text-base font-[820]">{formatMoney(getVariantPriceCents(selectedVariant))}</strong>
               </span>
             </div>
           )}
 
           {activeVariants.length > 1 && (
-            <fieldset className="menu-option-group" aria-describedby={`${optionGroupId}-help`}>
-              <legend>Escolha uma opção</legend>
-              <p id={`${optionGroupId}-help`}>Selecione uma opção para continuar.</p>
-              <div>
+            <fieldset className="m-0 mt-5 min-w-0 border-0 p-0" aria-describedby={`${optionGroupId}-help`}>
+              <legend className="p-0 text-base font-[780] text-menu-text">Escolha uma opção</legend>
+              <p className="my-[5px] mb-3 text-[.78rem] text-menu-muted" id={`${optionGroupId}-help`}>Selecione uma opção para continuar.</p>
+              <div className="grid gap-2">
                 {activeVariants.map((variant, index) => (
                   <label
-                    className={selectedVariantId === variant.id ? 'menu-option--selected' : ''}
+                    className={cn('grid min-h-[58px] grid-cols-[22px_minmax(0,1fr)_auto] items-center gap-[10px] rounded-xl border border-menu-border px-3 py-2.5 text-[.88rem] font-[680] focus-within:outline-[3px] focus-within:outline-[color-mix(in_srgb,var(--color-brand)_28%,transparent)] focus-within:outline-offset-2', selectedVariantId === variant.id && 'border-[var(--color-brand)] bg-[color-mix(in_srgb,var(--color-brand)_7%,#fff)]')}
                     key={variant.id}
                   >
                     <input
+                      className="m-0 h-5 w-5 accent-[var(--color-brand)]"
                       type="radio"
                       name={optionGroupId}
                       value={variant.id}
@@ -237,11 +235,11 @@ export function ProductDialog({
                       onChange={() => setSelectedVariantId(variant.id)}
                     />
                     <span>{variant.label?.trim() || `Opção ${index + 1}`}</span>
-                    <span className="menu-variant-values">
+                    <span className="flex flex-wrap items-baseline justify-end gap-2">
                       {variant.promotionalPriceCents !== null && (
-                        <del>{formatMoney(variant.priceCents)}</del>
+                        <del className="text-[.76rem] text-[#948e87]">{formatMoney(variant.priceCents)}</del>
                       )}
-                      <strong>{formatMoney(getVariantPriceCents(variant))}</strong>
+                      <strong className="text-base font-[820]">{formatMoney(getVariantPriceCents(variant))}</strong>
                     </span>
                   </label>
                 ))}
@@ -251,8 +249,8 @@ export function ProductDialog({
 
           <ProductCustomizationGroups product={product} draft={customizationDraft} onChange={setCustomizationDraft} />
 
-          <section className="menu-item-quantity" aria-labelledby={`${optionGroupId}-quantity`}>
-            <h3 id={`${optionGroupId}-quantity`}>Quantidade</h3>
+          <section className="mt-6 flex items-center justify-between gap-[18px]" aria-labelledby={`${optionGroupId}-quantity`}>
+            <h3 className="m-0 p-0 text-base font-[780] text-menu-text" id={`${optionGroupId}-quantity`}>Quantidade</h3>
             <QuantityControl
               itemName={product.name}
               quantity={quantity}
@@ -263,20 +261,21 @@ export function ProductDialog({
             />
           </section>
 
-          <div className="menu-item-note">
-            <label htmlFor={`${optionGroupId}-note`}>Observação deste item <span>(opcional)</span></label>
+          <div className="mt-6 grid gap-[7px]">
+            <label className="text-[.88rem] font-[740] text-menu-text" htmlFor={`${optionGroupId}-note`}>Observação deste item <span className="font-[500] text-menu-muted">(opcional)</span></label>
             <textarea
               id={`${optionGroupId}-note`}
               value={note}
               maxLength={CART_NOTE_MAX_LENGTH}
               rows={3}
+              className={`min-h-[86px] w-full resize-y rounded-[11px] border border-menu-border bg-menu-surface px-3 py-[11px] text-[.9rem] leading-[1.45] text-menu-text focus-visible:border-[var(--color-brand)] focus-visible:outline-[3px] focus-visible:outline-[color-mix(in_srgb,var(--color-brand)_22%,transparent)] ${focusRing}`}
               placeholder="Ex.: sem cebola, cortar ao meio"
               onChange={(event) => setNote(event.target.value)}
             />
-            <small>A observação vale para esta quantidade.</small>
+            <small className="text-[.73rem] leading-[1.4] text-menu-muted">A observação vale para esta quantidade.</small>
           </div>
 
-          <button className="menu-add-to-cart" type="submit" disabled={!canAdd}>
+          <button className={`mt-[22px] min-h-[52px] w-full rounded-[13px] border-0 bg-[var(--color-brand)] px-4 py-[11px] text-[.94rem] font-[800] text-[var(--color-brand-text)] disabled:cursor-not-allowed disabled:bg-[#dad6d0] disabled:text-[#6e6962] ${focusRing}`} type="submit" disabled={!canAdd}>
             {totalCents === null
               ? 'Adicionar ao pedido'
               : `Adicionar ao pedido · ${formatMoney(totalCents)}`}
@@ -301,9 +300,7 @@ export function ProductCard({
 
   return (
     <button
-      className={`menu-product-card${
-        product.isAvailable ? '' : ' menu-product-card--unavailable'
-      }`}
+      className={cn('grid min-h-[132px] w-full grid-cols-[minmax(0,1fr)_104px] items-center gap-[14px] border-0 border-b border-menu-border bg-menu-surface px-4 py-[15px] text-left text-menu-text transition-colors hover:bg-[#fcfbf9] focus-visible:relative focus-visible:z-[1] focus-visible:outline-[3px] focus-visible:outline-[color-mix(in_srgb,var(--color-brand)_28%,transparent)] focus-visible:outline-offset-[-3px] max-[359px]:grid-cols-[minmax(0,1fr)_92px] min-[650px]:min-h-[142px] min-[650px]:rounded-2xl min-[650px]:border', !product.isAvailable && 'bg-[#fbfaf8]')}
       type="button"
       onClick={(event) => {
         onSelect(product, event.currentTarget)
@@ -312,23 +309,23 @@ export function ProductCard({
         product.isAvailable ? '' : ', indisponível no momento'
       }`}
     >
-      <div className="menu-product-copy">
-        <div className="menu-product-labels">
+      <div className="flex h-full min-w-0 flex-col items-start">
+        <div className="mb-1 flex min-h-5 flex-wrap items-center gap-[6px] empty:hidden">
           {promoted && (
-            <span className="menu-offer-label">Oferta</span>
+            <span className="inline-flex min-h-[21px] items-center rounded-[6px] bg-[color-mix(in_srgb,var(--color-brand)_11%,#fff)] px-[7px] py-[3px] text-[.67rem] font-[780] leading-none text-[color-mix(in_srgb,var(--color-brand)_76%,#211f1c)]">Oferta</span>
           )}
 
           {!product.isAvailable && (
-            <span className="menu-unavailable-label">
+            <span className="inline-flex min-h-[21px] items-center rounded-[6px] bg-menu-danger-background px-[7px] py-[3px] text-[.67rem] font-[780] leading-none text-menu-danger">
               Indisponível
             </span>
           )}
         </div>
 
-        <h3>{product.name}</h3>
+        <h3 className="m-0 line-clamp-2 overflow-hidden text-[1rem] font-[760] leading-[1.25] tracking-[-.018em] text-menu-text [overflow-wrap:anywhere]">{product.name}</h3>
 
         {product.ingredients && (
-          <p>{product.ingredients}</p>
+          <p className="mt-1 line-clamp-2 overflow-hidden text-[.79rem] leading-[1.4] text-menu-muted">{product.ingredients}</p>
         )}
 
         <CardPrice product={product} />

@@ -10,7 +10,7 @@ const QrCodePage = lazy(() => import('./modules/admin/QrCodePage').then((module)
 
 export default function App() {
   return (
-    <Suspense fallback={<main className="state-page"><span className="spinner" /><p>Carregando…</p></main>}>
+    <Suspense fallback={<main className="grid min-h-[100dvh] place-content-center justify-items-center gap-[.8rem] p-8 text-center"><span className="h-8 w-8 animate-[spin_.8s_linear_infinite] rounded-full border-[3px] border-border border-t-[var(--color-brand)]" /><p>Carregando…</p></main>}>
       <Routes>
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<DashboardPage />} />

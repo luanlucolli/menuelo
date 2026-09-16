@@ -88,7 +88,7 @@ test('cardápio público é responsivo, pesquisa sem duplicar e devolve o foco',
   const last = current.categories.filter((item) => item.products.length > 0).at(-1)
   if (last) {
     await page.locator(`#${last.slug}`).evaluate((element) => element.scrollIntoView({ block: 'start' }))
-    await expect(page.locator(`.menu-category-nav button[data-category="${last.slug}"]`)).toHaveClass(/active/)
+    await expect(page.locator(`button[data-category="${last.slug}"]`)).toHaveAttribute('aria-current', 'true')
   }
 })
 
@@ -152,9 +152,10 @@ test('cria produto, valida promoção, alterna disponibilidade, duplica e exclui
     await expect(page.getByText('O preço promocional deve ser menor que o preço original.')).toBeVisible()
     await page.getByLabel('Preço promocional').fill('1990')
     await page.getByRole('button', { name: /Mais de um tamanho/ }).click()
-    await expect(page.locator('.variant-editor-item')).toHaveCount(2)
-    await expect(page.locator('.variant-editor-item').first().getByLabel('Nome do tamanho')).toHaveValue('Médio')
-    const addedOption = page.locator('.variant-editor-item').last()
+    const sizeLabels = page.getByLabel('Nome do tamanho')
+    await expect(sizeLabels).toHaveCount(2)
+    await expect(sizeLabels.first()).toHaveValue('Médio')
+    const addedOption = sizeLabels.last().locator('xpath=ancestor::section[1]')
     await expect(addedOption.getByLabel('Nome do tamanho')).toHaveValue('Grande')
     await addedOption.getByLabel('Preço normal').fill('3490')
     await page.getByRole('button', { name: 'Salvar produto' }).click()

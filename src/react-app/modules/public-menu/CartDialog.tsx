@@ -10,6 +10,7 @@ import {
   normalizeCartNote,
 } from './cart/cart-utils'
 import { QuantityControl } from './QuantityControl'
+import { focusRing } from '../../lib/tailwind'
 
 function CartLineItem({
   line,
@@ -28,27 +29,27 @@ function CartLineItem({
   const [note, setNote] = useState(line.note)
 
   return (
-    <article className="menu-cart-line">
-      <div className="menu-cart-line-heading">
-        <div>
-          <h3>{line.productName}</h3>
-          {line.variantLabel && <p>{line.variantLabel}</p>}
+    <article className="border-b border-menu-border py-5 last:border-b-0">
+      <div className="flex items-start justify-between gap-3.5">
+        <div className="min-w-0">
+          <h3 className="m-0 [overflow-wrap:anywhere] text-base font-[780] leading-[1.3]">{line.productName}</h3>
+          {line.variantLabel && <p className="mt-1 text-[.76rem] leading-[1.4] text-menu-muted">{line.variantLabel}</p>}
         </div>
-        <strong>{formatMoney(calculateLineSubtotal(line))}</strong>
+        <strong className="shrink-0 text-[.98rem] font-[820]">{formatMoney(calculateLineSubtotal(line))}</strong>
       </div>
 
-      <p className="menu-cart-unit-price">
+      <p className="mt-1 text-[.76rem] leading-[1.4] text-menu-muted">
         Valor unitário: {formatMoney(line.unitPriceCents)}
       </p>
 
       {line.customizationDetails && line.customizationDetails.length > 0 && (
-        <div className="menu-cart-customizations">
+        <div className="mt-[11px] grid gap-2 border-l-2 border-[color-mix(in_srgb,var(--color-brand)_45%,var(--color-menu-border))] pl-2.5">
           {line.customizationDetails.map((group) => (
             <div key={group.groupId}>
-              <strong>{group.name}</strong>
-              <ul>
+              <strong className="text-[.75rem] font-[780]">{group.name}</strong>
+              <ul className="mt-[3px] grid list-none gap-0.5 p-0">
                 {group.options.map((option) => (
-                  <li key={option.optionId}>{option.quantity}x {option.name}{option.priceDeltaCents > 0 && ` (+ ${formatMoney(option.priceDeltaCents)})`}</li>
+                  <li className="[overflow-wrap:anywhere] text-[.76rem] leading-[1.4] text-menu-muted" key={option.optionId}>{option.quantity}x {option.name}{option.priceDeltaCents > 0 && ` (+ ${formatMoney(option.priceDeltaCents)})`}</li>
                 ))}
               </ul>
             </div>
@@ -57,33 +58,34 @@ function CartLineItem({
       )}
 
       {line.note && !editingNote && (
-        <div className="menu-cart-line-note">
-          <strong>Observação</strong>
-          <p>{line.note}</p>
-          {line.quantity > 1 && <small>Vale para todas as unidades desta linha.</small>}
+        <div className="mt-3 rounded-[10px] bg-menu-surface-muted px-[11px] py-2.5">
+          <strong className="text-[.72rem] font-[780]">Observação</strong>
+          <p className="mt-[3px] [overflow-wrap:anywhere] text-[.82rem] leading-[1.45]">{line.note}</p>
+          {line.quantity > 1 && <small className="mt-[5px] block text-[.7rem] text-menu-muted">Vale para todas as unidades desta linha.</small>}
         </div>
       )}
 
       {editingNote && (
-        <div className="menu-cart-note-editor">
-          <label htmlFor={`cart-note-${line.id}`}>Observação deste item</label>
+        <div className="mt-3.5 grid gap-[7px]">
+          <label className="text-[.88rem] font-[740]" htmlFor={`cart-note-${line.id}`}>Observação deste item</label>
           <textarea
             id={`cart-note-${line.id}`}
             value={note}
             maxLength={CART_NOTE_MAX_LENGTH}
             rows={3}
+            className={`min-h-[86px] w-full resize-y rounded-[11px] border border-menu-border bg-menu-surface px-3 py-[11px] text-[.9rem] leading-[1.45] text-menu-text focus-visible:border-[var(--color-brand)] focus-visible:outline-[3px] focus-visible:outline-[color-mix(in_srgb,var(--color-brand)_22%,transparent)] ${focusRing}`}
             placeholder="Ex.: sem cebola, cortar ao meio"
             onChange={(event) => setNote(event.target.value)}
           />
-          <small>{note.length}/{CART_NOTE_MAX_LENGTH} caracteres</small>
-          <div>
-            <button type="button" onClick={() => {
+          <small className="text-[.73rem] leading-[1.4] text-menu-muted">{note.length}/{CART_NOTE_MAX_LENGTH} caracteres</small>
+          <div className="flex justify-end gap-3">
+            <button className={`min-h-11 border-0 bg-transparent px-1 text-[.76rem] font-[700] underline underline-offset-[3px] ${focusRing}`} type="button" onClick={() => {
               setNote(line.note)
               setEditingNote(false)
             }}>
               Cancelar
             </button>
-            <button type="button" onClick={() => {
+            <button className={`min-h-11 border-0 bg-transparent px-1 text-[.76rem] font-[700] text-[color-mix(in_srgb,var(--color-brand)_78%,#211f1c)] underline underline-offset-[3px] ${focusRing}`} type="button" onClick={() => {
               const normalizedNote = normalizeCartNote(note)
               onUpdateNote(normalizedNote)
               setNote(normalizedNote)
@@ -95,7 +97,7 @@ function CartLineItem({
         </div>
       )}
 
-      <div className="menu-cart-line-actions">
+      <div className="mt-[15px] flex flex-wrap items-center gap-[8px_12px] max-[359px]:items-start max-[359px]:flex-col">
         <QuantityControl
           itemName={line.productName}
           quantity={line.quantity}
@@ -106,12 +108,12 @@ function CartLineItem({
         />
 
         {!editingNote && (
-          <button className="menu-cart-note-action" type="button" onClick={() => setEditingNote(true)}>
+          <button className={`min-h-11 border-0 bg-transparent px-1 text-[.76rem] font-[700] text-menu-text underline underline-offset-[3px] ${focusRing}`} type="button" onClick={() => setEditingNote(true)}>
             {line.note ? 'Editar observação' : 'Adicionar observação'}
           </button>
         )}
 
-        <button className="menu-cart-remove" type="button" onClick={onRemove}>
+        <button className={`min-h-11 border-0 bg-transparent px-1 text-[.76rem] font-[700] text-menu-danger underline underline-offset-[3px] ${focusRing}`} type="button" onClick={onRemove}>
           Remover {line.productName}
         </button>
       </div>
@@ -163,26 +165,26 @@ export function CartDialog({
   return (
     <dialog
       ref={dialogRef}
-      className="menu-cart-dialog"
+      className="fixed inset-0 m-auto h-auto max-h-[min(90dvh,820px)] w-[min(calc(100%_-_30px),620px)] max-w-none overflow-visible border-0 bg-transparent p-0 text-menu-text max-[639px]:inset-auto max-[639px]:right-0 max-[639px]:bottom-0 max-[639px]:left-0 max-[639px]:m-0 max-[639px]:max-h-[calc(100dvh_-_max(8px,env(safe-area-inset-top)))] max-[639px]:w-full max-[639px]:overflow-hidden backdrop:bg-[rgb(24_21_18_/_68%)] backdrop:backdrop-blur-[2px]"
       aria-labelledby="menu-cart-dialog-title"
       onClick={(event) => {
         if (event.target === event.currentTarget) event.currentTarget.close()
       }}
     >
-      <section className="menu-cart-sheet">
-        <header className="menu-cart-header">
-          <h2 id="menu-cart-dialog-title">Seu pedido</h2>
-          <button type="button" aria-label="Fechar pedido" onClick={() => dialogRef.current?.close()}>
+      <section className="flex max-h-[min(90dvh,820px)] w-full flex-col overflow-hidden rounded-[22px] bg-menu-surface shadow-[0_28px_70px_rgb(0_0_0_/_34%)] max-[639px]:h-[calc(100dvh_-_max(8px,env(safe-area-inset-top)))] max-[639px]:max-h-none max-[639px]:rounded-[22px_22px_0_0]">
+        <header className="flex min-h-[68px] shrink-0 items-center justify-between border-b border-menu-border bg-menu-surface px-[14px] py-3 pl-5">
+          <h2 className="m-0 text-[1.32rem] font-[820] tracking-[-.025em]" id="menu-cart-dialog-title">Seu pedido</h2>
+          <button className={`grid h-11 w-11 place-items-center rounded-full border-0 bg-menu-surface-muted text-menu-text ${focusRing}`} type="button" aria-label="Fechar pedido" onClick={() => dialogRef.current?.close()}>
             <X aria-hidden="true" />
           </button>
         </header>
 
-        <div className="menu-cart-content">
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 [scrollbar-gutter:stable] max-[639px]:px-[18px]">
           {!lines.length ? (
-            <div className="menu-cart-empty">
-              <h3>Seu pedido está vazio</h3>
-              <p>Adicione itens do cardápio para continuar</p>
-              <button type="button" onClick={() => dialogRef.current?.close()}>
+            <div className="flex min-h-[320px] flex-col items-center justify-center px-4 py-10 text-center">
+              <h3 className="m-0 text-[1.2rem]">Seu pedido está vazio</h3>
+              <p className="mt-2 text-[.88rem] text-menu-muted">Adicione itens do cardápio para continuar</p>
+              <button className={`mt-5 min-h-[46px] rounded-[11px] border border-menu-border bg-menu-surface px-4 py-[9px] font-[720] ${focusRing}`} type="button" onClick={() => dialogRef.current?.close()}>
                 Voltar ao cardápio
               </button>
             </div>
@@ -199,33 +201,33 @@ export function CartDialog({
         </div>
 
         {lines.length > 0 && (
-          <footer className="menu-cart-summary">
-            <div className="menu-cart-total">
+          <footer className="shrink-0 border-t border-menu-border bg-menu-surface px-5 pb-[max(16px,env(safe-area-inset-bottom))] pt-3.5 shadow-[0_-7px_20px_rgb(27_23_19_/_7%)] max-[639px]:px-[18px]">
+            <div className="flex items-center justify-between gap-4 text-[.92rem] font-[720]">
               <span>Total dos produtos</span>
-              <strong>{formatMoney(totalCents)}</strong>
+              <strong className="text-[1.15rem] font-[840]">{formatMoney(totalCents)}</strong>
             </div>
 
             {!whatsappUrl && (
-              <p className="menu-cart-whatsapp-warning">
+              <p className="mt-[9px] text-[.73rem] font-[700] leading-[1.4] text-menu-danger">
                 O WhatsApp da loja ainda não está configurado.
               </p>
             )}
 
-            <p className="menu-cart-whatsapp-help">
+            <p className="mt-[9px] text-[.73rem] leading-[1.4] text-menu-muted">
               Você será direcionado ao WhatsApp para confirmar o pedido com a loja.
             </p>
 
             {whatsappUrl ? (
-              <a className="menu-cart-submit" href={whatsappUrl} target="_blank" rel="noopener noreferrer">
+              <a className={`mt-3 flex min-h-[52px] w-full items-center justify-center rounded-[13px] border-0 bg-[var(--color-brand)] px-3.5 py-2.5 text-center text-[.9rem] font-[800] text-[var(--color-brand-text)] no-underline ${focusRing}`} href={whatsappUrl} target="_blank" rel="noopener noreferrer">
                 Enviar pedido pelo WhatsApp
               </a>
             ) : (
-              <button className="menu-cart-submit" type="button" disabled>
+              <button className={`mt-3 flex min-h-[52px] w-full items-center justify-center rounded-[13px] border-0 bg-[#dad6d0] px-3.5 py-2.5 text-center text-[.9rem] font-[800] text-[#6e6962] disabled:cursor-not-allowed ${focusRing}`} type="button" disabled>
                 Enviar pedido pelo WhatsApp
               </button>
             )}
 
-            <button className="menu-cart-clear" type="button" onClick={onClear}>
+            <button className={`mx-auto mb-[-8px] mt-[3px] block min-h-11 border-0 bg-transparent px-1 text-[.76rem] font-[700] text-menu-danger underline underline-offset-[3px] ${focusRing}`} type="button" onClick={onClear}>
               Limpar pedido
             </button>
           </footer>

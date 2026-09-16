@@ -4,6 +4,7 @@ import { Controller, useWatch, type UseFormReturn } from 'react-hook-form'
 import type { SettingsInput } from '../../../../shared/schemas'
 import { buildGoogleMapsDirectionsUrl, formatStructuredAddress, hasStructuredAddress } from '../../../../shared/utils'
 import { api, messageFromError } from '../../lib/api'
+import { cn, fieldError, fieldHelp, fieldLabel, focusRing, secondaryButton, textInput } from '../../lib/tailwind'
 
 const BRAZILIAN_STATES = ['AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO']
 const nullable = { setValueAs: (value: unknown) => typeof value === 'string' ? value.trim() || null : null }
@@ -100,34 +101,34 @@ export function AddressFields({ form }: { form: UseFormReturn<SettingsInput> }) 
     setLookupFeedback(null)
   }
 
-  return <section className="admin-card settings-section address-section">
-    <div className="address-heading"><span><MapPin /></span><div><h2>Endereço da lanchonete</h2><p>Digite o CEP para preencher o endereço mais rápido. Você poderá corrigir qualquer campo.</p></div></div>
+  return <section className="mt-4 grid gap-4 rounded-[.85rem] border border-border bg-surface-strong p-4 shadow-menu-sm">
+    <div className="flex items-start gap-3"><span className="grid h-10 w-10 shrink-0 place-items-center rounded-[.65rem] bg-[var(--color-brand-soft)] text-[var(--color-brand-strong)]"><MapPin className="w-5" /></span><div><h2 className="m-0 text-[1.1rem]">Endereço da lanchonete</h2><p className="mt-[.2rem] leading-[1.45] text-muted">Digite o CEP para preencher o endereço mais rápido. Você poderá corrigir qualquer campo.</p></div></div>
     <input type="hidden" {...form.register('address')} />
 
-    {legacyAddress && !hasStructuredFields && <div className="legacy-address"><div><strong>Endereço cadastrado atualmente</strong><p>{legacyAddress}</p><small>Preencha os campos abaixo para atualizar esse endereço.</small></div></div>}
+    {legacyAddress && !hasStructuredFields && <div className="rounded-[.65rem] border border-[#b9cee3] bg-[#edf6ff] p-3 text-[#234f74]"><div><strong>Endereço cadastrado atualmente</strong><p className="mt-1">{legacyAddress}</p><small className="mt-[.35rem] block">Preencha os campos abaixo para atualizar esse endereço.</small></div></div>}
 
-    <div className="address-grid">
-      <div className="postal-code-field"><label htmlFor="address-postal-code">CEP</label>
-        <div className="postal-code-control">
-          <Controller control={form.control} name="addressPostalCode" render={({ field }) => <input {...field} id="address-postal-code" value={field.value ?? ''} inputMode="numeric" autoComplete="postal-code" placeholder="00000-000" maxLength={9} aria-invalid={Boolean(errors.addressPostalCode)} onChange={(event) => { const nextValue = formatPostalCodeInput(event.target.value); field.onChange(nextValue || null); if (!nextValue) clearAutoFilledFields(); else { form.clearErrors('addressPostalCode'); setLookupFeedback(null); if (nextValue.replace(/\D/g, '') !== lastSuccessfulLookup.current) lastSuccessfulLookup.current = null } }} onBlur={() => { field.onBlur(); void lookupPostalCode() }} />} />
+    <div className="grid gap-[.8rem] min-[650px]:grid-cols-4">
+      <div className="grid gap-[.35rem] text-[.8rem] font-[750] text-[#423e38] min-[650px]:col-span-full"><label htmlFor="address-postal-code">CEP</label>
+        <div className="min-w-0">
+          <Controller control={form.control} name="addressPostalCode" render={({ field }) => <input className={textInput} {...field} id="address-postal-code" value={field.value ?? ''} inputMode="numeric" autoComplete="postal-code" placeholder="00000-000" maxLength={9} aria-invalid={Boolean(errors.addressPostalCode)} onChange={(event) => { const nextValue = formatPostalCodeInput(event.target.value); field.onChange(nextValue || null); if (!nextValue) clearAutoFilledFields(); else { form.clearErrors('addressPostalCode'); setLookupFeedback(null); if (nextValue.replace(/\D/g, '') !== lastSuccessfulLookup.current) lastSuccessfulLookup.current = null } }} onBlur={() => { field.onBlur(); void lookupPostalCode() }} />} />
         </div>
-        {errors.addressPostalCode && <small className="field-error">{errors.addressPostalCode.message}</small>}
+        {errors.addressPostalCode && <small className={fieldError}>{errors.addressPostalCode.message}</small>}
       </div>
-      {lookupBusy && <div className="postal-code-feedback" role="status"><LoaderCircle className="spin-icon" /><span>Buscando endereço…</span></div>}
-      {lookupFeedback && !lookupBusy && <div className={`postal-code-feedback ${lookupFeedback.kind}`} role="status">{lookupFeedback.kind === 'success' && <CircleCheck />}<span>{lookupFeedback.message}</span></div>}
+      {lookupBusy && <div className="flex items-center gap-[.45rem] rounded-[.55rem] bg-[#e7f5ed] px-3 py-[.65rem] text-[.8rem] text-[#155b36] min-[650px]:col-span-full" role="status"><LoaderCircle className="w-4 animate-[spin_.8s_linear_infinite]" /><span>Buscando endereço…</span></div>}
+      {lookupFeedback && !lookupBusy && <div className={cn('flex items-center gap-[.45rem] rounded-[.55rem] px-3 py-[.65rem] text-[.8rem] min-[650px]:col-span-full', lookupFeedback.kind === 'success' ? 'bg-[#e7f5ed] text-[#155b36]' : 'bg-[#fff0f0] text-danger')} role="status">{lookupFeedback.kind === 'success' && <CircleCheck />}<span>{lookupFeedback.message}</span></div>}
 
-      <label className="address-street">Rua ou avenida<input autoComplete="address-line1" {...form.register('addressStreet', nullable)} aria-invalid={Boolean(errors.addressStreet)} />{errors.addressStreet && <small className="field-error">{errors.addressStreet.message}</small>}</label>
-      <label className="address-number">Número<input autoComplete="address-line2" {...form.register('addressNumber', nullable)} placeholder="Ex.: 123 ou S/N" aria-invalid={Boolean(errors.addressNumber)} />{errors.addressNumber && <small className="field-error">{errors.addressNumber.message}</small>}</label>
-      <label className="address-complement">Complemento <small>(opcional)</small><input {...form.register('addressComplement', nullable)} placeholder="Ex.: fundos, loja 2" /></label>
-      <label className="address-neighborhood">Bairro<input {...form.register('addressNeighborhood', nullable)} aria-invalid={Boolean(errors.addressNeighborhood)} />{errors.addressNeighborhood && <small className="field-error">{errors.addressNeighborhood.message}</small>}</label>
-      <label className="address-city">Cidade<input autoComplete="address-level2" {...form.register('addressCity', nullable)} aria-invalid={Boolean(errors.addressCity)} />{errors.addressCity && <small className="field-error">{errors.addressCity.message}</small>}</label>
-      <label className="address-state">Estado<select autoComplete="address-level1" {...form.register('addressState', nullable)} aria-invalid={Boolean(errors.addressState)}><option value="">Selecione</option>{BRAZILIAN_STATES.map((uf) => <option key={uf} value={uf}>{uf}</option>)}</select>{errors.addressState && <small className="field-error">{errors.addressState.message}</small>}</label>
+      <label className={`${fieldLabel} min-[650px]:col-span-3`}>Rua ou avenida<input className={textInput} autoComplete="address-line1" {...form.register('addressStreet', nullable)} aria-invalid={Boolean(errors.addressStreet)} />{errors.addressStreet && <small className={fieldError}>{errors.addressStreet.message}</small>}</label>
+      <label className={`${fieldLabel} min-[650px]:col-span-1`}>Número<input className={textInput} autoComplete="address-line2" {...form.register('addressNumber', nullable)} placeholder="Ex.: 123 ou S/N" aria-invalid={Boolean(errors.addressNumber)} />{errors.addressNumber && <small className={fieldError}>{errors.addressNumber.message}</small>}</label>
+      <label className={`${fieldLabel} min-[650px]:col-span-2`}>Complemento <small>(opcional)</small><input className={textInput} {...form.register('addressComplement', nullable)} placeholder="Ex.: fundos, loja 2" /></label>
+      <label className={`${fieldLabel} min-[650px]:col-span-2`}>Bairro<input className={textInput} {...form.register('addressNeighborhood', nullable)} aria-invalid={Boolean(errors.addressNeighborhood)} />{errors.addressNeighborhood && <small className={fieldError}>{errors.addressNeighborhood.message}</small>}</label>
+      <label className={`${fieldLabel} min-[650px]:col-span-3`}>Cidade<input className={textInput} autoComplete="address-level2" {...form.register('addressCity', nullable)} aria-invalid={Boolean(errors.addressCity)} />{errors.addressCity && <small className={fieldError}>{errors.addressCity.message}</small>}</label>
+      <label className={`${fieldLabel} min-[650px]:col-span-1`}>Estado<select className={textInput} autoComplete="address-level1" {...form.register('addressState', nullable)} aria-invalid={Boolean(errors.addressState)}><option value="">Selecione</option>{BRAZILIAN_STATES.map((uf) => <option key={uf} value={uf}>{uf}</option>)}</select>{errors.addressState && <small className={fieldError}>{errors.addressState.message}</small>}</label>
     </div>
 
-    {visibleAddress && <div className="address-preview"><div><strong>Como aparecerá no cardápio</strong><p>{visibleAddress}</p></div>{directionsUrl && <a className="secondary-button button-nowrap" href={directionsUrl} target="_blank" rel="noreferrer">Conferir no mapa <ExternalLink /></a>}</div>}
+    {visibleAddress && <div className="grid gap-3 rounded-[.7rem] border border-[color-mix(in_srgb,var(--color-brand)_30%,var(--color-border))] bg-[var(--color-brand-soft)] p-3 min-[650px]:grid-cols-[minmax(0,1fr)_auto] min-[650px]:items-center"><div><strong>Como aparecerá no cardápio</strong><p className="mt-1 leading-[1.45] text-muted">{visibleAddress}</p></div>{directionsUrl && <a className={`${secondaryButton} justify-self-start bg-white`} href={directionsUrl} target="_blank" rel="noreferrer">Conferir no mapa <ExternalLink /></a>}</div>}
 
-    <details className="maps-override"><summary>Usar um link específico do Google Maps <span>Opcional</span></summary><div><label>Link do estabelecimento<input type="url" {...form.register('mapsUrl')} placeholder="https://maps.app.goo.gl/..." aria-invalid={Boolean(errors.mapsUrl)} />{errors.mapsUrl && <small className="field-error">Informe um link completo.</small>}<small className="field-help">Se ficar vazio, criaremos automaticamente o botão “Como chegar” usando o endereço acima.</small></label></div></details>
+    <details className="rounded-[.7rem] border border-border [&[open]>summary]:border-b [&[open]>summary]:border-border"><summary className="flex min-h-12 cursor-pointer items-center gap-[.6rem] px-3 py-[.7rem] text-[.82rem] font-[800] marker:text-[var(--color-brand)]"><span>Usar um link específico do Google Maps</span><span className="ml-auto text-[.72rem] font-[600] text-muted">Opcional</span></summary><div className="p-3"><label className={fieldLabel}>Link do estabelecimento<input className={textInput} type="url" {...form.register('mapsUrl')} placeholder="https://maps.app.goo.gl/..." aria-invalid={Boolean(errors.mapsUrl)} />{errors.mapsUrl && <small className={fieldError}>Informe um link completo.</small>}<small className={fieldHelp}>Se ficar vazio, criaremos automaticamente o botão “Como chegar” usando o endereço acima.</small></label></div></details>
 
-    {visibleAddress && <button className="text-danger remove-address" type="button" onClick={removeAddress}><Trash2 /> Remover endereço</button>}
+    {visibleAddress && <button className={`inline-flex min-h-[42px] items-center justify-self-start gap-[.35rem] border-0 bg-transparent px-2 font-[750] text-danger ${focusRing}`} type="button" onClick={removeAddress}><Trash2 className="w-4" /> Remover endereço</button>}
   </section>
 }

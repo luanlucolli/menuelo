@@ -3,6 +3,7 @@ import { createRoot, hydrateRoot, type Root } from 'react-dom/client'
 import { menuResponseSchema, publicMenuBootstrapSchema, type MenuResponse, type PublicMenuBootstrap } from '../../shared/schemas'
 import { buildPublicSeo } from '../../shared/public-seo'
 import { getZonedClock } from '../../shared/utils'
+import { primaryButton } from './lib/tailwind'
 import { PublicMenu } from './modules/public-menu/PublicMenu'
 
 const IDENTIFIER_PREFIX = 'menuelo-'
@@ -98,7 +99,7 @@ function renderState(content: ReactNode) {
 
 async function mountFromApi(preserveServerHtml: boolean) {
   if (!root) return
-  if (!preserveServerHtml) renderState(<main className="state-page"><span className="spinner" /><p>Carregando cardápio…</p></main>)
+  if (!preserveServerHtml) renderState(<main className="grid min-h-[100dvh] place-content-center justify-items-center gap-[.8rem] p-8 text-center"><span className="h-8 w-8 animate-[spin_.8s_linear_infinite] rounded-full border-[3px] border-border border-t-[var(--color-brand)]" /><p>Carregando cardápio…</p></main>)
   try {
     const bootstrap = await fetchMenu()
     applyClientSeo(bootstrap.menu)
@@ -108,7 +109,7 @@ async function mountFromApi(preserveServerHtml: boolean) {
   } catch (error) {
     console.error('Falha ao carregar o cardápio.', error)
     if (preserveServerHtml) return
-    renderState(<main className="state-page"><h1>Não foi possível abrir o cardápio</h1><p>Tente novamente em alguns instantes.</p><button type="button" onClick={() => window.location.reload()}>Tentar novamente</button></main>)
+    renderState(<main className="grid min-h-[100dvh] place-content-center justify-items-center gap-[.8rem] p-8 text-center"><h1>Não foi possível abrir o cardápio</h1><p>Tente novamente em alguns instantes.</p><button className={primaryButton} type="button" onClick={() => window.location.reload()}>Tentar novamente</button></main>)
   }
 }
 

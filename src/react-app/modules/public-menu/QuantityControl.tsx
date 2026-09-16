@@ -1,4 +1,5 @@
 import { Minus, Plus } from 'lucide-react'
+import { cn, focusRing } from '../../lib/tailwind'
 
 export function QuantityControl({
   itemName,
@@ -7,6 +8,7 @@ export function QuantityControl({
   onIncrease,
   decreaseDisabled = false,
   increaseDisabled = false,
+  compact = false,
 }: {
   itemName: string
   quantity: number
@@ -14,10 +16,12 @@ export function QuantityControl({
   onIncrease: () => void
   decreaseDisabled?: boolean
   increaseDisabled?: boolean
+  compact?: boolean
 }) {
   return (
-    <div className="menu-quantity-control">
+    <div className={cn(compact ? 'grid grid-cols-[36px_34px_36px]' : 'grid grid-cols-[44px_48px_44px]', 'items-center overflow-hidden rounded-xl border border-menu-border bg-menu-surface [&_svg]:h-[18px] [&_svg]:w-[18px]')}>
       <button
+        className={cn('grid place-items-center bg-transparent', compact ? 'h-10 w-9' : 'h-11 w-11', focusRing, 'disabled:cursor-not-allowed disabled:opacity-[.35]')}
         type="button"
         aria-label={`Diminuir quantidade de ${itemName}`}
         disabled={decreaseDisabled}
@@ -26,9 +30,10 @@ export function QuantityControl({
         <Minus aria-hidden="true" />
       </button>
 
-      <output aria-label={`Quantidade de ${itemName}`}>{quantity}</output>
+      <output className={cn('text-center font-[800] text-menu-text', compact ? 'text-[.9rem]' : 'text-base')} aria-label={`Quantidade de ${itemName}`}>{quantity}</output>
 
       <button
+        className={cn('grid place-items-center bg-transparent', compact ? 'h-10 w-9' : 'h-11 w-11', focusRing, 'disabled:cursor-not-allowed disabled:opacity-[.35]')}
         type="button"
         aria-label={`Aumentar quantidade de ${itemName}`}
         disabled={increaseDisabled}
