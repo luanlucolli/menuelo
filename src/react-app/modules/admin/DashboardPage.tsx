@@ -45,5 +45,5 @@ export function DashboardPage() {
 }
 
 export function AdminState({ message, error = false, onRetry, retrying = false }: { message: string; error?: boolean; onRetry?: () => void; retrying?: boolean }) {
-  return <div className={cn('grid min-h-[50dvh] place-content-center justify-items-center gap-[.8rem] text-center text-muted', error && 'text-danger')}>{error ? <AlertCircle /> : <span className="h-8 w-8 animate-[spin_.8s_linear_infinite] rounded-full border-[3px] border-border border-t-[var(--color-brand)]" />}<p>{message}</p>{onRetry && <button className={secondaryButton} type="button" onClick={onRetry} disabled={retrying}>{retrying ? 'Tentando novamente…' : 'Tentar novamente'}</button>}</div>
+  return <div className={cn('grid min-h-[50dvh] place-content-center justify-items-center gap-[.8rem] text-center text-muted', error && 'text-danger')}>{error ? <AlertCircle /> : <span className="h-8 w-8 animate-[spin_.8s_linear_infinite] rounded-full border-[3px] border-border border-t-[var(--color-brand)] motion-reduce:animate-none" />}<p>{message}</p>{onRetry && <button className={secondaryButton} type="button" onClick={onRetry} disabled={retrying}>{retrying ? 'Tentando novamente…' : 'Tentar novamente'}</button>}</div>
 }

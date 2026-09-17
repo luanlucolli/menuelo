@@ -1,6 +1,6 @@
 import { expect, test, type APIRequestContext, type Locator } from '@playwright/test'
 import { Buffer } from 'node:buffer'
-import type { MenuResponse } from '../../shared/schemas'
+import type { MenuResponse, Product, ProductInput, SettingsInput } from '../../shared/schemas'
 
 async function menu(request: APIRequestContext): Promise<MenuResponse> {
   const response = await request.get('/admin/api/menu')
@@ -16,6 +16,55 @@ async function publicMenu(request: APIRequestContext): Promise<MenuResponse> {
 
 function customizationGroupEditor(dialog: Locator, index: number): Locator {
   return dialog.getByLabel('Nome do grupo', { exact: true }).nth(index).locator('xpath=ancestor::section[1]')
+}
+
+function settingsInputFromMenu(current: MenuResponse): SettingsInput {
+  const { business } = current
+  return {
+    name: business.name,
+    slug: business.slug,
+    slogan: business.slogan,
+    description: business.description,
+    whatsapp: business.whatsapp,
+    phone: business.phone,
+    instagramUrl: business.instagramUrl,
+    facebookUrl: business.facebookUrl,
+    address: business.address,
+    addressPostalCode: business.addressPostalCode,
+    addressStreet: business.addressStreet,
+    addressNumber: business.addressNumber,
+    addressComplement: business.addressComplement,
+    addressNeighborhood: business.addressNeighborhood,
+    addressCity: business.addressCity,
+    addressState: business.addressState,
+    mapsUrl: business.mapsUrl,
+    timezone: business.timezone,
+    specialMessage: business.specialMessage,
+    primaryColor: business.primaryColor,
+    publicSiteUrl: business.publicSiteUrl,
+    seoTitle: business.seoTitle,
+    seoDescription: business.seoDescription,
+  }
+}
+
+function productInputFromMenu(product: Product): ProductInput {
+  return {
+    categoryId: product.categoryId,
+    name: product.name,
+    ingredients: product.ingredients,
+    isAvailable: product.isAvailable,
+    isFeatured: product.isFeatured,
+    sortOrder: product.sortOrder,
+    variants: product.variants.map(({ label, priceCents, promotionalPriceCents, isActive, sortOrder }) => ({ label, priceCents, promotionalPriceCents, isActive, sortOrder })),
+    customizationGroups: product.customizationGroups.map((group) => ({
+      name: group.name,
+      minSelections: group.minSelections,
+      maxSelections: group.maxSelections,
+      isActive: group.isActive,
+      sortOrder: group.sortOrder,
+      options: group.options.map(({ name, description, priceDeltaCents, isActive, sortOrder }) => ({ name, description, priceDeltaCents, isActive, sortOrder })),
+    })),
+  }
 }
 
 test('HTML público contém conteúdo e SEO antes do JavaScript e hidrata sem refetch', async ({ browser, page, request }) => {
@@ -57,11 +106,36 @@ test('cardápio público é responsivo, pesquisa sem duplicar e devolve o foco',
   test.skip(!category, 'O cardápio local precisa ter ao menos um produto.')
   const product = category!.products[0]
 
-  for (const width of [360, 390, 430, 768, 1440]) {
+  for (const width of [359, 390, 430, 639, 650, 700, 719, 720, 768, 1024, 1440]) {
     await page.setViewportSize({ width, height: width < 600 ? 800 : 900 })
     await page.goto('/')
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBeTruthy()
+
+    const card = page.getByRole('button', { name: `Ver detalhes de ${product.name}` }).first()
+    await expect(card).toBeVisible()
+    if (width === 700 || width === 720) {
+      const layout = await card.evaluate((element) => {
+        const media = element.querySelector('img, [aria-hidden="true"]')
+        const style = getComputedStyle(element)
+        return {
+          borderLeft: style.borderLeftWidth,
+          radius: style.borderTopLeftRadius,
+          grid: style.gridTemplateColumns,
+          mediaWidth: media?.getBoundingClientRect().width ?? 0,
+        }
+      })
+      if (width === 700) {
+        expect(layout.borderLeft).toBe('0px')
+        expect(layout.radius).toBe('0px')
+        expect(layout.mediaWidth).toBe(104)
+      } else {
+        expect(layout.borderLeft).toBe('1px')
+        expect(layout.radius).toBe('16px')
+        expect(layout.mediaWidth).toBe(108)
+      }
+      expect(layout.grid).toContain('104px')
+    }
   }
 
   await page.setViewportSize({ width: 390, height: 844 })
@@ -81,6 +155,9 @@ test('cardápio público é responsivo, pesquisa sem duplicar e devolve o foco',
   expect(((dialogBox?.y ?? 845) + (dialogBox?.height ?? 0)) <= 844).toBeTruthy()
   expect((closeBox?.width ?? 0) >= 44).toBeTruthy()
   expect((closeBox?.height ?? 0) >= 44).toBeTruthy()
+  const dialogMedia = dialog.locator('article > div').first().locator('img, [aria-hidden="true"]').first()
+  expect(await dialogMedia.evaluate((element) => getComputedStyle(element).maxHeight)).toBe('300px')
+  expect((await dialogMedia.boundingBox())?.height ?? 0).toBeLessThanOrEqual(300)
   await page.getByRole('button', { name: 'Fechar detalhes' }).click()
   await expect(result).toBeFocused()
   await page.getByRole('button', { name: 'Limpar pesquisa' }).click()
@@ -89,6 +166,100 @@ test('cardápio público é responsivo, pesquisa sem duplicar e devolve o foco',
   if (last) {
     await page.locator(`#${last.slug}`).evaluate((element) => element.scrollIntoView({ block: 'start' }))
     await expect(page.locator(`button[data-category="${last.slug}"]`)).toHaveAttribute('aria-current', 'true')
+  }
+})
+
+test('regressões críticas de layout público e admin respeitam breakpoints', async ({ page, request }) => {
+  const current = await menu(request)
+  const originalSettings = settingsInputFromMenu(current)
+  const changedWhatsapp = !current.business.whatsapp
+  const cacheBustingProduct = current.categories.flatMap((category) => category.products)[0]
+  test.skip(!cacheBustingProduct, 'O cardápio local precisa ter ao menos um produto.')
+
+  if (changedWhatsapp) {
+    const response = await request.patch('/admin/api/settings', { data: { ...originalSettings, whatsapp: '5547999999999' } })
+    expect(response.ok()).toBeTruthy()
+    const cacheInvalidation = await request.patch(`/admin/api/products/${cacheBustingProduct!.id}`, { data: productInputFromMenu(cacheBustingProduct!) })
+    expect(cacheInvalidation.ok()).toBeTruthy()
+  }
+
+  try {
+    await page.setViewportSize({ width: 390, height: 844 })
+    await page.goto('/index.html')
+    const fab = page.getByRole('link', { name: 'Abrir conversa no WhatsApp' })
+    await expect(fab).toBeVisible()
+    const fabStyle = await fab.locator('img').evaluate((element) => {
+      const style = getComputedStyle(element)
+      const box = element.getBoundingClientRect()
+      return { width: box.width, height: box.height, clipPath: style.clipPath, objectFit: style.objectFit, filter: style.filter }
+    })
+    expect(fabStyle.width).toBeCloseTo(56, 0)
+    expect(fabStyle.height).toBeCloseTo(56, 0)
+    expect(fabStyle.clipPath).toBe('circle(42%)')
+    expect(fabStyle.objectFit).toBe('contain')
+    expect(fabStyle.filter).toContain('drop-shadow')
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBeTruthy()
+
+    for (const width of [390, 649, 650, 700, 767, 768, 1024, 1440]) {
+      await page.setViewportSize({ width, height: 900 })
+      await page.goto('/admin')
+      await expect(page.getByRole('heading', { name: 'O que você quer fazer?' })).toBeVisible()
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBeTruthy()
+      const mobileMenu = page.getByRole('button', { name: 'Abrir menu' })
+      if (width < 1024) await expect(mobileMenu).toBeVisible()
+      else await expect(mobileMenu).toBeHidden()
+    }
+
+    await page.setViewportSize({ width: 700, height: 900 })
+    await page.goto('/admin/produtos')
+    await page.getByRole('button', { name: 'Novo produto' }).click()
+    const productFormDialog = page.getByRole('dialog')
+    const productFormPanel = productFormDialog.locator('section').first()
+    await expect(productFormPanel).toBeVisible()
+    const adminDialogLayout = await productFormPanel.evaluate((element) => {
+      const style = getComputedStyle(element)
+      const box = element.getBoundingClientRect()
+      return { top: box.top, bottom: box.bottom, width: box.width, height: box.height, topLeftRadius: style.borderTopLeftRadius, bottomRightRadius: style.borderBottomRightRadius }
+    })
+    expect(adminDialogLayout.top).toBeGreaterThan(0)
+    expect(adminDialogLayout.bottom).toBeLessThan(900)
+    expect(adminDialogLayout.topLeftRadius).toBe('16px')
+    expect(adminDialogLayout.bottomRightRadius).toBe('16px')
+    expect(adminDialogLayout.height).toBeLessThanOrEqual(852)
+
+    await page.setViewportSize({ width: 900, height: 900 })
+    const wideProductFormPanel = await productFormPanel.boundingBox()
+    expect(wideProductFormPanel?.width ?? 0).toBeGreaterThan(672)
+    await productFormDialog.getByRole('button', { name: 'Fechar' }).click()
+    await expect(productFormDialog).toBeHidden()
+
+    await page.setViewportSize({ width: 1024, height: 600 })
+    await page.goto('/admin/configuracoes')
+    const settingsNav = page.getByRole('navigation', { name: 'Seções das configurações' })
+    await expect(settingsNav).toBeVisible()
+    expect(await settingsNav.evaluate((element) => getComputedStyle(element).position)).toBe('sticky')
+    expect(await page.evaluate(() => document.documentElement.scrollHeight > window.innerHeight)).toBeTruthy()
+    await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight))
+    await expect.poll(async () => Math.round((await settingsNav.boundingBox())?.y ?? -1)).toBe(0)
+
+    await page.setViewportSize({ width: 360, height: 800 })
+    await page.goto('/admin/qrcode')
+    const qrPreview = page.locator('section').filter({ has: page.getByRole('button', { name: 'Baixar SVG' }) })
+    const qrWrapper = qrPreview.locator('div').first()
+    const qrSvg = qrWrapper.locator('svg')
+    await expect(qrSvg).toBeVisible()
+    const qrLayout = await qrSvg.evaluate((element) => {
+      const wrapper = element.parentElement
+      const svgBox = element.getBoundingClientRect()
+      return { svgWidth: svgBox.width, wrapperWidth: wrapper?.getBoundingClientRect().width ?? 0 }
+    })
+    expect(qrLayout.svgWidth).toBeLessThanOrEqual(qrLayout.wrapperWidth)
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBeTruthy()
+  } finally {
+    if (changedWhatsapp) {
+      const response = await request.patch('/admin/api/settings', { data: originalSettings })
+      expect(response.ok()).toBeTruthy()
+    }
   }
 })
 

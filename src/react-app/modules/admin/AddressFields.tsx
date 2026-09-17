@@ -114,7 +114,7 @@ export function AddressFields({ form }: { form: UseFormReturn<SettingsInput> }) 
         </div>
         {errors.addressPostalCode && <small className={fieldError}>{errors.addressPostalCode.message}</small>}
       </div>
-      {lookupBusy && <div className="flex items-center gap-[.45rem] rounded-[.55rem] bg-[#e7f5ed] px-3 py-[.65rem] text-[.8rem] text-[#155b36] min-[650px]:col-span-full" role="status"><LoaderCircle className="w-4 animate-[spin_.8s_linear_infinite]" /><span>Buscando endereço…</span></div>}
+      {lookupBusy && <div className="flex items-center gap-[.45rem] rounded-[.55rem] bg-[#e7f5ed] px-3 py-[.65rem] text-[.8rem] text-[#155b36] min-[650px]:col-span-full" role="status"><LoaderCircle className="w-4 animate-[spin_.8s_linear_infinite] motion-reduce:animate-none" /><span>Buscando endereço…</span></div>}
       {lookupFeedback && !lookupBusy && <div className={cn('flex items-center gap-[.45rem] rounded-[.55rem] px-3 py-[.65rem] text-[.8rem] min-[650px]:col-span-full', lookupFeedback.kind === 'success' ? 'bg-[#e7f5ed] text-[#155b36]' : 'bg-[#fff0f0] text-danger')} role="status">{lookupFeedback.kind === 'success' && <CircleCheck />}<span>{lookupFeedback.message}</span></div>}
 
       <label className={`${fieldLabel} min-[650px]:col-span-3`}>Rua ou avenida<input className={textInput} autoComplete="address-line1" {...form.register('addressStreet', nullable)} aria-invalid={Boolean(errors.addressStreet)} />{errors.addressStreet && <small className={fieldError}>{errors.addressStreet.message}</small>}</label>

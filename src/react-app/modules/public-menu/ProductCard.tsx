@@ -62,7 +62,7 @@ function ProductImage({
   if (product.imageKey) {
     return (
       <img
-        className={modal ? 'block aspect-[16/10] max-h-[360px] min-h-[220px] w-full object-cover' : cn('block h-[104px] w-[104px] rounded-[14px] bg-menu-surface-muted object-cover max-[359px]:h-[92px] max-[359px]:w-[92px] min-[650px]:h-[108px] min-[650px]:w-[108px]', !product.isAvailable && 'grayscale-[.35] opacity-[.72]')}
+        className={modal ? 'block aspect-[16/10] max-h-[360px] min-h-[220px] w-full object-cover max-[639px]:max-h-[300px]' : cn('block h-[104px] w-[104px] rounded-[14px] bg-menu-surface-muted object-cover max-[359px]:h-[92px] max-[359px]:w-[92px] min-[720px]:h-[108px] min-[720px]:w-[108px]', !product.isAvailable && 'grayscale-[.35] opacity-[.72]')}
         src={`/media/${product.imageKey}`}
         alt=""
         loading={modal ? 'eager' : 'lazy'}
@@ -73,7 +73,7 @@ function ProductImage({
 
   return (
     <div
-        className={modal ? 'grid aspect-[16/10] max-h-[360px] min-h-[220px] w-full place-items-center bg-menu-surface-muted' : cn('grid h-[104px] w-[104px] place-items-center rounded-[14px] bg-[color-mix(in_srgb,var(--color-brand)_8%,var(--color-menu-surface-muted))] text-[color-mix(in_srgb,var(--color-brand)_58%,#5f5850)] max-[359px]:h-[92px] max-[359px]:w-[92px] min-[650px]:h-[108px] min-[650px]:w-[108px]', !product.isAvailable && 'grayscale-[.35] opacity-[.72]')}
+        className={modal ? 'grid aspect-[16/10] max-h-[360px] min-h-[220px] w-full place-items-center bg-menu-surface-muted max-[639px]:max-h-[300px]' : cn('grid h-[104px] w-[104px] place-items-center rounded-[14px] bg-[color-mix(in_srgb,var(--color-brand)_8%,var(--color-menu-surface-muted))] text-[color-mix(in_srgb,var(--color-brand)_58%,#5f5850)] max-[359px]:h-[92px] max-[359px]:w-[92px] min-[720px]:h-[108px] min-[720px]:w-[108px]', !product.isAvailable && 'grayscale-[.35] opacity-[.72]')}
       aria-hidden="true"
     >
       <span className={modal ? 'text-[3rem]' : 'text-[1.55rem] font-[820]'}>{initial}</span>
@@ -138,7 +138,7 @@ export function ProductDialog({
   return (
     <dialog
       ref={dialogRef}
-      className="fixed inset-0 m-auto h-auto max-h-[90dvh] w-[min(calc(100%_-_30px),560px)] max-w-none overflow-visible border-0 bg-transparent p-0 text-menu-text max-[639px]:inset-auto max-[639px]:right-0 max-[639px]:bottom-0 max-[639px]:left-0 max-[639px]:m-0 max-[639px]:max-h-[calc(100dvh_-_max(8px,env(safe-area-inset-top)))] max-[639px]:w-full max-[639px]:overflow-hidden backdrop:bg-[rgb(24_21_18_/_68%)] backdrop:backdrop-blur-[2px]"
+      className="fixed inset-0 m-auto h-auto max-h-[90dvh] w-[min(calc(100%_-_30px),560px)] max-w-none overflow-visible border-0 bg-transparent p-0 text-menu-text motion-reduce:scroll-auto max-[639px]:inset-auto max-[639px]:right-0 max-[639px]:bottom-0 max-[639px]:left-0 max-[639px]:m-0 max-[639px]:max-h-[calc(100dvh_-_max(8px,env(safe-area-inset-top)))] max-[639px]:w-full max-[639px]:overflow-hidden backdrop:bg-[rgb(24_21_18_/_68%)] backdrop:backdrop-blur-[2px]"
       aria-labelledby="menu-product-dialog-title"
       aria-describedby={
         product.ingredients
@@ -151,17 +151,17 @@ export function ProductDialog({
         }
       }}
     >
-      <article className="w-full max-h-[90dvh] overflow-y-auto overscroll-contain rounded-[22px] bg-menu-surface shadow-[0_28px_70px_rgb(0_0_0_/_34%)] max-[639px]:max-h-[calc(100dvh_-_max(8px,env(safe-area-inset-top)))] max-[639px]:rounded-[22px_22px_0_0]">
+      <article className="w-full max-h-[90dvh] overflow-y-auto overscroll-contain rounded-[22px] bg-menu-surface shadow-[0_28px_70px_rgb(0_0_0_/_34%)] motion-reduce:scroll-auto max-[639px]:max-h-[calc(100dvh_-_max(8px,env(safe-area-inset-top)))] max-[639px]:rounded-[22px_22px_0_0]">
         <div className="relative min-h-[220px] overflow-hidden bg-menu-surface-muted">
           <ProductImage product={product} modal />
 
           <button
-            className={`absolute right-3 top-3 z-[1] grid h-10 w-10 place-items-center rounded-full border border-[rgb(255_255_255_/_42%)] bg-[rgb(20_19_17_/_68%)] text-white backdrop-blur-[8px] max-[639px]:h-11 max-[639px]:w-11 ${focusRing}`}
+            className={`absolute right-3 top-3 z-[1] grid h-10 w-10 cursor-pointer place-items-center rounded-full border border-[rgb(255_255_255_/_42%)] bg-[rgb(20_19_17_/_68%)] text-white backdrop-blur-[8px] max-[639px]:h-11 max-[639px]:w-11 ${focusRing}`}
             type="button"
             aria-label="Fechar detalhes"
             onClick={() => dialogRef.current?.close()}
           >
-            <X aria-hidden="true" />
+            <X className="h-5 w-5" aria-hidden="true" />
           </button>
         </div>
 
@@ -174,7 +174,7 @@ export function ProductDialog({
             dialogRef.current?.close()
           }}
         >
-          <div className="flex flex-wrap items-center gap-[7px]">
+          <div className="flex flex-wrap items-center gap-[7px] empty:hidden">
             {promoted && (
               <span className="inline-flex min-h-[21px] items-center rounded-[6px] bg-[color-mix(in_srgb,var(--color-brand)_11%,#fff)] px-[7px] py-[3px] text-[.67rem] font-[780] leading-none text-[color-mix(in_srgb,var(--color-brand)_76%,#211f1c)]">Oferta</span>
             )}
@@ -195,7 +195,7 @@ export function ProductDialog({
           )}
 
           {!product.isAvailable && (
-            <p className="rounded-[10px] bg-menu-danger-background px-3 py-2 font-[650] text-menu-danger">
+            <p className="mt-[11px] rounded-[10px] bg-menu-danger-background px-3 py-2 text-[.93rem] font-[650] leading-[1.55] text-menu-danger [overflow-wrap:anywhere]">
               Este item não pode ser adicionado ao pedido no momento.
             </p>
           )}
@@ -275,7 +275,7 @@ export function ProductDialog({
             <small className="text-[.73rem] leading-[1.4] text-menu-muted">A observação vale para esta quantidade.</small>
           </div>
 
-          <button className={`mt-[22px] min-h-[52px] w-full rounded-[13px] border-0 bg-[var(--color-brand)] px-4 py-[11px] text-[.94rem] font-[800] text-[var(--color-brand-text)] disabled:cursor-not-allowed disabled:bg-[#dad6d0] disabled:text-[#6e6962] ${focusRing}`} type="submit" disabled={!canAdd}>
+          <button className={`mt-[22px] min-h-[52px] w-full cursor-pointer rounded-[13px] border-0 bg-[var(--color-brand)] px-4 py-[11px] text-[.94rem] font-[800] text-[var(--color-brand-text)] disabled:cursor-not-allowed disabled:bg-[#dad6d0] disabled:text-[#6e6962] ${focusRing}`} type="submit" disabled={!canAdd}>
             {totalCents === null
               ? 'Adicionar ao pedido'
               : `Adicionar ao pedido · ${formatMoney(totalCents)}`}
@@ -300,7 +300,7 @@ export function ProductCard({
 
   return (
     <button
-      className={cn('grid min-h-[132px] w-full grid-cols-[minmax(0,1fr)_104px] items-center gap-[14px] border-0 border-b border-menu-border bg-menu-surface px-4 py-[15px] text-left text-menu-text transition-colors hover:bg-[#fcfbf9] focus-visible:relative focus-visible:z-[1] focus-visible:outline-[3px] focus-visible:outline-[color-mix(in_srgb,var(--color-brand)_28%,transparent)] focus-visible:outline-offset-[-3px] max-[359px]:grid-cols-[minmax(0,1fr)_92px] min-[650px]:min-h-[142px] min-[650px]:rounded-2xl min-[650px]:border', !product.isAvailable && 'bg-[#fbfaf8]')}
+      className={cn('grid min-h-[132px] w-full cursor-pointer grid-cols-[minmax(0,1fr)_104px] items-center gap-[14px] border-0 border-b border-menu-border bg-menu-surface px-4 py-[15px] text-left text-menu-text transition-colors motion-reduce:transition-none hover:bg-[#fcfbf9] focus-visible:relative focus-visible:z-[1] focus-visible:outline-[3px] focus-visible:outline-[color-mix(in_srgb,var(--color-brand)_28%,transparent)] focus-visible:outline-offset-[-3px] last:border-b-0 max-[359px]:grid-cols-[minmax(0,1fr)_92px] min-[720px]:min-h-[142px] min-[720px]:rounded-2xl min-[720px]:border min-[720px]:last:border-b', !product.isAvailable && 'bg-[#fbfaf8]')}
       type="button"
       onClick={(event) => {
         onSelect(product, event.currentTarget)

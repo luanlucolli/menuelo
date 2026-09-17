@@ -99,7 +99,7 @@ function renderState(content: ReactNode) {
 
 async function mountFromApi(preserveServerHtml: boolean) {
   if (!root) return
-  if (!preserveServerHtml) renderState(<main className="grid min-h-[100dvh] place-content-center justify-items-center gap-[.8rem] p-8 text-center"><span className="h-8 w-8 animate-[spin_.8s_linear_infinite] rounded-full border-[3px] border-border border-t-[var(--color-brand)]" /><p>Carregando cardápio…</p></main>)
+  if (!preserveServerHtml) renderState(<main className="grid min-h-[100dvh] place-content-center justify-items-center gap-[.8rem] p-8 text-center"><span className="h-8 w-8 animate-[spin_.8s_linear_infinite] rounded-full border-[3px] border-border border-t-[var(--color-brand)] motion-reduce:animate-none" /><p>Carregando cardápio…</p></main>)
   try {
     const bootstrap = await fetchMenu()
     applyClientSeo(bootstrap.menu)

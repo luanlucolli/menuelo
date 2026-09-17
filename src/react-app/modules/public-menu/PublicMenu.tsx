@@ -42,7 +42,7 @@ const WEEKDAYS = [
   'Sábado',
 ]
 
-const storeItemClass = `grid min-h-[62px] grid-cols-[36px_minmax(0,1fr)_auto] items-center gap-3 border-t border-menu-border py-[11px] no-underline first:border-t-0 min-[650px]:rounded-[.7rem] min-[650px]:border-0 min-[650px]:bg-[#faf8f4] min-[650px]:p-3 ${focusRing}`
+const storeItemClass = `grid min-h-[62px] grid-cols-[36px_minmax(0,1fr)_auto] items-center gap-3 border-t border-menu-border py-[11px] no-underline first:border-t-0 min-[720px]:rounded-[.7rem] min-[720px]:border-0 min-[720px]:bg-[#faf8f4] min-[720px]:p-3 ${focusRing}`
 const storeIconClass = 'h-[30px] w-[30px] shrink-0 rounded-[9px] bg-[color-mix(in_srgb,var(--color-brand)_9%,#fff)] p-[5px] text-[var(--color-brand)]'
 const footerHeadingClass = 'mb-[11px] flex items-center gap-2 text-[.92rem] font-[760] text-white [&_svg]:h-[17px] [&_svg]:w-[17px]'
 const footerTextClass = 'm-0 text-[.82rem] leading-[1.55] text-[rgb(255_255_255_/_68%)]'
@@ -325,12 +325,12 @@ export function PublicMenu({
               </span>
 
               <ChevronDown
-                className="h-5 w-5 text-menu-muted transition-transform duration-150 group-open:rotate-180"
+                className="h-5 w-5 text-menu-muted transition-transform duration-150 motion-reduce:transition-none group-open:rotate-180"
                 aria-hidden="true"
               />
             </summary>
 
-            <div className="mx-auto grid w-full max-w-[1120px] gap-0 px-[18px] pb-4 min-[650px]:grid-cols-2 min-[650px]:gap-[28px] min-[650px]:p-[.6rem_24px]">
+            <div className="mx-auto grid w-full max-w-[1120px] gap-0 px-[18px] pb-4 min-[720px]:grid-cols-2 min-[720px]:gap-[28px] min-[720px]:p-[.6rem_24px]">
               {whatsappDigits && (
                 <a
                   className={storeItemClass}
@@ -469,7 +469,7 @@ export function PublicMenu({
               <input
                 id="menu-search"
                 type="search"
-                className={`h-12 w-full rounded-[13px] border border-menu-border bg-menu-surface px-12 py-0 pl-[45px] text-[.95rem] text-menu-text outline-none transition-[border-color,box-shadow] placeholder:text-[#918b84] focus:border-[var(--color-brand)] focus:shadow-[0_0_0_3px_color-mix(in_srgb,var(--color-brand)_15%,transparent)] ${focusRing}`}
+                className={`h-12 w-full rounded-[13px] border border-menu-border bg-menu-surface px-12 py-0 pl-[45px] text-[.95rem] text-menu-text outline-none transition-[border-color,box-shadow] motion-reduce:transition-none placeholder:text-[#918b84] focus:border-[var(--color-brand)] focus:shadow-[0_0_0_3px_color-mix(in_srgb,var(--color-brand)_15%,transparent)] ${focusRing}`}
                 placeholder="O que você quer comer?"
                 value={search}
                 autoComplete="off"
@@ -480,7 +480,7 @@ export function PublicMenu({
 
               {search && (
                 <button
-                  className={`absolute right-[7px] grid h-9 w-9 place-items-center rounded-[9px] border-0 bg-transparent text-menu-muted ${focusRing}`}
+                  className={`absolute right-[7px] grid h-9 w-9 cursor-pointer place-items-center rounded-[9px] border-0 bg-transparent text-menu-muted ${focusRing}`}
                   type="button"
                   aria-label="Limpar pesquisa"
                   onClick={() => setSearch('')}
@@ -498,7 +498,7 @@ export function PublicMenu({
                 <div className="flex gap-2 overflow-x-auto pb-0.5 [overscroll-behavior-inline:contain] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden min-[1024px]:justify-start" ref={categoryNavRef}>
                   {categories.map((category) => (
                     <button
-                      className={cn('min-h-9 shrink-0 cursor-pointer whitespace-nowrap rounded-[10px] border border-menu-border bg-menu-surface px-3 py-[7px] text-[.81rem] font-[680] text-[#3d3934] transition-[color,border-color,background-color] hover:border-[var(--color-brand)] aria-[current=true]:!border-[var(--color-brand)] aria-[current=true]:!bg-[var(--color-brand)] aria-[current=true]:!text-[var(--color-brand-text)]', focusRing)}
+                      className={cn('min-h-9 shrink-0 cursor-pointer whitespace-nowrap rounded-[10px] border border-menu-border bg-menu-surface px-3 py-[7px] text-[.81rem] font-[680] text-[#3d3934] transition-[color,border-color,background-color] motion-reduce:transition-none hover:border-[var(--color-brand)] aria-[current=true]:!border-[var(--color-brand)] aria-[current=true]:!bg-[var(--color-brand)] aria-[current=true]:!text-[var(--color-brand-text)]', focusRing)}
                       data-category={category.slug}
                       type="button"
                       key={category.id}
@@ -538,8 +538,8 @@ export function PublicMenu({
               </p>
 
               {searching && (
-                <button
-                  className={`mt-[18px] min-h-[42px] rounded-[10px] border border-menu-border bg-menu-surface px-[15px] py-2 font-[700] text-menu-text ${focusRing}`}
+              <button
+                  className={`mt-[18px] min-h-[42px] cursor-pointer rounded-[10px] border border-menu-border bg-menu-surface px-[15px] py-2 font-[700] text-menu-text ${focusRing}`}
                   type="button"
                   onClick={() => setSearch('')}
                 >
@@ -576,10 +576,10 @@ export function PublicMenu({
           ) : (
             <>
               {promotions.length > 0 && (
-                <section className="mt-8 first:mt-0 rounded-[1.2rem] bg-[color-mix(in_srgb,var(--color-brand)_7%,#fff)] pt-8 min-[720px]:p-[1.2rem]">
+                <section className="mt-8 first:mt-0">
                   <header className="flex min-h-11 items-end justify-between gap-4 px-[17px] pb-3 min-[720px]:px-0">
                     <div>
-                      <h2 className="m-0 text-[clamp(1.35rem,5vw,1.75rem)] font-[790] leading-[1.12] tracking-[-.035em]">Ofertas</h2>
+                      <h2 className="m-0 text-[clamp(1.35rem,5vw,1.75rem)] font-[790] leading-[1.12] tracking-[-.035em] text-[color-mix(in_srgb,var(--color-brand)_78%,#2b241e)]">Ofertas</h2>
                       <p className="mt-[5px] text-[.84rem] leading-[1.45] text-menu-muted">
                         Produtos com preço especial
                       </p>
@@ -811,6 +811,7 @@ export function PublicMenu({
           title="Falar pelo WhatsApp"
         >
           <img
+            className="block h-full w-full object-contain drop-shadow-[0_8px_14px_rgb(0_0_0_/_26%)] [clip-path:circle(42%)]"
             src={whatsappLogo}
             alt=""
             aria-hidden="true"
@@ -845,12 +846,12 @@ export function PublicMenu({
           <span>{itemAddedFeedback ?? cart.restorationNotice}</span>
           {cart.restorationNotice && !itemAddedFeedback && (
             <button
-              className={`grid h-11 w-11 shrink-0 place-items-center border-0 bg-transparent text-inherit ${focusRing}`}
+              className={`grid h-11 w-11 shrink-0 cursor-pointer place-items-center border-0 bg-transparent text-inherit ${focusRing}`}
               type="button"
               aria-label="Fechar aviso"
               onClick={cart.dismissRestorationNotice}
             >
-              <X aria-hidden="true" />
+              <X className="h-[18px] w-[18px]" aria-hidden="true" />
             </button>
           )}
         </div>
