@@ -4,6 +4,10 @@ export function cn(...classes: Array<string | false | null | undefined>): string
 
 export const focusRing = 'focus-visible:outline-[3px] focus-visible:outline-[var(--color-brand)] focus-visible:outline-offset-2'
 
+export const publicCartFocusRing = 'focus-visible:outline-[3px] focus-visible:outline-[color-mix(in_srgb,var(--color-brand)_38%,#fff)] focus-visible:outline-offset-2'
+
+export const publicAddFocusRing = 'focus-visible:outline-[3px] focus-visible:outline-[color-mix(in_srgb,var(--color-brand)_34%,transparent)] focus-visible:outline-offset-3'
+
 export const primaryButton = `inline-flex min-h-[44px] cursor-pointer items-center justify-center gap-[.4rem] rounded-[.55rem] border-0 bg-[var(--color-brand)] px-4 py-[.7rem] font-[800] text-[var(--color-brand-text)] no-underline transition-opacity motion-reduce:transition-none [&_svg]:h-[1.05rem] [&_svg]:w-[1.05rem] disabled:cursor-not-allowed disabled:opacity-50 ${focusRing}`
 
 export const secondaryButton = `inline-flex min-h-[44px] cursor-pointer items-center justify-center gap-[.4rem] rounded-[.55rem] border border-border bg-surface-strong px-[.9rem] py-[.65rem] font-[750] no-underline transition-colors motion-reduce:transition-none [&_svg]:h-[1.05rem] [&_svg]:w-[1.05rem] disabled:cursor-not-allowed disabled:opacity-50 ${focusRing}`

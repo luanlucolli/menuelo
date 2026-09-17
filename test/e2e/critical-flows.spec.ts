@@ -1,4 +1,4 @@
-import { expect, test, type APIRequestContext, type Locator } from '@playwright/test'
+import { expect, test, type APIRequestContext, type Locator, type Page } from '@playwright/test'
 import { Buffer } from 'node:buffer'
 import type { MenuResponse, Product, ProductInput, SettingsInput } from '../../shared/schemas'
 
@@ -16,6 +16,15 @@ async function publicMenu(request: APIRequestContext): Promise<MenuResponse> {
 
 function customizationGroupEditor(dialog: Locator, index: number): Locator {
   return dialog.getByLabel('Nome do grupo', { exact: true }).nth(index).locator('xpath=ancestor::section[1]')
+}
+
+async function tabTo(page: Page, target: Locator): Promise<void> {
+  await page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur())
+  for (let index = 0; index < 100; index += 1) {
+    await page.keyboard.press('Tab')
+    if (await target.evaluate((element) => element === document.activeElement)) return
+  }
+  throw new Error('O elemento alvo não foi alcançado pela navegação por teclado.')
 }
 
 function settingsInputFromMenu(current: MenuResponse): SettingsInput {
@@ -230,8 +239,46 @@ test('regressões críticas de layout público e admin respeitam breakpoints', a
     await page.setViewportSize({ width: 900, height: 900 })
     const wideProductFormPanel = await productFormPanel.boundingBox()
     expect(wideProductFormPanel?.width ?? 0).toBeGreaterThan(672)
+    const productFormSpacing = await productFormPanel.evaluate((element) => {
+      const submit = element.querySelector('button[type="submit"]')
+      let actions = submit?.parentElement ?? null
+      while (actions && getComputedStyle(actions).position !== 'sticky') actions = actions.parentElement
+      const panelStyle = getComputedStyle(element)
+      const panelBox = element.getBoundingClientRect()
+      const actionsBox = actions?.getBoundingClientRect()
+      return {
+        panelPaddingBottom: panelStyle.paddingBottom,
+        bottomGap: actionsBox ? panelBox.bottom - actionsBox.bottom : null,
+      }
+    })
+    expect(productFormSpacing.panelPaddingBottom).toBe('0px')
+    expect(productFormSpacing.bottomGap ?? 1).toBeLessThanOrEqual(1)
     await productFormDialog.getByRole('button', { name: 'Fechar' }).click()
     await expect(productFormDialog).toBeHidden()
+
+    await page.setViewportSize({ width: 600, height: 900 })
+    await page.goto('/admin/produtos')
+    const productRow = page.locator('article').filter({ hasText: cacheBustingProduct!.name }).first()
+    await productRow.getByText('Mais ações', { exact: true }).click()
+    await productRow.getByRole('button', { name: 'Excluir' }).click()
+    const confirmDialog = page.getByRole('dialog')
+    const confirmPanel = confirmDialog.locator('section').first()
+    await expect(confirmPanel).toBeVisible()
+    expect((await confirmPanel.boundingBox())?.width ?? 0).toBeCloseTo(496, 0)
+    await confirmDialog.getByRole('button', { name: 'Cancelar' }).click()
+    await expect(confirmDialog).toBeHidden()
+
+    await page.setViewportSize({ width: 900, height: 900 })
+    await page.goto('/admin/produtos')
+    const wideProductRow = page.locator('article').filter({ hasText: cacheBustingProduct!.name }).first()
+    await wideProductRow.getByText('Mais ações', { exact: true }).click()
+    await wideProductRow.getByRole('button', { name: 'Excluir' }).click()
+    const wideConfirmDialog = page.getByRole('dialog')
+    const wideConfirmPanel = wideConfirmDialog.locator('section').first()
+    await expect(wideConfirmPanel).toBeVisible()
+    expect((await wideConfirmPanel.boundingBox())?.width ?? 0).toBeCloseTo(672, 0)
+    await wideConfirmDialog.getByRole('button', { name: 'Cancelar' }).click()
+    await expect(wideConfirmDialog).toBeHidden()
 
     await page.setViewportSize({ width: 1024, height: 600 })
     await page.goto('/admin/configuracoes')
@@ -261,6 +308,63 @@ test('regressões críticas de layout público e admin respeitam breakpoints', a
       expect(response.ok()).toBeTruthy()
     }
   }
+})
+
+test('controles públicos preservam foco, toque e interação dos descendentes', async ({ page, request }) => {
+  const current = await publicMenu(request)
+  const product = current.categories
+    .flatMap((category) => category.products)
+    .find((item) => item.isAvailable && item.variants.some((variant) => variant.isActive) && !item.customizationGroups.some((group) => group.isActive && group.minSelections > 0))
+  test.skip(!product, 'O cardápio local precisa ter um produto configurável sem montagem obrigatória.')
+
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.goto('/')
+  const searchInput = page.getByRole('searchbox', { name: 'Pesquisar no cardápio' })
+  const searchIcon = page.locator('[role="search"] > svg').first()
+  const searchIconBox = await searchIcon.boundingBox()
+  expect(searchIconBox).toBeTruthy()
+  await page.mouse.click((searchIconBox?.x ?? 0) + (searchIconBox?.width ?? 0) / 2, (searchIconBox?.y ?? 0) + (searchIconBox?.height ?? 0) / 2)
+  await expect(searchInput).toBeFocused()
+
+  const publicButton = page.getByRole('button', { name: `Ver detalhes de ${product!.name}` }).first()
+  const publicLink = page.locator('a').first()
+  const tapHighlight = await publicButton.evaluate((button) => getComputedStyle(button).getPropertyValue('-webkit-tap-highlight-color'))
+  const linkTapHighlight = await publicLink.evaluate((link) => getComputedStyle(link).getPropertyValue('-webkit-tap-highlight-color'))
+  expect(tapHighlight).toMatch(/rgba\(0, 0, 0, 0\)|transparent/)
+  expect(linkTapHighlight).toMatch(/rgba\(0, 0, 0, 0\)|transparent/)
+
+  await publicButton.click()
+  const productDialog = page.getByRole('dialog')
+  const addButton = productDialog.getByRole('button', { name: /Adicionar ao pedido/ })
+  await tabTo(page, addButton)
+  const addFocus = await addButton.evaluate((element) => {
+    const style = getComputedStyle(element)
+    return { width: style.outlineWidth, offset: style.outlineOffset }
+  })
+  expect(addFocus.width).toBe('3px')
+  expect(addFocus.offset).toBe('3px')
+  await addButton.click()
+
+  const cartBar = page.getByRole('button', { name: /Ver pedido/ })
+  await tabTo(page, cartBar)
+  const cartBarFocus = await cartBar.evaluate((element) => {
+    const style = getComputedStyle(element)
+    return { width: style.outlineWidth, offset: style.outlineOffset }
+  })
+  expect(cartBarFocus.width).toBe('3px')
+  expect(cartBarFocus.offset).toBe('2px')
+  await cartBar.click()
+
+  const cartDialog = page.getByRole('dialog')
+  const cartClose = cartDialog.getByRole('button', { name: 'Fechar pedido' })
+  await tabTo(page, cartClose)
+  const cartCloseFocus = await cartClose.evaluate((element) => {
+    const style = getComputedStyle(element)
+    return { width: style.outlineWidth, offset: style.outlineOffset }
+  })
+  expect(cartCloseFocus.width).toBe('3px')
+  expect(cartCloseFocus.offset).toBe('2px')
+  await cartClose.click()
 })
 
 test('painel mobile prioriza tarefas e mantém navegação acessível', async ({ page }) => {

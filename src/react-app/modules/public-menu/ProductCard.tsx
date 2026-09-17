@@ -6,7 +6,7 @@ import { CART_NOTE_MAX_LENGTH, CART_QUANTITY_MAX, getActiveVariants, getVariantP
 import { ProductCustomizationGroups } from './ProductCustomizationGroups'
 import { calculateCustomizationCost, draftToCustomizations, emptyCustomizationDraft, normalizeCustomizations, type CustomizationSelection } from './customizations'
 import { QuantityControl } from './QuantityControl'
-import { cn, focusRing } from '../../lib/tailwind'
+import { cn, focusRing, publicAddFocusRing } from '../../lib/tailwind'
 
 function hasActivePromotion(product: Product): boolean {
   return getActiveVariants(product)
@@ -275,7 +275,7 @@ export function ProductDialog({
             <small className="text-[.73rem] leading-[1.4] text-menu-muted">A observação vale para esta quantidade.</small>
           </div>
 
-          <button className={`mt-[22px] min-h-[52px] w-full cursor-pointer rounded-[13px] border-0 bg-[var(--color-brand)] px-4 py-[11px] text-[.94rem] font-[800] text-[var(--color-brand-text)] disabled:cursor-not-allowed disabled:bg-[#dad6d0] disabled:text-[#6e6962] ${focusRing}`} type="submit" disabled={!canAdd}>
+          <button className={`mt-[22px] min-h-[52px] w-full cursor-pointer rounded-[13px] border-0 bg-[var(--color-brand)] px-4 py-[11px] text-[.94rem] font-[800] text-[var(--color-brand-text)] disabled:cursor-not-allowed disabled:bg-[#dad6d0] disabled:text-[#6e6962] ${publicAddFocusRing}`} type="submit" disabled={!canAdd}>
             {totalCents === null
               ? 'Adicionar ao pedido'
               : `Adicionar ao pedido · ${formatMoney(totalCents)}`}

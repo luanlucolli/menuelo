@@ -30,7 +30,7 @@ import { CartDialog } from './CartDialog'
 import { ProductCard, ProductDialog } from './ProductCard'
 import { useCart } from './cart/useCart'
 import { usePublicMenuInteractions } from './usePublicMenuInteractions'
-import { cn, focusRing } from '../../lib/tailwind'
+import { cn, focusRing, publicCartFocusRing } from '../../lib/tailwind'
 
 const WEEKDAYS = [
   'Domingo',
@@ -43,7 +43,7 @@ const WEEKDAYS = [
 ]
 
 const storeItemClass = `grid min-h-[62px] grid-cols-[36px_minmax(0,1fr)_auto] items-center gap-3 border-t border-menu-border py-[11px] no-underline first:border-t-0 min-[720px]:rounded-[.7rem] min-[720px]:border-0 min-[720px]:bg-[#faf8f4] min-[720px]:p-3 ${focusRing}`
-const storeIconClass = 'h-[30px] w-[30px] shrink-0 rounded-[9px] bg-[color-mix(in_srgb,var(--color-brand)_9%,#fff)] p-[5px] text-[var(--color-brand)]'
+const storeIconClass = 'h-[30px] w-[30px] shrink-0 rounded-[9px] bg-[color-mix(in_srgb,var(--color-brand)_9%,#fff)] object-contain p-[5px] text-[var(--color-brand)]'
 const footerHeadingClass = 'mb-[11px] flex items-center gap-2 text-[.92rem] font-[760] text-white [&_svg]:h-[17px] [&_svg]:w-[17px]'
 const footerTextClass = 'm-0 text-[.82rem] leading-[1.55] text-[rgb(255_255_255_/_68%)]'
 const footerLinkClass = `mt-2.5 inline-flex items-center gap-1.5 text-[.82rem] font-[700] text-white no-underline [&_svg]:h-[15px] [&_svg]:w-[15px] ${focusRing}`
@@ -457,7 +457,7 @@ export function PublicMenu({
         <div className="sticky top-0 z-[30] border-b border-menu-border bg-[rgb(247_246_243_/_94%)] backdrop-blur-[14px]">
           <div className="mx-auto w-full max-w-[1120px] px-4 py-[11px] pb-[9px] min-[720px]:px-6 min-[1024px]:grid min-[1024px]:grid-cols-[minmax(300px,420px)_minmax(0,1fr)] min-[1024px]:items-center min-[1024px]:gap-[18px]">
             <div className="relative flex items-center" role="search">
-              <Search className="absolute left-[15px] z-[1] h-5 w-5 text-[#817b74]" aria-hidden="true" />
+              <Search className="pointer-events-none absolute left-[15px] z-[1] h-5 w-5 text-[#817b74]" aria-hidden="true" />
 
               <label
                 className="sr-only"
@@ -846,7 +846,7 @@ export function PublicMenu({
           <span>{itemAddedFeedback ?? cart.restorationNotice}</span>
           {cart.restorationNotice && !itemAddedFeedback && (
             <button
-              className={`grid h-11 w-11 shrink-0 cursor-pointer place-items-center border-0 bg-transparent text-inherit ${focusRing}`}
+              className={`grid h-11 w-11 shrink-0 cursor-pointer place-items-center border-0 bg-transparent text-inherit ${publicCartFocusRing}`}
               type="button"
               aria-label="Fechar aviso"
               onClick={cart.dismissRestorationNotice}
