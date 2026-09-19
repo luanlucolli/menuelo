@@ -10,7 +10,7 @@ import {
   normalizeCartNote,
 } from './cart/cart-utils'
 import { QuantityControl } from './QuantityControl'
-import { focusRing, publicCartFocusRing } from '../../lib/tailwind'
+import { publicCartFocusRing, publicFieldFocusRing } from '../../lib/tailwind'
 
 function CartLineItem({
   line,
@@ -73,7 +73,7 @@ function CartLineItem({
             value={note}
             maxLength={CART_NOTE_MAX_LENGTH}
             rows={3}
-            className={`min-h-[86px] w-full resize-y rounded-[11px] border border-menu-border bg-menu-surface px-3 py-[11px] text-[.9rem] leading-[1.45] text-menu-text focus-visible:border-[var(--color-brand)] focus-visible:outline-[3px] focus-visible:outline-[color-mix(in_srgb,var(--color-brand)_22%,transparent)] ${focusRing}`}
+            className={`min-h-[86px] w-full resize-y rounded-[11px] border border-menu-border bg-menu-surface px-3 py-[11px] text-[.9rem] leading-[1.45] text-menu-text ${publicFieldFocusRing}`}
             placeholder="Ex.: sem cebola, cortar ao meio"
             onChange={(event) => setNote(event.target.value)}
           />
@@ -97,7 +97,7 @@ function CartLineItem({
         </div>
       )}
 
-      <div className="mt-[15px] flex flex-wrap items-center gap-[8px_12px] max-[359px]:items-start max-[359px]:flex-col">
+      <div className="mt-[15px] flex flex-wrap items-center gap-[8px_12px] max-[360px]:items-start max-[360px]:flex-col">
         <QuantityControl
           itemName={line.productName}
           quantity={line.quantity}
@@ -172,14 +172,14 @@ export function CartDialog({
       }}
     >
       <section className="flex max-h-[min(90dvh,820px)] w-full flex-col overflow-hidden rounded-[22px] bg-menu-surface shadow-[0_28px_70px_rgb(0_0_0_/_34%)] motion-reduce:scroll-auto max-[639px]:h-[calc(100dvh_-_max(8px,env(safe-area-inset-top)))] max-[639px]:max-h-none max-[639px]:rounded-[22px_22px_0_0]">
-        <header className="flex min-h-[68px] shrink-0 items-center justify-between border-b border-menu-border bg-menu-surface px-[14px] py-3 pl-5">
+        <header className="flex min-h-[68px] shrink-0 items-center justify-between border-b border-menu-border bg-menu-surface px-[14px] py-3 pl-5 max-[639px]:pl-[18px]">
           <h2 className="m-0 text-[1.32rem] font-[820] tracking-[-.025em]" id="menu-cart-dialog-title">Seu pedido</h2>
           <button className={`grid h-11 w-11 cursor-pointer place-items-center rounded-full border-0 bg-menu-surface-muted text-menu-text ${publicCartFocusRing}`} type="button" aria-label="Fechar pedido" onClick={() => dialogRef.current?.close()}>
             <X className="h-5 w-5" aria-hidden="true" />
           </button>
         </header>
 
-        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 [scrollbar-gutter:stable] motion-reduce:scroll-auto max-[639px]:px-[18px]">
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 [-webkit-overflow-scrolling:touch] motion-reduce:scroll-auto max-[639px]:px-[18px]">
           {!lines.length ? (
             <div className="flex min-h-[320px] flex-col items-center justify-center px-4 py-10 text-center">
               <h3 className="m-0 text-[1.2rem]">Seu pedido está vazio</h3>

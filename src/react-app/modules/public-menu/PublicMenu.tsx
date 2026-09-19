@@ -325,7 +325,7 @@ export function PublicMenu({
               </span>
 
               <ChevronDown
-                className="h-5 w-5 text-menu-muted transition-transform duration-150 motion-reduce:transition-none group-open:rotate-180"
+                className="h-5 w-5 text-menu-muted transition-transform duration-[160ms] ease-[ease] motion-reduce:transition-none group-open:rotate-180"
                 aria-hidden="true"
               />
             </summary>
@@ -381,7 +381,7 @@ export function PublicMenu({
                     className="relative h-9 w-9 shrink-0 overflow-hidden rounded-[10px] border border-menu-border bg-[#f5f2ed]"
                     aria-hidden="true"
                   >
-                    <span className="absolute left-1 top-1 z-0 h-2 w-2 rounded-[3px] border border-[#e8e2da] bg-[#eeebe5] shadow-[16px_15px_0_#ece7df]" />
+                    <span className="absolute left-1 top-1 z-0 h-[8px] w-[10px] rounded-[3px] border border-[#e8e2da] bg-[#eeebe5] shadow-[16px_15px_0_#ece7df]" />
                     <span className="absolute right-[3px] bottom-1 z-0 h-[7px] w-2 rounded-[3px] border border-[#e8e2da] bg-[#eeebe5]" />
                     <span className="absolute left-[-7px] top-[6px] z-[1] h-[5px] w-[49px] rotate-[-14deg] rounded-full border border-[#e6e0d8] bg-white" />
                     <span className="absolute left-[-4px] top-6 z-[1] h-[6px] w-11 rotate-[20deg] rounded-full border border-[#e6e0d8] bg-white" />
@@ -469,7 +469,7 @@ export function PublicMenu({
               <input
                 id="menu-search"
                 type="search"
-                className={`h-12 w-full rounded-[13px] border border-menu-border bg-menu-surface px-12 py-0 pl-[45px] text-[.95rem] text-menu-text outline-none transition-[border-color,box-shadow] motion-reduce:transition-none placeholder:text-[#918b84] focus:border-[var(--color-brand)] focus:shadow-[0_0_0_3px_color-mix(in_srgb,var(--color-brand)_15%,transparent)] ${focusRing}`}
+                className={`h-12 w-full rounded-[13px] border border-menu-border bg-menu-surface px-12 py-0 pl-[45px] text-[.95rem] text-menu-text outline-none transition-[border-color,box-shadow] duration-[150ms] ease-[ease] motion-reduce:transition-none placeholder:text-[#918b84] focus:border-[var(--color-brand)] focus:shadow-[0_0_0_3px_color-mix(in_srgb,var(--color-brand)_15%,transparent)] ${focusRing}`}
                 placeholder="O que você quer comer?"
                 value={search}
                 autoComplete="off"
@@ -498,7 +498,7 @@ export function PublicMenu({
                 <div className="flex gap-2 overflow-x-auto pb-0.5 [overscroll-behavior-inline:contain] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden min-[1024px]:justify-start" ref={categoryNavRef}>
                   {categories.map((category) => (
                     <button
-                      className={cn('min-h-9 shrink-0 cursor-pointer whitespace-nowrap rounded-[10px] border border-menu-border bg-menu-surface px-3 py-[7px] text-[.81rem] font-[680] text-[#3d3934] transition-[color,border-color,background-color] motion-reduce:transition-none hover:border-[var(--color-brand)] aria-[current=true]:!border-[var(--color-brand)] aria-[current=true]:!bg-[var(--color-brand)] aria-[current=true]:!text-[var(--color-brand-text)]', focusRing)}
+                      className={cn('min-h-9 shrink-0 cursor-pointer whitespace-nowrap rounded-[10px] border border-menu-border bg-menu-surface px-3 py-[7px] text-[.81rem] font-[680] text-[#3d3934] transition-[color,border-color,background-color] duration-[140ms] ease-[ease] motion-reduce:transition-none hover:border-[var(--color-brand)] aria-[current=true]:!border-[var(--color-brand)] aria-[current=true]:!bg-[var(--color-brand)] aria-[current=true]:!text-[var(--color-brand-text)]', focusRing)}
                       data-category={category.slug}
                       type="button"
                       key={category.id}
@@ -629,7 +629,7 @@ export function PublicMenu({
                   data-category-section
                   className="mt-8 scroll-mt-[126px] first:mt-0"
                 >
-                  <header className="flex min-h-11 items-end justify-between gap-4 px-[17px] pb-3 min-[720px]:px-0 max-[359px]:items-start">
+                  <header className="flex min-h-11 items-end justify-between gap-4 px-[17px] pb-3 min-[720px]:px-0 max-[360px]:items-start">
                     <div>
                       <h2 className="m-0 text-[clamp(1.35rem,5vw,1.75rem)] font-[790] leading-[1.12] tracking-[-.035em] [text-wrap:balance]">{category.name}</h2>
 
@@ -638,7 +638,7 @@ export function PublicMenu({
                       )}
                     </div>
 
-                    <span className="shrink-0 pb-0.5 text-[.75rem] font-[650] text-menu-muted max-[359px]:hidden">
+                    <span className="shrink-0 pb-0.5 text-[.75rem] font-[650] text-menu-muted max-[360px]:hidden">
                       {category.products.length}{' '}
                       {category.products.length === 1
                         ? 'item'
@@ -663,7 +663,7 @@ export function PublicMenu({
       </main>
 
       <footer className={cn('bg-[#211f1c] px-[18px] pb-[max(84px,calc(68px_+_env(safe-area-inset-bottom)))] pt-[38px] text-white min-[720px]:px-6 min-[720px]:pb-6 min-[1024px]:pb-6', cart.lines.length > 0 && 'pb-[max(118px,calc(102px_+_env(safe-area-inset-bottom)))] min-[720px]:pb-[110px]')}>
-        <div className="mx-auto grid w-full max-w-[1120px] gap-[30px] min-[720px]:grid-cols-2 min-[1024px]:grid-cols-4">
+        <div className="mx-auto grid w-full max-w-[1120px] gap-[30px] min-w-0 [&>section]:min-w-0 min-[720px]:grid-cols-2 min-[1024px]:grid-cols-4">
           {businessAddress && (
             <section>
               <h2 className={footerHeadingClass}>

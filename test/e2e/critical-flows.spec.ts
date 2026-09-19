@@ -148,6 +148,24 @@ test('cardápio público é responsivo, pesquisa sem duplicar e devolve o foco',
   }
 
   await page.setViewportSize({ width: 390, height: 844 })
+  await page.goto('/')
+  const transitionStyles = await page.evaluate(() => {
+    const card = document.querySelector('button[aria-label^="Ver detalhes de"]')
+    const search = document.getElementById('menu-search')
+    const category = document.querySelector('button[data-category]')
+    const chevron = document.querySelector('details > summary svg')
+    const styleOf = (element: Element | null) => {
+      if (!element) return null
+      const style = getComputedStyle(element)
+      return { duration: style.transitionDuration, property: style.transitionProperty, timing: style.transitionTimingFunction }
+    }
+    return { card: styleOf(card), search: styleOf(search), category: styleOf(category), chevron: styleOf(chevron) }
+  })
+  expect(transitionStyles.card).toMatchObject({ duration: '0.14s', property: 'background-color', timing: 'ease' })
+  expect(transitionStyles.search).toMatchObject({ duration: '0.15s', property: 'border-color, box-shadow', timing: 'ease' })
+  expect(transitionStyles.category).toMatchObject({ duration: '0.14s', property: 'color, border-color, background-color', timing: 'ease' })
+  if (transitionStyles.chevron) expect(transitionStyles.chevron).toMatchObject({ duration: '0.16s', property: 'transform', timing: 'ease' })
+
   await page.getByRole('searchbox', { name: 'Pesquisar no cardápio' }).fill(product.name)
   await expect(page.getByRole('heading', { name: 'Resultados da busca' })).toBeVisible()
   await expect(page.getByText(/item encontrado|itens encontrados/)).toBeVisible()
@@ -235,6 +253,14 @@ test('regressões críticas de layout público e admin respeitam breakpoints', a
     expect(adminDialogLayout.topLeftRadius).toBe('16px')
     expect(adminDialogLayout.bottomRightRadius).toBe('16px')
     expect(adminDialogLayout.height).toBeLessThanOrEqual(852)
+
+    const pricingSection = productFormDialog.locator('details').filter({ hasText: 'Preços e tamanhos' })
+    const pricingContent = pricingSection.locator(':scope > div')
+    expect(await pricingContent.evaluate((element) => getComputedStyle(element).gap)).toBe('12.8px')
+    const variantEditor = pricingContent.locator('section').first()
+    expect(await variantEditor.evaluate((element) => getComputedStyle(element.parentElement!).gap)).toBe('12.8px')
+    const promotionField = productFormDialog.getByLabel('Este produto está em promoção').locator('xpath=ancestor::label[1]')
+    expect(await promotionField.evaluate((element) => getComputedStyle(element).gap)).toBe('8.8px')
 
     await page.setViewportSize({ width: 900, height: 900 })
     const wideProductFormPanel = await productFormPanel.boundingBox()
@@ -356,6 +382,7 @@ test('controles públicos preservam foco, toque e interação dos descendentes',
   await cartBar.click()
 
   const cartDialog = page.getByRole('dialog')
+  expect(await cartDialog.locator('header').evaluate((element) => getComputedStyle(element).paddingLeft)).toBe('18px')
   const cartClose = cartDialog.getByRole('button', { name: 'Fechar pedido' })
   await tabTo(page, cartClose)
   const cartCloseFocus = await cartClose.evaluate((element) => {
@@ -437,6 +464,36 @@ test('cria produto, valida promoção, alterna disponibilidade, duplica e exclui
     await expect(page.getByText('Produto atualizado.')).toBeVisible()
     await expect.poll(async () => (await menu(request)).categories.flatMap((item) => item.products).find((item) => item.id === saved!.id)?.variants.map((variant) => variant.label)).toContain('Grande')
 
+    await page.setViewportSize({ width: 359, height: 800 })
+    await page.goto('/index.html')
+    await page.getByRole('searchbox', { name: 'Pesquisar no cardápio' }).fill(productName)
+    await page.getByRole('button', { name: `Ver detalhes de ${productName}` }).click()
+    const narrowProductDialog = page.getByRole('dialog')
+    const variantLabels = narrowProductDialog.locator('fieldset').first().locator('label')
+    await expect(variantLabels).toHaveCount(2)
+    const narrowVariantLayout = await variantLabels.first().evaluate((element) => {
+      const style = getComputedStyle(element)
+      const values = element.querySelectorAll('span').item(1)
+      const valuesStyle = values ? getComputedStyle(values) : null
+      return {
+        paddingLeft: style.paddingLeft,
+        paddingRight: style.paddingRight,
+        gap: style.gap,
+        valuesDisplay: valuesStyle?.display,
+        valuesGap: valuesStyle?.gap,
+        valuesTextAlign: valuesStyle?.textAlign,
+      }
+    })
+    expect(narrowVariantLayout.paddingLeft).toBe('9px')
+    expect(narrowVariantLayout.paddingRight).toBe('9px')
+    expect(narrowVariantLayout.gap).toBe('7px')
+    expect(narrowVariantLayout.valuesDisplay).toBe('grid')
+    expect(narrowVariantLayout.valuesGap).toBe('2px')
+    expect(narrowVariantLayout.valuesTextAlign).toBe('right')
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBeTruthy()
+    await narrowProductDialog.getByRole('button', { name: 'Fechar detalhes' }).click()
+    await page.goto(`/admin/produtos?categoria=${categoryId}`)
+
     row = page.locator('article').filter({ hasText: productName })
     await row.getByRole('button', { name: 'Indisponibilizar' }).click()
     await expect(row.getByText('Indisponível', { exact: true })).toBeVisible()
@@ -507,6 +564,17 @@ test('administra montagem obrigatória e cliente só adiciona uma configuração
     await groupB.getByLabel('Nome da opção').fill('B1')
     await groupB.getByRole('button', { name: 'Adicionar opção' }).click()
     await groupB.getByLabel('Nome da opção').nth(1).fill('B2')
+
+    const customizationDetails = adminDialog.locator('details').filter({ hasText: 'Montagem e adicionais' })
+    expect(await customizationDetails.locator(':scope > div').evaluate((element) => getComputedStyle(element).gap)).toBe('12.8px')
+    expect(await groupA.evaluate((element) => getComputedStyle(element).gap)).toBe('12.8px')
+    const optionList = groupA.getByLabel('Nome da opção').first().locator('xpath=ancestor::section[1]').locator('xpath=..')
+    const optionListStyle = await optionList.evaluate((element) => {
+      const style = getComputedStyle(element)
+      return { gap: style.gap, paddingTop: style.paddingTop }
+    })
+    expect(optionListStyle.gap).toBe('12.8px')
+    expect(optionListStyle.paddingTop).toBe('12.8px')
 
     await groupA.getByLabel('Mínimo').fill('')
     await adminDialog.getByRole('button', { name: 'Salvar produto' }).click()

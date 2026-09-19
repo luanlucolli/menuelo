@@ -6,7 +6,7 @@ import { CART_NOTE_MAX_LENGTH, CART_QUANTITY_MAX, getActiveVariants, getVariantP
 import { ProductCustomizationGroups } from './ProductCustomizationGroups'
 import { calculateCustomizationCost, draftToCustomizations, emptyCustomizationDraft, normalizeCustomizations, type CustomizationSelection } from './customizations'
 import { QuantityControl } from './QuantityControl'
-import { cn, focusRing, publicAddFocusRing } from '../../lib/tailwind'
+import { cn, focusRing, publicAddFocusRing, publicFieldFocusRing } from '../../lib/tailwind'
 
 function hasActivePromotion(product: Product): boolean {
   return getActiveVariants(product)
@@ -62,7 +62,7 @@ function ProductImage({
   if (product.imageKey) {
     return (
       <img
-        className={modal ? 'block aspect-[16/10] max-h-[360px] min-h-[220px] w-full object-cover max-[639px]:max-h-[300px]' : cn('block h-[104px] w-[104px] rounded-[14px] bg-menu-surface-muted object-cover max-[359px]:h-[92px] max-[359px]:w-[92px] min-[720px]:h-[108px] min-[720px]:w-[108px]', !product.isAvailable && 'grayscale-[.35] opacity-[.72]')}
+        className={modal ? 'block aspect-[16/10] max-h-[360px] min-h-[220px] w-full object-cover max-[639px]:max-h-[300px]' : cn('block h-[104px] w-[104px] rounded-[14px] bg-menu-surface-muted object-cover max-[360px]:h-[92px] max-[360px]:w-[92px] min-[720px]:h-[108px] min-[720px]:w-[108px]', !product.isAvailable && 'grayscale-[.35] opacity-[.72]')}
         src={`/media/${product.imageKey}`}
         alt=""
         loading={modal ? 'eager' : 'lazy'}
@@ -73,7 +73,7 @@ function ProductImage({
 
   return (
     <div
-        className={modal ? 'grid aspect-[16/10] max-h-[360px] min-h-[220px] w-full place-items-center bg-menu-surface-muted max-[639px]:max-h-[300px]' : cn('grid h-[104px] w-[104px] place-items-center rounded-[14px] bg-[color-mix(in_srgb,var(--color-brand)_8%,var(--color-menu-surface-muted))] text-[color-mix(in_srgb,var(--color-brand)_58%,#5f5850)] max-[359px]:h-[92px] max-[359px]:w-[92px] min-[720px]:h-[108px] min-[720px]:w-[108px]', !product.isAvailable && 'grayscale-[.35] opacity-[.72]')}
+        className={modal ? 'grid aspect-[16/10] max-h-[360px] min-h-[220px] w-full place-items-center bg-menu-surface-muted max-[639px]:max-h-[300px]' : cn('grid h-[104px] w-[104px] place-items-center rounded-[14px] bg-[color-mix(in_srgb,var(--color-brand)_8%,var(--color-menu-surface-muted))] text-[color-mix(in_srgb,var(--color-brand)_58%,#5f5850)] max-[360px]:h-[92px] max-[360px]:w-[92px] min-[720px]:h-[108px] min-[720px]:w-[108px]', !product.isAvailable && 'grayscale-[.35] opacity-[.72]')}
       aria-hidden="true"
     >
       <span className={modal ? 'text-[3rem]' : 'text-[1.55rem] font-[820]'}>{initial}</span>
@@ -151,7 +151,7 @@ export function ProductDialog({
         }
       }}
     >
-      <article className="w-full max-h-[90dvh] overflow-y-auto overscroll-contain rounded-[22px] bg-menu-surface shadow-[0_28px_70px_rgb(0_0_0_/_34%)] motion-reduce:scroll-auto max-[639px]:max-h-[calc(100dvh_-_max(8px,env(safe-area-inset-top)))] max-[639px]:rounded-[22px_22px_0_0]">
+      <article className="w-full max-h-[90dvh] overflow-y-auto overscroll-contain rounded-[22px] bg-menu-surface shadow-[0_28px_70px_rgb(0_0_0_/_34%)] [-webkit-overflow-scrolling:touch] motion-reduce:scroll-auto max-[639px]:max-h-[calc(100dvh_-_max(8px,env(safe-area-inset-top)))] max-[639px]:rounded-[22px_22px_0_0]">
         <div className="relative min-h-[220px] overflow-hidden bg-menu-surface-muted">
           <ProductImage product={product} modal />
 
@@ -217,13 +217,13 @@ export function ProductDialog({
           )}
 
           {activeVariants.length > 1 && (
-            <fieldset className="m-0 mt-5 min-w-0 border-0 p-0" aria-describedby={`${optionGroupId}-help`}>
+            <fieldset className="m-0 mt-[22px] min-w-0 border-0 p-0" aria-describedby={`${optionGroupId}-help`}>
               <legend className="p-0 text-base font-[780] text-menu-text">Escolha uma opção</legend>
               <p className="my-[5px] mb-3 text-[.78rem] text-menu-muted" id={`${optionGroupId}-help`}>Selecione uma opção para continuar.</p>
               <div className="grid gap-2">
                 {activeVariants.map((variant, index) => (
                   <label
-                    className={cn('grid min-h-[58px] grid-cols-[22px_minmax(0,1fr)_auto] items-center gap-[10px] rounded-xl border border-menu-border px-3 py-2.5 text-[.88rem] font-[680] focus-within:outline-[3px] focus-within:outline-[color-mix(in_srgb,var(--color-brand)_28%,transparent)] focus-within:outline-offset-2', selectedVariantId === variant.id && 'border-[var(--color-brand)] bg-[color-mix(in_srgb,var(--color-brand)_7%,#fff)]')}
+                    className={cn('grid min-h-[58px] grid-cols-[22px_minmax(0,1fr)_auto] items-center gap-[10px] rounded-xl border border-menu-border px-3 py-2.5 text-[.88rem] font-[680] max-[360px]:!gap-[7px] max-[360px]:!px-[9px] focus-within:outline-[3px] focus-within:outline-[color-mix(in_srgb,var(--color-brand)_28%,transparent)] focus-within:outline-offset-2', selectedVariantId === variant.id && 'border-[var(--color-brand)] bg-[color-mix(in_srgb,var(--color-brand)_7%,#fff)]')}
                     key={variant.id}
                   >
                     <input
@@ -235,7 +235,7 @@ export function ProductDialog({
                       onChange={() => setSelectedVariantId(variant.id)}
                     />
                     <span>{variant.label?.trim() || `Opção ${index + 1}`}</span>
-                    <span className="flex flex-wrap items-baseline justify-end gap-2">
+                    <span className="flex flex-wrap items-baseline justify-end gap-2 max-[360px]:!grid max-[360px]:!gap-[2px] max-[360px]:!text-right">
                       {variant.promotionalPriceCents !== null && (
                         <del className="text-[.76rem] text-[#948e87]">{formatMoney(variant.priceCents)}</del>
                       )}
@@ -268,7 +268,7 @@ export function ProductDialog({
               value={note}
               maxLength={CART_NOTE_MAX_LENGTH}
               rows={3}
-              className={`min-h-[86px] w-full resize-y rounded-[11px] border border-menu-border bg-menu-surface px-3 py-[11px] text-[.9rem] leading-[1.45] text-menu-text focus-visible:border-[var(--color-brand)] focus-visible:outline-[3px] focus-visible:outline-[color-mix(in_srgb,var(--color-brand)_22%,transparent)] ${focusRing}`}
+              className={`min-h-[86px] w-full resize-y rounded-[11px] border border-menu-border bg-menu-surface px-3 py-[11px] text-[.9rem] leading-[1.45] text-menu-text ${publicFieldFocusRing}`}
               placeholder="Ex.: sem cebola, cortar ao meio"
               onChange={(event) => setNote(event.target.value)}
             />
@@ -300,7 +300,7 @@ export function ProductCard({
 
   return (
     <button
-      className={cn('grid min-h-[132px] w-full cursor-pointer grid-cols-[minmax(0,1fr)_104px] items-center gap-[14px] border-0 border-b border-menu-border bg-menu-surface px-4 py-[15px] text-left text-menu-text transition-colors motion-reduce:transition-none hover:bg-[#fcfbf9] focus-visible:relative focus-visible:z-[1] focus-visible:outline-[3px] focus-visible:outline-[color-mix(in_srgb,var(--color-brand)_28%,transparent)] focus-visible:outline-offset-[-3px] last:border-b-0 max-[359px]:grid-cols-[minmax(0,1fr)_92px] min-[720px]:min-h-[142px] min-[720px]:rounded-2xl min-[720px]:border min-[720px]:last:border-b', !product.isAvailable && 'bg-[#fbfaf8]')}
+      className={cn('grid min-h-[132px] w-full cursor-pointer grid-cols-[minmax(0,1fr)_104px] items-center gap-[14px] border-0 border-b border-menu-border bg-menu-surface px-4 py-[15px] text-left text-menu-text transition-[background-color] duration-[140ms] ease-[ease] motion-reduce:transition-none hover:bg-[#fcfbf9] focus-visible:relative focus-visible:z-[1] focus-visible:outline-[3px] focus-visible:outline-[color-mix(in_srgb,var(--color-brand)_28%,transparent)] focus-visible:outline-offset-[-3px] last:border-b-0 max-[360px]:grid-cols-[minmax(0,1fr)_92px] min-[720px]:min-h-[142px] min-[720px]:rounded-2xl min-[720px]:border min-[720px]:last:border-b', !product.isAvailable && 'bg-[#fbfaf8]')}
       type="button"
       onClick={(event) => {
         onSelect(product, event.currentTarget)
@@ -325,7 +325,7 @@ export function ProductCard({
         <h3 className="m-0 line-clamp-2 overflow-hidden text-[1rem] font-[760] leading-[1.25] tracking-[-.018em] text-menu-text [overflow-wrap:anywhere]">{product.name}</h3>
 
         {product.ingredients && (
-          <p className="mt-1 line-clamp-2 overflow-hidden text-[.79rem] leading-[1.4] text-menu-muted">{product.ingredients}</p>
+          <p className="mt-[6px] line-clamp-2 overflow-hidden text-[.79rem] leading-[1.4] text-menu-muted">{product.ingredients}</p>
         )}
 
         <CardPrice product={product} />

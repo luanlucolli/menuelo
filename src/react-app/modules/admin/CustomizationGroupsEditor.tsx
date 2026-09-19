@@ -38,7 +38,7 @@ function CustomizationGroupEditor({ form, index, groupId, total, onMove, onRemov
   })
 
   return (
-    <section className="grid min-w-0 gap-3 rounded-[.75rem] border border-border bg-[#faf8f4] p-[.85rem]">
+    <section className="grid min-w-0 gap-[.8rem] rounded-[.75rem] border border-border bg-[#faf8f4] p-[.85rem]">
       <div className="flex items-start justify-between gap-[.65rem]">
         <div>
           <strong>{group?.name?.trim() || `Grupo ${index + 1}`}</strong>
@@ -73,7 +73,7 @@ function CustomizationGroupEditor({ form, index, groupId, total, onMove, onRemov
       <div className="flex items-start justify-between gap-[.65rem]"><div className="grid gap-[.15rem]"><strong>Opções</strong><small className="text-[.72rem] text-muted">O máximo vale para a soma das quantidades.</small></div><button className={secondaryButton} type="button" disabled={options.fields.length >= 50} onClick={appendOption}><Plus /> Adicionar opção</button></div>
       {groupOptionsError && <small className={fieldError}>{groupOptionsError}</small>}
       {!options.fields.length && <p className={fieldHelp}>Nenhuma opção cadastrada. Grupos opcionais podem ficar vazios.</p>}
-      <div className="grid gap-3 border-t border-border pt-3">
+      <div className="grid gap-[.8rem] border-t border-border pt-[.8rem]">
         {options.fields.map((option, optionIndex) => {
           const optionError = optionErrorList[optionIndex]
           const optionName = `${optionsName}.${optionIndex}` as const
@@ -107,10 +107,10 @@ export function CustomizationGroupsEditor({ form }: { form: UseFormReturn<Produc
     options: [],
   })
 
-  return <div className="grid gap-3">
+  return <div className="grid gap-[.8rem]">
     <div className="flex items-start justify-between gap-3"><p className="m-0 max-w-[42rem] text-[.8rem] leading-[1.45] text-muted">Crie escolhas que o cliente combina antes de adicionar o produto. O mínimo e o máximo consideram a soma das quantidades.</p><button className={`${secondaryButton} shrink-0`} type="button" disabled={groups.fields.length >= 20} onClick={appendGroup}><Plus /> Adicionar grupo</button></div>
     {!groups.fields.length && <p className={fieldHelp}>Nenhum grupo configurado. O produto continuará funcionando como antes.</p>}
-    <div className="grid gap-3">
+    <div className="grid gap-[.8rem]">
       {/* O índice no key força remount após move/remove; o useFieldArray aninhado nunca troca de name em uma mesma instância. */}
       {groups.fields.map((group, index) => <CustomizationGroupEditor key={`${group.id}-${index}`} form={form} index={index} groupId={group.id} total={groups.fields.length} onMove={groups.move} onRemove={groups.remove} />)}
     </div>
