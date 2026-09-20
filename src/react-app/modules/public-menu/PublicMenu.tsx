@@ -42,8 +42,8 @@ const WEEKDAYS = [
   'Sábado',
 ]
 
-const storeItemClass = `grid min-h-[62px] grid-cols-[36px_minmax(0,1fr)_auto] items-center gap-3 border-t border-menu-border py-[11px] no-underline first:border-t-0 min-[720px]:rounded-[.7rem] min-[720px]:border-0 min-[720px]:bg-[#faf8f4] min-[720px]:p-3 ${focusRing}`
-const storeIconClass = 'h-[30px] w-[30px] shrink-0 rounded-[9px] bg-[color-mix(in_srgb,var(--color-brand)_9%,#fff)] object-contain p-[5px] text-[var(--color-brand)]'
+const storeItemClass = `menu-store-item grid min-h-[62px] grid-cols-[36px_minmax(0,1fr)_auto] items-center gap-3 border-t border-menu-border py-[11px] no-underline first:border-t-0 min-[720px]:rounded-[.7rem] min-[720px]:border-0 min-[720px]:bg-[#faf8f4] min-[720px]:p-3 ${focusRing}`
+const storeIconClass = 'menu-store-icon h-[30px] w-[30px] shrink-0 rounded-[9px] bg-[color-mix(in_srgb,var(--color-brand)_9%,#fff)] object-contain p-[5px] text-[var(--color-brand)]'
 const footerHeadingClass = 'mb-[11px] flex items-center gap-2 text-[.92rem] font-[760] text-white [&_svg]:h-[17px] [&_svg]:w-[17px]'
 const footerTextClass = 'm-0 text-[.82rem] leading-[1.55] text-[rgb(255_255_255_/_68%)]'
 const footerLinkClass = `mt-2.5 inline-flex items-center gap-1.5 text-[.82rem] font-[700] text-white no-underline [&_svg]:h-[15px] [&_svg]:w-[15px] ${focusRing}`
@@ -214,11 +214,12 @@ export function PublicMenu({
 
   return (
     <div
-      className="min-h-screen overflow-x-clip bg-menu-background text-menu-text [text-rendering:optimizeLegibility]"
+      className="menu-theme-root min-h-screen overflow-x-clip bg-menu-background text-menu-text [text-rendering:optimizeLegibility]"
+      data-menu-theme={menu.business.theme}
       style={publicTheme}
     >
       <header
-        className="relative min-h-[220px] overflow-hidden bg-[var(--color-brand)] bg-cover bg-center text-white min-[720px]:min-h-[270px] min-[1024px]:min-h-[300px]"
+        className="menu-hero relative min-h-[220px] overflow-hidden bg-[var(--color-brand)] bg-cover bg-center text-white min-[720px]:min-h-[270px] min-[1024px]:min-h-[300px]"
         style={
           menu.business.coverImageKey
             ? {
@@ -228,7 +229,7 @@ export function PublicMenu({
         }
       >
         <div
-          className="absolute inset-0 bg-[linear-gradient(180deg,rgb(0_0_0_/_12%)_0%,rgb(0_0_0_/_28%)_42%,rgb(0_0_0_/_88%)_100%)]"
+          className="menu-hero-overlay absolute inset-0 bg-[linear-gradient(180deg,rgb(0_0_0_/_12%)_0%,rgb(0_0_0_/_28%)_42%,rgb(0_0_0_/_88%)_100%)]"
           aria-hidden="true"
         />
 
@@ -277,7 +278,7 @@ export function PublicMenu({
 
       <main>
         {specialMessage && (
-          <div className="relative flex min-h-[46px] w-full items-center overflow-hidden border-b border-[color-mix(in_srgb,var(--color-brand)_18%,var(--color-menu-border))] bg-[color-mix(in_srgb,var(--color-brand)_7%,#fff)] text-menu-text">
+          <div className="menu-special-message relative flex min-h-[46px] w-full items-center overflow-hidden border-b border-[color-mix(in_srgb,var(--color-brand)_18%,var(--color-menu-border))] bg-[color-mix(in_srgb,var(--color-brand)_7%,#fff)] text-menu-text">
             <span className="sr-only">{specialMessage}</span>
 
             <div
@@ -315,8 +316,8 @@ export function PublicMenu({
         )}
 
         {showBusinessInfo && (
-          <details className="group border-b border-menu-border bg-menu-surface">
-            <summary className="mx-auto flex min-h-[58px] w-full max-w-[1120px] cursor-pointer list-none items-center justify-between px-[18px] py-2.5 select-none marker:hidden min-[720px]:px-6 [&::-webkit-details-marker]:hidden">
+          <details className="menu-store-details group border-b border-menu-border bg-menu-surface">
+            <summary className="menu-store-summary menu-rustic-plaque menu-rustic-plaque-dark mx-auto flex min-h-[58px] w-full max-w-[1120px] cursor-pointer list-none items-center justify-between px-[18px] py-2.5 select-none marker:hidden min-[720px]:px-6 [&::-webkit-details-marker]:hidden">
               <span className="flex min-w-0 flex-col">
                 <strong className="text-[.92rem] font-[750]">Informações da loja</strong>
                 <small className="mt-0.5 text-[.74rem] text-menu-muted">
@@ -325,12 +326,12 @@ export function PublicMenu({
               </span>
 
               <ChevronDown
-                className="h-5 w-5 text-menu-muted transition-transform duration-[160ms] ease-[ease] motion-reduce:transition-none group-open:rotate-180"
+                className="h-5 w-5 text-menu-muted transition-[transform] duration-[160ms] ease-[ease] motion-reduce:transition-none group-open:rotate-180"
                 aria-hidden="true"
               />
             </summary>
 
-            <div className="mx-auto grid w-full max-w-[1120px] gap-0 px-[18px] pb-4 min-[720px]:grid-cols-2 min-[720px]:gap-[28px] min-[720px]:p-[.6rem_24px]">
+            <div className="menu-store-grid mx-auto grid w-full max-w-[1120px] gap-0 px-[18px] pb-4 min-[720px]:grid-cols-2 min-[720px]:gap-[28px] min-[720px]:p-[.6rem_24px]">
               {whatsappDigits && (
                 <a
                   className={storeItemClass}
@@ -454,9 +455,9 @@ export function PublicMenu({
           </details>
         )}
 
-        <div className="sticky top-0 z-[30] border-b border-menu-border bg-[rgb(247_246_243_/_94%)] backdrop-blur-[14px]">
-          <div className="mx-auto w-full max-w-[1120px] px-4 py-[11px] pb-[9px] min-[720px]:px-6 min-[1024px]:grid min-[1024px]:grid-cols-[minmax(300px,420px)_minmax(0,1fr)] min-[1024px]:items-center min-[1024px]:gap-[18px]">
-            <div className="relative flex items-center" role="search">
+        <div className="menu-toolbar sticky top-0 z-[30] border-b border-menu-border bg-[rgb(247_246_243_/_94%)] backdrop-blur-[14px]">
+          <div className="menu-toolbar-inner menu-rustic-plaque menu-rustic-plaque-medium mx-auto w-full max-w-[1120px] px-4 py-[11px] pb-[9px] min-[720px]:px-6 min-[1024px]:grid min-[1024px]:grid-cols-[minmax(300px,420px)_minmax(0,1fr)] min-[1024px]:items-center min-[1024px]:gap-[18px]">
+            <div className="menu-search-frame relative flex items-center" role="search">
               <Search className="pointer-events-none absolute left-[15px] z-[1] h-5 w-5 text-[#817b74]" aria-hidden="true" />
 
               <label
@@ -469,7 +470,7 @@ export function PublicMenu({
               <input
                 id="menu-search"
                 type="search"
-                className={`h-12 w-full rounded-[13px] border border-menu-border bg-menu-surface px-12 py-0 pl-[45px] text-[.95rem] text-menu-text outline-none transition-[border-color,box-shadow] duration-[150ms] ease-[ease] motion-reduce:transition-none placeholder:text-[#918b84] focus:border-[var(--color-brand)] focus:shadow-[0_0_0_3px_color-mix(in_srgb,var(--color-brand)_15%,transparent)] ${focusRing}`}
+                className={`menu-search-input h-12 w-full rounded-[13px] border border-menu-border bg-menu-input px-12 py-0 pl-[45px] text-[.95rem] text-menu-input-text outline-none transition-[border-color,box-shadow] duration-[150ms] ease-[ease] motion-reduce:transition-none placeholder:text-menu-placeholder focus:border-[var(--color-brand)] focus:shadow-[0_0_0_3px_color-mix(in_srgb,var(--color-brand)_15%,transparent)] ${focusRing}`}
                 placeholder="O que você quer comer?"
                 value={search}
                 autoComplete="off"
@@ -498,7 +499,7 @@ export function PublicMenu({
                 <div className="flex gap-2 overflow-x-auto pb-0.5 [overscroll-behavior-inline:contain] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden min-[1024px]:justify-start" ref={categoryNavRef}>
                   {categories.map((category) => (
                     <button
-                      className={cn('min-h-9 shrink-0 cursor-pointer whitespace-nowrap rounded-[10px] border border-menu-border bg-menu-surface px-3 py-[7px] text-[.81rem] font-[680] text-[#3d3934] transition-[color,border-color,background-color] duration-[140ms] ease-[ease] motion-reduce:transition-none hover:border-[var(--color-brand)] aria-[current=true]:!border-[var(--color-brand)] aria-[current=true]:!bg-[var(--color-brand)] aria-[current=true]:!text-[var(--color-brand-text)]', focusRing)}
+                      className={cn('menu-category-chip min-h-9 shrink-0 cursor-pointer whitespace-nowrap rounded-[10px] border border-menu-border bg-menu-surface px-3 py-[7px] text-[.81rem] font-[680] text-menu-chip-text transition-[color,border-color,background-color] duration-[140ms] ease-[ease] motion-reduce:transition-none hover:border-[var(--color-brand)] aria-[current=true]:!border-[var(--color-brand)] aria-[current=true]:!bg-[var(--color-brand)] aria-[current=true]:!text-[var(--color-brand-text)]', focusRing)}
                       data-category={category.slug}
                       type="button"
                       key={category.id}
@@ -520,7 +521,7 @@ export function PublicMenu({
           </div>
         </div>
 
-        <div className="mx-auto w-full max-w-[1120px] px-0 pb-[72px] pt-[22px] min-[720px]:px-6">
+        <div className="menu-content mx-auto w-full max-w-[1120px] px-0 pb-[72px] pt-[22px] min-[720px]:px-6">
           {!allProducts.length && (
             <div className="mx-auto my-[52px] flex max-w-[520px] flex-col items-center px-6 text-center text-menu-muted">
               <Search className="h-[30px] w-[30px]" aria-hidden="true" />
@@ -550,8 +551,8 @@ export function PublicMenu({
           )}
 
           {searching && allProducts.length > 0 ? (
-            <section className="mt-8 first:mt-0">
-              <header className="flex min-h-11 items-end justify-between gap-4 px-[17px] pb-3 min-[720px]:px-0">
+            <section className="menu-section mt-8 first:mt-0">
+              <header className="menu-section-header menu-rustic-plaque menu-rustic-plaque-light flex min-h-11 items-end justify-between gap-4 px-[17px] pb-3 min-[720px]:px-0">
                 <div>
                   <h2 className="m-0 text-[clamp(1.35rem,5vw,1.75rem)] font-[790] leading-[1.12] tracking-[-.035em] [text-wrap:balance]">Resultados da busca</h2>
                   <p className="mt-[5px] text-[.84rem] leading-[1.45] text-menu-muted" aria-live="polite">
@@ -563,7 +564,7 @@ export function PublicMenu({
                 </div>
               </header>
 
-              <div className="grid border-y border-menu-border bg-menu-surface min-[720px]:grid-cols-2 min-[720px]:gap-3 min-[720px]:border-0 min-[720px]:bg-transparent">
+              <div className="menu-product-grid grid border-y border-menu-border bg-menu-surface min-[720px]:grid-cols-2 min-[720px]:gap-3 min-[720px]:border-0 min-[720px]:bg-transparent">
                 {allProducts.map((product) => (
                   <ProductCard
                     key={product.id}
@@ -576,8 +577,8 @@ export function PublicMenu({
           ) : (
             <>
               {promotions.length > 0 && (
-                <section className="mt-8 first:mt-0">
-                  <header className="flex min-h-11 items-end justify-between gap-4 px-[17px] pb-3 min-[720px]:px-0">
+                <section className="menu-section mt-8 first:mt-0">
+                  <header className="menu-section-header menu-rustic-plaque menu-rustic-plaque-light flex min-h-11 items-end justify-between gap-4 px-[17px] pb-3 min-[720px]:px-0">
                     <div>
                       <h2 className="m-0 text-[clamp(1.35rem,5vw,1.75rem)] font-[790] leading-[1.12] tracking-[-.035em] text-[color-mix(in_srgb,var(--color-brand)_78%,#2b241e)]">Ofertas</h2>
                       <p className="mt-[5px] text-[.84rem] leading-[1.45] text-menu-muted">
@@ -586,7 +587,7 @@ export function PublicMenu({
                     </div>
                   </header>
 
-                  <div className="grid border-y border-menu-border bg-menu-surface min-[720px]:grid-cols-2 min-[720px]:gap-3 min-[720px]:border-0 min-[720px]:bg-transparent">
+                  <div className="menu-product-grid grid border-y border-menu-border bg-menu-surface min-[720px]:grid-cols-2 min-[720px]:gap-3 min-[720px]:border-0 min-[720px]:bg-transparent">
                     {promotions.map((product) => (
                       <ProductCard
                         key={`promotion-${product.id}`}
@@ -599,8 +600,8 @@ export function PublicMenu({
               )}
 
               {featured.length > 0 && (
-                <section className="mt-8 first:mt-0">
-                  <header className="flex min-h-11 items-end justify-between gap-4 px-[17px] pb-3 min-[720px]:px-0">
+                <section className="menu-section mt-8 first:mt-0">
+                  <header className="menu-section-header menu-rustic-plaque menu-rustic-plaque-light flex min-h-11 items-end justify-between gap-4 px-[17px] pb-3 min-[720px]:px-0">
                     <div>
                       <h2 className="m-0 text-[clamp(1.35rem,5vw,1.75rem)] font-[790] leading-[1.12] tracking-[-.035em]">Destaques da casa</h2>
                       <p className="mt-[5px] text-[.84rem] leading-[1.45] text-menu-muted">
@@ -610,7 +611,7 @@ export function PublicMenu({
                     </div>
                   </header>
 
-                  <div className="grid border-y border-menu-border bg-menu-surface min-[720px]:grid-cols-2 min-[720px]:gap-3 min-[720px]:border-0 min-[720px]:bg-transparent">
+                  <div className="menu-product-grid grid border-y border-menu-border bg-menu-surface min-[720px]:grid-cols-2 min-[720px]:gap-3 min-[720px]:border-0 min-[720px]:bg-transparent">
                     {featured.map((product) => (
                       <ProductCard
                         key={`featured-${product.id}`}
@@ -627,9 +628,9 @@ export function PublicMenu({
                   key={category.id}
                   id={category.slug}
                   data-category-section
-                  className="mt-8 scroll-mt-[126px] first:mt-0"
+                  className="menu-section mt-8 scroll-mt-[126px] first:mt-0"
                 >
-                  <header className="flex min-h-11 items-end justify-between gap-4 px-[17px] pb-3 min-[720px]:px-0 max-[360px]:items-start">
+                  <header className="menu-section-header menu-rustic-plaque menu-rustic-plaque-light flex min-h-11 items-end justify-between gap-4 px-[17px] pb-3 min-[720px]:px-0 max-[360px]:items-start">
                     <div>
                       <h2 className="m-0 text-[clamp(1.35rem,5vw,1.75rem)] font-[790] leading-[1.12] tracking-[-.035em] [text-wrap:balance]">{category.name}</h2>
 
@@ -646,7 +647,7 @@ export function PublicMenu({
                     </span>
                   </header>
 
-                  <div className="grid border-y border-menu-border bg-menu-surface min-[720px]:grid-cols-2 min-[720px]:gap-3 min-[720px]:border-0 min-[720px]:bg-transparent">
+                  <div className="menu-product-grid grid border-y border-menu-border bg-menu-surface min-[720px]:grid-cols-2 min-[720px]:gap-3 min-[720px]:border-0 min-[720px]:bg-transparent">
                     {category.products.map((product) => (
                       <ProductCard
                         key={product.id}
@@ -662,7 +663,7 @@ export function PublicMenu({
         </div>
       </main>
 
-      <footer className={cn('bg-[#211f1c] px-[18px] pb-[max(84px,calc(68px_+_env(safe-area-inset-bottom)))] pt-[38px] text-white min-[720px]:px-6 min-[720px]:pb-6 min-[1024px]:pb-6', cart.lines.length > 0 && 'pb-[max(118px,calc(102px_+_env(safe-area-inset-bottom)))] min-[720px]:pb-[110px]')}>
+      <footer className={cn('menu-footer bg-[#211f1c] px-[18px] pb-[max(84px,calc(68px_+_env(safe-area-inset-bottom)))] pt-[38px] text-white min-[720px]:px-6 min-[720px]:pb-6 min-[1024px]:pb-6', cart.lines.length > 0 && 'pb-[max(118px,calc(102px_+_env(safe-area-inset-bottom)))] min-[720px]:pb-[110px]')}>
         <div className="mx-auto grid w-full max-w-[1120px] gap-[30px] min-w-0 [&>section]:min-w-0 min-[720px]:grid-cols-2 min-[1024px]:grid-cols-[repeat(auto-fit,minmax(200px,1fr))]">
           {businessAddress && (
             <section>
@@ -842,7 +843,7 @@ export function PublicMenu({
       )}
 
       {(itemAddedFeedback || cart.restorationNotice) && (
-        <div className="fixed bottom-[calc(88px_+_env(safe-area-inset-bottom))] left-3 right-3 z-[55] mx-auto flex min-h-12 max-w-[520px] items-center justify-between gap-2.5 rounded-xl border border-[color-mix(in_srgb,var(--color-menu-success)_24%,#fff)] bg-menu-success-background px-3 py-2.5 text-[.82rem] font-[700] text-[#11663c] shadow-[0_10px_30px_rgb(28_25_22_/_20%)] min-[720px]:bottom-24 min-[720px]:left-auto min-[720px]:right-6 min-[720px]:mx-0 min-[720px]:w-[340px]" role="status">
+        <div className="menu-cart-feedback fixed bottom-[calc(88px_+_env(safe-area-inset-bottom))] left-3 right-3 z-[55] mx-auto flex min-h-12 max-w-[520px] items-center justify-between gap-2.5 rounded-xl border border-[color-mix(in_srgb,var(--color-menu-success)_24%,#fff)] bg-menu-success-background px-3 py-2.5 text-[.82rem] font-[700] text-[#11663c] shadow-[0_10px_30px_rgb(28_25_22_/_20%)] min-[720px]:bottom-24 min-[720px]:left-auto min-[720px]:right-6 min-[720px]:mx-0 min-[720px]:w-[340px]" role="status">
           <span>{itemAddedFeedback ?? cart.restorationNotice}</span>
           {cart.restorationNotice && !itemAddedFeedback && (
             <button

@@ -17,7 +17,7 @@ function CardPrice({ product }: { product: Product }) {
   const activeVariants = getActiveVariants(product)
 
   if (!activeVariants.length) {
-    return <span className="mt-auto pt-[9px] text-[.76rem] text-menu-muted">Preço não informado</span>
+    return <span className="menu-product-price mt-auto pt-[9px] text-[.76rem] text-menu-muted">Preço não informado</span>
   }
 
   if (activeVariants.length === 1) {
@@ -25,12 +25,12 @@ function CardPrice({ product }: { product: Product }) {
     const finalPrice = getVariantPriceCents(variant)
 
     return (
-      <div className="mt-auto flex min-h-[26px] flex-wrap items-baseline gap-[7px] pt-[9px]">
+      <div className="menu-product-price mt-auto flex min-h-[26px] flex-wrap items-baseline gap-[7px] pt-[9px]">
         {variant.promotionalPriceCents !== null && (
-          <del className="text-[.73rem] text-[#938d85]">{formatMoney(variant.priceCents)}</del>
+          <del className="text-[.73rem] text-menu-old-price">{formatMoney(variant.priceCents)}</del>
         )}
 
-        <strong className="text-base font-[820] tracking-[-.02em] text-menu-text">{formatMoney(finalPrice)}</strong>
+        <strong className="text-base font-[820] tracking-[-.02em] text-menu-price">{formatMoney(finalPrice)}</strong>
       </div>
     )
   }
@@ -42,9 +42,9 @@ function CardPrice({ product }: { product: Product }) {
   )
 
   return (
-    <div className="mt-auto flex min-h-[26px] flex-wrap items-baseline gap-[5px] pt-[9px]">
+    <div className="menu-product-price mt-auto flex min-h-[26px] flex-wrap items-baseline gap-[5px] pt-[9px]">
       <span className="text-[.7rem] text-menu-muted">A partir de</span>
-      <strong className="text-base font-[820] tracking-[-.02em] text-menu-text">{formatMoney(lowestPrice)}</strong>
+      <strong className="text-base font-[820] tracking-[-.02em] text-menu-price">{formatMoney(lowestPrice)}</strong>
     </div>
   )
 }
@@ -62,7 +62,7 @@ function ProductImage({
   if (product.imageKey) {
     return (
       <img
-        className={modal ? 'block aspect-[16/10] max-h-[360px] min-h-[220px] w-full object-cover max-[639px]:max-h-[300px]' : cn('block h-[104px] w-[104px] rounded-[14px] bg-menu-surface-muted object-cover max-[360px]:h-[92px] max-[360px]:w-[92px] min-[720px]:h-[108px] min-[720px]:w-[108px]', !product.isAvailable && 'grayscale-[.35] opacity-[.72]')}
+        className={modal ? 'menu-product-dialog-image block aspect-[16/10] max-h-[360px] min-h-[220px] w-full object-cover max-[639px]:max-h-[300px]' : cn('menu-product-image block h-[104px] w-[104px] rounded-[14px] bg-menu-surface-muted object-cover max-[360px]:h-[92px] max-[360px]:w-[92px] min-[720px]:h-[108px] min-[720px]:w-[108px]', !product.isAvailable && 'grayscale-[.35] opacity-[.72]')}
         src={`/media/${product.imageKey}`}
         alt=""
         loading={modal ? 'eager' : 'lazy'}
@@ -73,7 +73,7 @@ function ProductImage({
 
   return (
     <div
-        className={modal ? 'grid aspect-[16/10] max-h-[360px] min-h-[220px] w-full place-items-center bg-menu-surface-muted max-[639px]:max-h-[300px]' : cn('grid h-[104px] w-[104px] place-items-center rounded-[14px] bg-[color-mix(in_srgb,var(--color-brand)_8%,var(--color-menu-surface-muted))] text-[color-mix(in_srgb,var(--color-brand)_58%,#5f5850)] max-[360px]:h-[92px] max-[360px]:w-[92px] min-[720px]:h-[108px] min-[720px]:w-[108px]', !product.isAvailable && 'grayscale-[.35] opacity-[.72]')}
+        className={modal ? 'menu-product-dialog-image grid aspect-[16/10] max-h-[360px] min-h-[220px] w-full place-items-center bg-menu-surface-muted max-[639px]:max-h-[300px]' : cn('menu-product-image grid h-[104px] w-[104px] place-items-center rounded-[14px] bg-[color-mix(in_srgb,var(--color-brand)_8%,var(--color-menu-surface-muted))] text-[color-mix(in_srgb,var(--color-brand)_58%,#5f5850)] max-[360px]:h-[92px] max-[360px]:w-[92px] min-[720px]:h-[108px] min-[720px]:w-[108px]', !product.isAvailable && 'grayscale-[.35] opacity-[.72]')}
       aria-hidden="true"
     >
       <span className={modal ? 'text-[3rem]' : 'text-[1.55rem] font-[820]'}>{initial}</span>
@@ -138,7 +138,7 @@ export function ProductDialog({
   return (
     <dialog
       ref={dialogRef}
-      className="fixed inset-0 m-auto h-auto max-h-[90dvh] w-[min(calc(100%_-_30px),560px)] max-w-none overflow-visible border-0 bg-transparent p-0 text-menu-text motion-reduce:scroll-auto max-[639px]:inset-auto max-[639px]:right-0 max-[639px]:bottom-0 max-[639px]:left-0 max-[639px]:m-0 max-[639px]:max-h-[calc(100dvh_-_max(8px,env(safe-area-inset-top)))] max-[639px]:w-full max-[639px]:overflow-hidden backdrop:bg-[rgb(24_21_18_/_68%)] backdrop:backdrop-blur-[2px]"
+      className="menu-product-dialog fixed inset-0 m-auto h-auto max-h-[90dvh] w-[min(calc(100%_-_30px),560px)] max-w-none overflow-visible border-0 bg-transparent p-0 text-menu-text motion-reduce:scroll-auto max-[639px]:inset-auto max-[639px]:right-0 max-[639px]:bottom-0 max-[639px]:left-0 max-[639px]:m-0 max-[639px]:max-h-[calc(100dvh_-_max(8px,env(safe-area-inset-top)))] max-[639px]:w-full max-[639px]:overflow-hidden backdrop:bg-[rgb(24_21_18_/_68%)] backdrop:backdrop-blur-[2px]"
       aria-labelledby="menu-product-dialog-title"
       aria-describedby={
         product.ingredients
@@ -151,8 +151,8 @@ export function ProductDialog({
         }
       }}
     >
-      <article className="w-full max-h-[90dvh] overflow-y-auto overscroll-contain rounded-[22px] bg-menu-surface shadow-[0_28px_70px_rgb(0_0_0_/_34%)] [-webkit-overflow-scrolling:touch] motion-reduce:scroll-auto max-[639px]:max-h-[calc(100dvh_-_max(8px,env(safe-area-inset-top)))] max-[639px]:rounded-[22px_22px_0_0]">
-        <div className="relative min-h-[220px] overflow-hidden bg-menu-surface-muted">
+      <article className="menu-product-dialog-sheet w-full max-h-[90dvh] overflow-y-auto overscroll-contain rounded-[22px] bg-menu-surface shadow-[0_28px_70px_rgb(0_0_0_/_34%)] [-webkit-overflow-scrolling:touch] motion-reduce:scroll-auto max-[639px]:max-h-[calc(100dvh_-_max(8px,env(safe-area-inset-top)))] max-[639px]:rounded-[22px_22px_0_0]">
+        <div className="menu-product-dialog-media relative min-h-[220px] overflow-hidden bg-menu-surface-muted">
           <ProductImage product={product} modal />
 
           <button
@@ -166,7 +166,7 @@ export function ProductDialog({
         </div>
 
         <form
-          className="px-5 pb-6 pt-[22px] max-[639px]:px-[18px] max-[639px]:pb-[max(24px,calc(16px_+_env(safe-area-inset-bottom)))]"
+          className="menu-product-dialog-content px-5 pb-6 pt-[22px] max-[639px]:px-[18px] max-[639px]:pb-[max(24px,calc(16px_+_env(safe-area-inset-bottom)))]"
           onSubmit={(event) => {
             event.preventDefault()
             if (!selectedVariant || !canAdd) return
@@ -205,11 +205,11 @@ export function ProductDialog({
           )}
 
           {activeVariants.length === 1 && selectedVariant && (
-            <div className="my-5 flex min-h-[60px] items-center justify-between gap-[18px] border-y border-menu-border py-3 text-[.9rem] font-[700]">
+            <div className="menu-product-dialog-price my-5 flex min-h-[60px] items-center justify-between gap-[18px] border-y border-menu-border py-3 text-[.9rem] font-[700]">
               <span>Preço</span>
               <span className="flex flex-wrap items-baseline justify-end gap-2">
                 {selectedVariant.promotionalPriceCents !== null && (
-                  <del className="text-[.76rem] text-[#948e87]">{formatMoney(selectedVariant.priceCents)}</del>
+                  <del className="text-[.76rem] text-menu-dialog-old-price">{formatMoney(selectedVariant.priceCents)}</del>
                 )}
                 <strong className="text-base font-[820]">{formatMoney(getVariantPriceCents(selectedVariant))}</strong>
               </span>
@@ -223,7 +223,7 @@ export function ProductDialog({
               <div className="grid gap-2">
                 {activeVariants.map((variant, index) => (
                   <label
-                    className={cn('grid min-h-[58px] grid-cols-[22px_minmax(0,1fr)_auto] items-center gap-[10px] rounded-xl border border-menu-border px-3 py-2.5 text-[.88rem] font-[680] max-[360px]:!gap-[7px] max-[360px]:!px-[9px] focus-within:outline-[3px] focus-within:outline-[color-mix(in_srgb,var(--color-brand)_28%,transparent)] focus-within:outline-offset-2', selectedVariantId === variant.id && 'border-[var(--color-brand)] bg-[color-mix(in_srgb,var(--color-brand)_7%,#fff)]')}
+                    className={cn('menu-option-choice grid min-h-[58px] grid-cols-[22px_minmax(0,1fr)_auto] items-center gap-[10px] rounded-xl border border-menu-border px-3 py-2.5 text-[.88rem] font-[680] max-[360px]:!gap-[7px] max-[360px]:!px-[9px] focus-within:outline-[3px] focus-within:outline-[color-mix(in_srgb,var(--color-brand)_28%,transparent)] focus-within:outline-offset-2', selectedVariantId === variant.id && 'border-[var(--color-brand)] bg-[color-mix(in_srgb,var(--color-brand)_7%,#fff)]')}
                     key={variant.id}
                   >
                     <input
@@ -237,7 +237,7 @@ export function ProductDialog({
                     <span>{variant.label?.trim() || `Opção ${index + 1}`}</span>
                     <span className="flex flex-wrap items-baseline justify-end gap-2 max-[360px]:!grid max-[360px]:!gap-[2px] max-[360px]:!text-right">
                       {variant.promotionalPriceCents !== null && (
-                        <del className="text-[.76rem] text-[#948e87]">{formatMoney(variant.priceCents)}</del>
+                        <del className="text-[.76rem] text-menu-dialog-old-price">{formatMoney(variant.priceCents)}</del>
                       )}
                       <strong className="text-base font-[820]">{formatMoney(getVariantPriceCents(variant))}</strong>
                     </span>
@@ -268,14 +268,14 @@ export function ProductDialog({
               value={note}
               maxLength={CART_NOTE_MAX_LENGTH}
               rows={3}
-              className={`min-h-[86px] w-full resize-y rounded-[11px] border border-menu-border bg-menu-surface px-3 py-[11px] text-[.9rem] leading-[1.45] text-menu-text ${publicFieldFocusRing}`}
+              className={`menu-public-field min-h-[86px] w-full resize-y rounded-[11px] border border-menu-border bg-menu-surface px-3 py-[11px] text-[.9rem] leading-[1.45] text-menu-text ${publicFieldFocusRing}`}
               placeholder="Ex.: sem cebola, cortar ao meio"
               onChange={(event) => setNote(event.target.value)}
             />
             <small className="text-[.73rem] leading-[1.4] text-menu-muted">A observação vale para esta quantidade.</small>
           </div>
 
-          <button className={`mt-[22px] min-h-[52px] w-full cursor-pointer rounded-[13px] border-0 bg-[var(--color-brand)] px-4 py-[11px] text-[.94rem] font-[800] text-[var(--color-brand-text)] disabled:cursor-not-allowed disabled:bg-[#dad6d0] disabled:text-[#6e6962] ${publicAddFocusRing}`} type="submit" disabled={!canAdd}>
+          <button className={`menu-primary-action mt-[22px] min-h-[52px] w-full cursor-pointer rounded-[13px] border-0 bg-[var(--color-brand)] px-4 py-[11px] text-[.94rem] font-[800] text-[var(--color-brand-text)] disabled:cursor-not-allowed disabled:bg-menu-control-disabled disabled:text-menu-control-disabled-text ${publicAddFocusRing}`} type="submit" disabled={!canAdd}>
             {totalCents === null
               ? 'Adicionar ao pedido'
               : `Adicionar ao pedido · ${formatMoney(totalCents)}`}
@@ -300,7 +300,7 @@ export function ProductCard({
 
   return (
     <button
-      className={cn('grid min-h-[132px] w-full cursor-pointer grid-cols-[minmax(0,1fr)_104px] items-center gap-[14px] border-0 border-b border-menu-border bg-menu-surface px-4 py-[15px] text-left text-menu-text transition-[background-color] duration-[140ms] ease-[ease] motion-reduce:transition-none hover:bg-[#fcfbf9] focus-visible:relative focus-visible:z-[1] focus-visible:outline-[3px] focus-visible:outline-[color-mix(in_srgb,var(--color-brand)_28%,transparent)] focus-visible:outline-offset-[-3px] last:border-b-0 max-[360px]:grid-cols-[minmax(0,1fr)_92px] min-[720px]:min-h-[142px] min-[720px]:rounded-2xl min-[720px]:border min-[720px]:last:border-b', !product.isAvailable && 'bg-[#fbfaf8]')}
+      className={cn('menu-product-card menu-rustic-plaque menu-rustic-plaque-dark grid min-h-[132px] w-full cursor-pointer grid-cols-[minmax(0,1fr)_104px] items-center gap-[14px] border-0 border-b border-menu-border bg-menu-surface px-4 py-[15px] text-left text-menu-text transition-[background-color] duration-[140ms] ease-[ease] motion-reduce:transition-none hover:bg-menu-hover focus-visible:relative focus-visible:z-[1] focus-visible:outline-[3px] focus-visible:outline-[color-mix(in_srgb,var(--color-brand)_28%,transparent)] focus-visible:outline-offset-[-3px] last:border-b-0 max-[360px]:grid-cols-[minmax(0,1fr)_92px] min-[720px]:min-h-[142px] min-[720px]:rounded-2xl min-[720px]:border min-[720px]:last:border-b', !product.isAvailable && 'menu-product-card-unavailable bg-menu-disabled')}
       type="button"
       onClick={(event) => {
         onSelect(product, event.currentTarget)

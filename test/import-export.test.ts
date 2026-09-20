@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { DEFAULT_PRIMARY_COLOR, menuImportSchema, type MenuImport } from '../shared/schemas'
+import { DEFAULT_MENU_THEME, DEFAULT_PRIMARY_COLOR, menuImportSchema, type MenuImport } from '../shared/schemas'
 import { applyImport, serializeExport } from '../worker/services/import-export'
 import { FakeDatabase, fakeBucket, settingsRow } from './fakes'
 
@@ -26,6 +26,7 @@ const validImport: MenuImport = {
     mapsUrl: null,
     timezone: 'America/Sao_Paulo',
     specialMessage: 'Fechado às segundas-feiras.',
+    theme: 'rustic',
     primaryColor: '#374151',
     publicSiteUrl: null,
     seoTitle: null,
@@ -68,8 +69,15 @@ describe('exportação e importação', () => {
     expect(exported.schemaVersion).toBe(2)
     expect(exported.categories[0]?.products[0]?.name).toBe('Produto')
     expect(exported.categories[0]?.products[0]?.customizationGroups[0]?.options[0]?.priceDeltaCents).toBe(490)
+    expect(exported.business.theme).toBe('classic')
     expect(JSON.stringify(exported)).not.toContain('product-local')
     expect(menuImportSchema.safeParse(exported).success).toBe(true)
+  })
+
+  it('inclui o tema rústico na exportação', async () => {
+    const database = new FakeDatabase({ settings: { ...settingsRow, theme: 'rustic' } })
+    const exported = await serializeExport(database.asBinding())
+    expect(exported.business.theme).toBe('rustic')
   })
 
   it('aplica cenário válido em um único D1 batch transacional e gera IDs locais', async () => {
@@ -78,6 +86,8 @@ describe('exportação e importação', () => {
     expect(result.incoming.products).toBe(1)
     expect(database.batches).toHaveLength(1)
     expect(database.batches[0]!.length).toBeGreaterThan(7)
+    const settingsUpdate = database.bindings.find(({ sql }) => sql.startsWith('UPDATE business_settings'))
+    expect(settingsUpdate?.values[19]).toBe('rustic')
   })
 
   it('rejeita schemaVersion inválido antes da aplicação', () => {
@@ -116,5 +126,13 @@ describe('exportação e importação', () => {
       expect(result.data.business.addressPostalCode).toBeNull()
       expect(result.data.business.primaryColor).toBe(DEFAULT_PRIMARY_COLOR)
     }
+  })
+
+  it('normaliza cópia antiga sem tema para o clássico', () => {
+    const legacy = JSON.parse(JSON.stringify(validImport)) as { business: Record<string, unknown> }
+    delete legacy.business.theme
+    const result = menuImportSchema.safeParse(legacy)
+    expect(result.success).toBe(true)
+    if (result.success) expect(result.data.business.theme).toBe(DEFAULT_MENU_THEME)
   })
 })

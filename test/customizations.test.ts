@@ -158,7 +158,7 @@ describe('restauração do carrinho com montagem atual', () => {
 describe('leitura de montagem no menu', () => {
   it('getMenu e getProduct agrupam grupos e opções sem N+1', async () => {
     const database = new FakeDatabase({
-      settings: settingsRow,
+      settings: { ...settingsRow, theme: 'rustic' },
       categories: [{ id: 'category-1', name: 'Lanches', slug: 'lanches', description: null, is_active: 1, sort_order: 0, created_at: 'now', updated_at: 'now' }],
       products: [{ id: 'product-1', category_id: 'category-1', name: 'Combo', ingredients: null, image_key: null, is_available: 1, is_featured: 0, sort_order: 0, created_at: 'now', updated_at: 'now' }],
       variants: [{ id: 'variant-1', product_id: 'product-1', label: null, price_cents: 1000, promotional_price_cents: null, is_active: 1, sort_order: 0 }],
@@ -166,6 +166,7 @@ describe('leitura de montagem no menu', () => {
       customizationOptions: [{ id: 'option-1', group_id: 'group-1', name: 'Bacon', description: null, price_delta_cents: 490, is_active: 1, sort_order: 0 }],
     })
     const menu = await getMenu(database.asBinding())
+    expect(menu.business.theme).toBe('rustic')
     const product = menu.categories[0]!.products[0]!
     expect(product.customizationGroups[0]!.options[0]!.priceDeltaCents).toBe(490)
     expect((await getProduct(database.asBinding(), 'product-1'))?.customizationGroups).toHaveLength(1)

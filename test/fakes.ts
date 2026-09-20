@@ -27,11 +27,15 @@ function d1Result<T>(results: T[], changes = 0): D1Result<T> {
 
 export class FakeDatabase {
   readonly batches: D1PreparedStatement[][] = []
+  readonly bindings: Array<{ sql: string; values: unknown[] }> = []
   constructor(private readonly rows: FakeRows = {}) {}
 
   private statement(sql: string): D1PreparedStatement {
     const statement: D1PreparedStatement = partialMock<D1PreparedStatement>({
-      bind: (...values: unknown[]): D1PreparedStatement => { void values; return statement },
+      bind: (...values: unknown[]): D1PreparedStatement => {
+        this.bindings.push({ sql, values })
+        return statement
+      },
       first: async <T = Record<string, unknown>>() => this.first(sql) as T | null,
       all: async <T = Record<string, unknown>>() => d1Result(this.all(sql) as T[]),
       run: async <T = Record<string, unknown>>() => d1Result<T>([], 1),
@@ -90,6 +94,7 @@ export const settingsRow = {
   maps_url: null,
   timezone: 'America/Sao_Paulo',
   special_message: 'Fechado às segundas-feiras.',
+  theme: 'classic',
   primary_color: '#374151',
   cover_image_key: null,
   favicon_key: null,

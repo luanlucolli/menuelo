@@ -25,6 +25,7 @@ export function publicMenuFixture(): MenuResponse {
       mapsUrl: null,
       timezone: 'America/Sao_Paulo',
       specialMessage: 'Hoje tem promoção.',
+      theme: 'classic',
       primaryColor: '#FB5D01',
       coverImageKey: 'covers/123e4567-e89b-12d3-a456-426614174000.webp',
       faviconKey: 'favicons/123e4567-e89b-12d3-a456-426614174000.ico',

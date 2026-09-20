@@ -13,6 +13,17 @@
   --color-menu-danger-background: #fbe9e9;
   --color-menu-success: #16834b;
   --color-menu-success-background: #e7f6ed;
+  --color-menu-hover: #fcfbf9;
+  --color-menu-disabled: #fbfaf8;
+  --color-menu-input: #ffffff;
+  --color-menu-input-text: #211f1c;
+  --color-menu-placeholder: #918b84;
+  --color-menu-chip-text: #3d3934;
+  --color-menu-price: #211f1c;
+  --color-menu-old-price: #938d85;
+  --color-menu-dialog-old-price: #948e87;
+  --color-menu-control-disabled: #dad6d0;
+  --color-menu-control-disabled-text: #6e6962;
 
   --color-admin-background: #f2f0ec;
   --color-bg: #f7f4ef;
@@ -36,5 +47,413 @@
   @keyframes menu-special-message-marquee {
     from { transform: translate3d(0, 0, 0); }
     to { transform: translate3d(-50%, 0, 0); }
+  }
+}
+
+/* Tema público Rústico. O tema Clássico usa diretamente os tokens acima. */
+[data-menu-theme="rustic"] {
+  --rustic-wood-deep: #170c07;
+  --rustic-wood-deep-soft: #211108;
+  --rustic-wood-dark: #351a0e;
+  --rustic-wood-dark-alt: #422313;
+  --rustic-wood-dark-hover: #4b2917;
+  --rustic-wood-medium: #7f4722;
+  --rustic-wood-medium-dark: #603619;
+  --rustic-wood-medium-alt: #95592c;
+  --rustic-wood-light: #d6a05f;
+  --rustic-wood-light-alt: #c88948;
+  --rustic-cream: #fff7e8;
+  --rustic-cream-soft: #f2e2ca;
+  --rustic-muted: #dbc09b;
+  --rustic-ink: #2e190e;
+  --rustic-ink-muted: #694125;
+  --rustic-border: #7d4925;
+  --rustic-border-strong: #a46735;
+  --rustic-gold: #f2b653;
+  --rustic-gold-muted: #dca05a;
+  --rustic-field: #f8eddc;
+  --rustic-field-muted: #ead8bd;
+  --rustic-field-border: #c99f70;
+  --color-menu-background: var(--rustic-wood-deep);
+  --color-menu-surface: var(--rustic-wood-dark);
+  --color-menu-surface-muted: var(--rustic-wood-dark-hover);
+  --color-menu-text: var(--rustic-cream);
+  --color-menu-muted: var(--rustic-muted);
+  --color-menu-border: var(--rustic-border);
+  --color-menu-hover: var(--rustic-wood-dark-hover);
+  --color-menu-disabled: #291811;
+  --color-menu-input: var(--rustic-field);
+  --color-menu-input-text: var(--rustic-ink);
+  --color-menu-placeholder: #806954;
+  --color-menu-chip-text: var(--rustic-cream-soft);
+  --color-menu-price: var(--rustic-gold);
+  --color-menu-old-price: #cdb18b;
+  --color-menu-dialog-old-price: #cdb18b;
+  --color-menu-control-disabled: #68574a;
+  --color-menu-control-disabled-text: #ddd0bd;
+  background-color: var(--color-menu-background);
+  background-image:
+    radial-gradient(ellipse 78px 20px at 12% 18%, transparent 0 25%, rgb(214 160 95 / 8%) 28% 32%, transparent 35% 41%, rgb(92 47 21 / 24%) 44% 49%, transparent 53%),
+    radial-gradient(ellipse 104px 25px at 82% 36%, transparent 0 26%, rgb(255 225 181 / 5%) 29% 33%, transparent 36% 42%, rgb(10 4 2 / 24%) 45% 49%, transparent 53%),
+    radial-gradient(ellipse at 17% 8%, rgb(214 160 95 / 10%) 0, transparent 28%),
+    radial-gradient(ellipse at 82% 46%, rgb(0 0 0 / 24%) 0, transparent 34%),
+    repeating-linear-gradient(1.4deg, transparent 0 28px, rgb(255 231 199 / 5%) 30px, transparent 32px 47px, rgb(0 0 0 / 14%) 49px, transparent 52px),
+    linear-gradient(93deg, transparent 0 12%, rgb(255 238 211 / 3%) 22%, transparent 36% 64%, rgb(0 0 0 / 8%) 78%, transparent 92%),
+    linear-gradient(105deg, var(--rustic-wood-deep), #2b160c 48%, var(--rustic-wood-deep-soft));
+  background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, repeat, no-repeat, no-repeat;
+}
+
+[data-menu-theme="rustic"] .menu-rustic-plaque {
+  position: relative;
+  isolation: isolate;
+  border-color: var(--rustic-border);
+  background-image:
+    radial-gradient(ellipse 42px 11px at var(--rustic-knot-a-x, 18%) var(--rustic-knot-a-y, 31%), transparent 0 24%, rgb(255 235 204 / 10%) 28% 33%, transparent 37% 42%, rgb(53 24 9 / 26%) 46% 52%, transparent 56%),
+    radial-gradient(ellipse 56px 14px at var(--rustic-knot-b-x, 78%) var(--rustic-knot-b-y, 72%), transparent 0 25%, rgb(53 24 9 / 16%) 29% 34%, transparent 38% 43%, rgb(255 225 181 / 12%) 47% 52%, transparent 57%),
+    radial-gradient(ellipse at 14% 45%, rgb(255 225 181 / 11%) 0 1px, transparent 2px),
+    repeating-linear-gradient(1.8deg, transparent 0 10px, rgb(255 239 211 / 8%) 11px, transparent 13px 22px, rgb(49 21 8 / 17%) 24px, transparent 27px),
+    linear-gradient(94deg, transparent 0 17%, rgb(255 239 211 / 5%) 31%, transparent 46% 68%, rgb(49 21 8 / 8%) 82%, transparent 94%),
+    linear-gradient(100deg, rgb(255 255 255 / 5%), transparent 28%, rgb(0 0 0 / 13%) 72%, rgb(255 255 255 / 4%));
+  background-repeat: no-repeat, no-repeat, repeat, repeat, no-repeat, no-repeat;
+  box-shadow:
+    inset 0 2px rgb(255 244 220 / 15%),
+    inset 0 -3px rgb(30 11 3 / 34%),
+    0 7px 18px rgb(0 0 0 / 25%);
+}
+
+[data-menu-theme="rustic"] .menu-rustic-plaque::after {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  border-radius: inherit;
+  background:
+    radial-gradient(circle at 9px 9px, #e0ad65 0 1px, #593018 1.5px 2.5px, transparent 3px),
+    radial-gradient(circle at calc(100% - 9px) 9px, #e0ad65 0 1px, #593018 1.5px 2.5px, transparent 3px),
+    radial-gradient(circle at 9px calc(100% - 9px), #e0ad65 0 1px, #593018 1.5px 2.5px, transparent 3px),
+    radial-gradient(circle at calc(100% - 9px) calc(100% - 9px), #e0ad65 0 1px, #593018 1.5px 2.5px, transparent 3px);
+  content: "";
+  pointer-events: none;
+}
+
+[data-menu-theme="rustic"] .menu-rustic-plaque-dark {
+  background-color: var(--rustic-wood-dark);
+}
+
+[data-menu-theme="rustic"] .menu-rustic-plaque-medium {
+  background-color: var(--rustic-wood-medium);
+}
+
+[data-menu-theme="rustic"] .menu-rustic-plaque-light {
+  --color-menu-text: var(--rustic-ink);
+  --color-menu-muted: var(--rustic-ink-muted);
+  background-color: var(--rustic-wood-light);
+  color: var(--color-menu-text);
+}
+
+[data-menu-theme="rustic"] .menu-hero-overlay {
+  background:
+    radial-gradient(ellipse at center, transparent 34%, rgb(15 6 2 / 42%) 100%),
+    linear-gradient(180deg, rgb(18 8 3 / 12%) 0%, rgb(18 8 3 / 35%) 44%, rgb(15 6 2 / 92%) 100%);
+}
+
+[data-menu-theme="rustic"] .menu-special-message {
+  border-color: var(--rustic-border-strong);
+  background:
+    radial-gradient(ellipse 52px 13px at 16% 46%, transparent 0 24%, rgb(255 229 188 / 9%) 28% 33%, transparent 37% 42%, rgb(61 27 10 / 23%) 46% 52%, transparent 57%),
+    radial-gradient(ellipse 64px 15px at 76% 54%, transparent 0 25%, rgb(61 27 10 / 15%) 29% 34%, transparent 38% 43%, rgb(255 229 188 / 12%) 47% 52%, transparent 57%),
+    repeating-linear-gradient(1.6deg, transparent 0 9px, rgb(255 239 211 / 9%) 11px, transparent 13px 20px, rgb(53 23 9 / 13%) 22px, transparent 25px),
+    linear-gradient(100deg, var(--rustic-wood-medium), var(--rustic-wood-medium-alt) 50%, var(--rustic-wood-medium));
+  background-repeat: no-repeat, no-repeat, repeat, no-repeat;
+  color: var(--rustic-cream);
+  box-shadow: inset 0 1px rgb(255 244 220 / 18%), inset 0 -2px rgb(24 9 3 / 28%);
+}
+
+[data-menu-theme="rustic"] .menu-store-details {
+  border-color: var(--rustic-border);
+  background: transparent;
+  padding-block: 2px 8px;
+}
+
+[data-menu-theme="rustic"] .menu-store-summary {
+  width: min(calc(100% - 24px), 1120px);
+  margin: 10px auto 4px;
+  border: 1px solid var(--rustic-border);
+  border-radius: 12px;
+  padding-inline: 16px;
+}
+
+[data-menu-theme="rustic"] .menu-store-summary:hover {
+  background-color: var(--rustic-wood-dark-alt);
+}
+
+[data-menu-theme="rustic"] .menu-store-grid {
+  width: min(calc(100% - 28px), 1120px);
+  padding-inline: 0;
+}
+
+[data-menu-theme="rustic"] .menu-store-item:hover {
+  background-color: var(--rustic-wood-dark-hover);
+}
+
+[data-menu-theme="rustic"] .menu-store-icon {
+  background-color: var(--rustic-cream-soft);
+  color: color-mix(in srgb, var(--color-brand) 72%, var(--rustic-wood-medium));
+}
+
+[data-menu-theme="rustic"] .menu-store-item > svg:last-child {
+  color: var(--rustic-gold-muted);
+}
+
+[data-menu-theme="rustic"] .menu-toolbar {
+  border-color: var(--rustic-border);
+  background: rgb(23 12 7 / 95%);
+}
+
+[data-menu-theme="rustic"] .menu-toolbar-inner {
+  width: min(calc(100% - 24px), 1120px);
+  margin-block: 8px;
+  border: 1px solid var(--rustic-border-strong);
+  border-radius: 14px;
+  padding: 10px;
+}
+
+[data-menu-theme="rustic"] .menu-search-frame {
+  --color-menu-border: var(--rustic-field-border);
+  --color-menu-muted: #705640;
+}
+
+[data-menu-theme="rustic"] .menu-search-frame > svg {
+  color: #70543d;
+}
+
+[data-menu-theme="rustic"] .menu-search-input {
+  box-shadow: inset 0 1px 2px rgb(67 39 18 / 12%);
+}
+
+[data-menu-theme="rustic"] .menu-category-chip {
+  border-color: var(--rustic-border-strong);
+  background-color: var(--rustic-wood-dark);
+  box-shadow: inset 0 1px rgb(255 239 211 / 8%), 0 2px 5px rgb(0 0 0 / 18%);
+}
+
+[data-menu-theme="rustic"] .menu-category-chip:hover {
+  border-color: var(--color-brand);
+  background-color: var(--rustic-wood-dark-hover);
+}
+
+[data-menu-theme="rustic"] .menu-category-chip[aria-current="true"] {
+  box-shadow: inset 0 1px rgb(255 255 255 / 20%), 0 4px 10px rgb(0 0 0 / 24%);
+}
+
+[data-menu-theme="rustic"] .menu-content {
+  padding-inline: 14px;
+}
+
+[data-menu-theme="rustic"] .menu-section-header {
+  min-height: 0;
+  margin-bottom: 11px;
+  border: 1px solid var(--rustic-border-strong);
+  border-radius: 13px;
+  padding: 14px 16px;
+}
+
+[data-menu-theme="rustic"] .menu-product-grid {
+  gap: 12px;
+  border: 0;
+  background: transparent;
+}
+
+[data-menu-theme="rustic"] .menu-product-card {
+  border: 1px solid var(--rustic-border);
+  border-radius: 14px;
+}
+
+/* Posições variadas e determinísticas mantêm SSR e hidratação idênticos. */
+[data-menu-theme="rustic"] .menu-product-grid > .menu-product-card:nth-child(8n + 1) {
+  --rustic-knot-a-x: 12%;
+  --rustic-knot-a-y: 76%;
+  --rustic-knot-b-x: 71%;
+  --rustic-knot-b-y: 18%;
+  clip-path: polygon(0 0, 100% 0, 100% 27%, calc(100% - 4px) 30%, 100% 34%, 100% 100%, 0 100%, 0 72%, 4px 69%, 0 66%);
+}
+
+[data-menu-theme="rustic"] .menu-product-grid > .menu-product-card:nth-child(8n + 2) {
+  --rustic-knot-a-x: 83%;
+  --rustic-knot-a-y: 34%;
+  --rustic-knot-b-x: 28%;
+  --rustic-knot-b-y: 81%;
+  clip-path: polygon(0 0, 31% 0, 34% 4px, 38% 0, 100% 0, 100% 100%, 66% 100%, 63% calc(100% - 4px), 59% 100%, 0 100%);
+}
+
+[data-menu-theme="rustic"] .menu-product-grid > .menu-product-card:nth-child(8n + 3) {
+  --rustic-knot-a-x: 37%;
+  --rustic-knot-a-y: 16%;
+  --rustic-knot-b-x: 91%;
+  --rustic-knot-b-y: 69%;
+  clip-path: polygon(0 0, 100% 0, 100% 18%, calc(100% - 5px) 22%, 100% 26%, 100% 74%, calc(100% - 3px) 77%, 100% 81%, 100% 100%, 0 100%);
+}
+
+[data-menu-theme="rustic"] .menu-product-grid > .menu-product-card:nth-child(8n + 4) {
+  --rustic-knot-a-x: 68%;
+  --rustic-knot-a-y: 84%;
+  --rustic-knot-b-x: 9%;
+  --rustic-knot-b-y: 39%;
+  clip-path: polygon(0 0, 47% 0, 50% 3px, 54% 0, 100% 0, 100% 100%, 0 100%, 0 43%, 5px 39%, 0 35%);
+}
+
+[data-menu-theme="rustic"] .menu-product-grid > .menu-product-card:nth-child(8n + 5) {
+  --rustic-knot-a-x: 19%;
+  --rustic-knot-a-y: 43%;
+  --rustic-knot-b-x: 78%;
+  --rustic-knot-b-y: 88%;
+  clip-path: polygon(0 0, calc(100% - 7px) 0, 100% 7px, 100% 100%, 0 100%, 0 63%, 4px 60%, 0 56%);
+}
+
+[data-menu-theme="rustic"] .menu-product-grid > .menu-product-card:nth-child(8n + 6) {
+  --rustic-knot-a-x: 89%;
+  --rustic-knot-a-y: 74%;
+  --rustic-knot-b-x: 46%;
+  --rustic-knot-b-y: 23%;
+  clip-path: polygon(0 0, 73% 0, 76% 4px, 80% 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 22%, 3px 19%, 0 16%);
+}
+
+[data-menu-theme="rustic"] .menu-product-grid > .menu-product-card:nth-child(8n + 7) {
+  --rustic-knot-a-x: 52%;
+  --rustic-knot-a-y: 89%;
+  --rustic-knot-b-x: 14%;
+  --rustic-knot-b-y: 22%;
+  clip-path: polygon(0 0, 100% 0, 100% 59%, calc(100% - 4px) 63%, 100% 67%, 100% 100%, 0 100%, 0 78%, 5px 74%, 0 70%, 0 31%, 3px 28%, 0 24%);
+}
+
+[data-menu-theme="rustic"] .menu-product-grid > .menu-product-card:nth-child(8n + 8) {
+  --rustic-knot-a-x: 7%;
+  --rustic-knot-a-y: 63%;
+  --rustic-knot-b-x: 63%;
+  --rustic-knot-b-y: 41%;
+  clip-path: polygon(0 0, 19% 0, 22% 3px, 26% 0, 100% 0, 100% 36%, calc(100% - 4px) 39%, 100% 43%, 100% 100%, 43% 100%, 40% calc(100% - 4px), 36% 100%, 0 100%);
+}
+
+[data-menu-theme="rustic"] .menu-product-card:hover {
+  background-color: var(--color-menu-hover);
+}
+
+[data-menu-theme="rustic"] .menu-product-card-unavailable {
+  background-color: var(--color-menu-disabled);
+  opacity: .78;
+}
+
+[data-menu-theme="rustic"] .menu-product-image {
+  border: 1px solid var(--rustic-border-strong);
+  box-shadow: 0 4px 12px rgb(0 0 0 / 28%), inset 0 0 0 1px rgb(255 244 220 / 7%);
+}
+
+[data-menu-theme="rustic"] .menu-product-dialog-sheet,
+[data-menu-theme="rustic"] .menu-cart-sheet {
+  background-color: var(--rustic-wood-dark);
+  background-image:
+    radial-gradient(ellipse 70px 17px at 17% 22%, transparent 0 25%, rgb(255 225 181 / 6%) 29% 33%, transparent 37% 42%, rgb(16 6 2 / 22%) 46% 52%, transparent 57%),
+    radial-gradient(ellipse 84px 20px at 81% 67%, transparent 0 25%, rgb(16 6 2 / 13%) 29% 34%, transparent 38% 43%, rgb(255 225 181 / 8%) 47% 52%, transparent 57%),
+    repeating-linear-gradient(1.3deg, transparent 0 18px, rgb(255 239 211 / 5%) 20px, transparent 22px 34px, rgb(0 0 0 / 13%) 36px, transparent 39px),
+    linear-gradient(105deg, var(--rustic-wood-dark), var(--rustic-wood-dark-alt) 48%, #2d160b);
+  background-repeat: no-repeat, no-repeat, repeat, no-repeat;
+  border: 1px solid var(--rustic-border);
+  box-shadow: inset 0 1px rgb(255 244 220 / 10%), 0 28px 70px rgb(0 0 0 / 48%);
+}
+
+[data-menu-theme="rustic"] .menu-product-dialog-media {
+  border-bottom: 1px solid var(--rustic-border);
+  background-color: var(--rustic-wood-deep-soft);
+}
+
+[data-menu-theme="rustic"] .menu-option-choice,
+[data-menu-theme="rustic"] .menu-customization-option,
+[data-menu-theme="rustic"] .menu-quantity-control,
+[data-menu-theme="rustic"] .menu-public-field {
+  --color-menu-surface: var(--rustic-field);
+  --color-menu-surface-muted: var(--rustic-field-muted);
+  --color-menu-text: var(--rustic-ink);
+  --color-menu-muted: #705640;
+  --color-menu-border: var(--rustic-field-border);
+  background-color: var(--color-menu-surface);
+  color: var(--color-menu-text);
+}
+
+[data-menu-theme="rustic"] .menu-option-choice:hover,
+[data-menu-theme="rustic"] .menu-customization-option:hover {
+  background-color: var(--rustic-cream);
+}
+
+[data-menu-theme="rustic"] .menu-product-dialog-price strong,
+[data-menu-theme="rustic"] .menu-cart-line > div:first-child > strong,
+[data-menu-theme="rustic"] .menu-cart-footer > div:first-child strong {
+  color: var(--rustic-gold);
+}
+
+[data-menu-theme="rustic"] .menu-cart-header,
+[data-menu-theme="rustic"] .menu-cart-footer {
+  border-color: var(--rustic-border);
+  background:
+    radial-gradient(ellipse 58px 14px at 14% 40%, transparent 0 25%, rgb(255 229 188 / 7%) 29% 34%, transparent 38% 43%, rgb(17 7 2 / 21%) 47% 53%, transparent 58%),
+    repeating-linear-gradient(1.5deg, transparent 0 13px, rgb(255 239 211 / 5%) 15px, transparent 17px 27px, rgb(27 10 3 / 11%) 29px, transparent 32px),
+    linear-gradient(100deg, var(--rustic-wood-dark-alt), var(--rustic-wood-medium-dark) 52%, var(--rustic-wood-dark-alt));
+  background-repeat: no-repeat, repeat, no-repeat;
+}
+
+[data-menu-theme="rustic"] .menu-cart-line {
+  border-color: var(--rustic-border);
+}
+
+[data-menu-theme="rustic"] .menu-cart-note {
+  background-color: var(--rustic-wood-dark-hover);
+  box-shadow: inset 0 1px rgb(255 244 220 / 7%);
+}
+
+[data-menu-theme="rustic"] .menu-cart-bar {
+  border-color: var(--rustic-border);
+  background-color: rgb(53 26 14 / 96%);
+}
+
+[data-menu-theme="rustic"] .menu-cart-bar-button,
+[data-menu-theme="rustic"] .menu-primary-action {
+  box-shadow: inset 0 1px rgb(255 255 255 / 22%), 0 5px 14px rgb(0 0 0 / 30%);
+}
+
+[data-menu-theme="rustic"] .menu-footer {
+  border-top: 1px solid var(--rustic-border);
+  background:
+    radial-gradient(ellipse 88px 21px at 13% 24%, transparent 0 25%, rgb(10 4 2 / 12%) 29% 34%, transparent 38% 43%, rgb(255 225 181 / 7%) 47% 52%, transparent 57%),
+    radial-gradient(ellipse 110px 26px at 79% 66%, transparent 0 25%, rgb(255 225 181 / 5%) 29% 34%, transparent 38% 43%, rgb(10 4 2 / 21%) 47% 52%, transparent 57%),
+    repeating-linear-gradient(1.2deg, transparent 0 23px, rgb(255 239 211 / 5%) 25px, transparent 27px 42px, rgb(0 0 0 / 15%) 44px, transparent 47px),
+    linear-gradient(105deg, var(--rustic-wood-deep), #2b160c 50%, var(--rustic-wood-deep));
+  background-repeat: no-repeat, no-repeat, repeat, no-repeat;
+  box-shadow: inset 0 1px rgb(255 244 220 / 9%);
+}
+
+@media (min-width: 720px) {
+  [data-menu-theme="rustic"] .menu-store-grid {
+    padding: .6rem 0;
+  }
+
+  [data-menu-theme="rustic"] .menu-store-item {
+    border: 1px solid var(--rustic-border);
+    background-color: var(--rustic-wood-dark);
+    box-shadow: inset 0 1px rgb(255 244 220 / 7%);
+  }
+
+  [data-menu-theme="rustic"] .menu-content {
+    padding-inline: 24px;
+  }
+
+  [data-menu-theme="rustic"] .menu-section-header {
+    padding-inline: 18px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-menu-theme="rustic"] .menu-rustic-plaque,
+  [data-menu-theme="rustic"] .menu-category-chip,
+  [data-menu-theme="rustic"] .menu-cart-bar-button,
+  [data-menu-theme="rustic"] .menu-primary-action {
+    transition: none;
   }
 }

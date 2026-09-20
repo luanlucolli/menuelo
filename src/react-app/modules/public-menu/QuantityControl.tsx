@@ -21,7 +21,7 @@ export function QuantityControl({
   compact?: boolean
 }) {
   return (
-    <div className={cn(compact ? 'grid grid-cols-[36px_34px_36px]' : 'grid grid-cols-[44px_48px_44px]', 'items-center overflow-hidden rounded-xl border border-menu-border bg-menu-surface [&_svg]:h-[18px] [&_svg]:w-[18px]')}>
+    <div className={cn(compact ? 'grid grid-cols-[36px_34px_36px]' : 'grid grid-cols-[44px_48px_44px]', 'menu-quantity-control items-center overflow-hidden rounded-xl border border-menu-border bg-menu-surface [&_svg]:h-[18px] [&_svg]:w-[18px]')}>
       <button
         className={cn('grid cursor-pointer place-items-center bg-transparent', compact ? 'h-10 w-9' : 'h-11 w-11', quantityFocusRing, 'disabled:cursor-not-allowed disabled:opacity-[.35]')}
         type="button"

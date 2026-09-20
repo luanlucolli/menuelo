@@ -49,6 +49,7 @@ function settingsInputFromMenu(current: MenuResponse): SettingsInput {
     mapsUrl: business.mapsUrl,
     timezone: business.timezone,
     specialMessage: business.specialMessage,
+    theme: business.theme,
     primaryColor: business.primaryColor,
     publicSiteUrl: business.publicSiteUrl,
     seoTitle: business.seoTitle,
@@ -91,6 +92,7 @@ test('HTML público contém conteúdo e SEO antes do JavaScript e hidrata sem re
   expect(html).toContain('property="og:url"')
   expect(html).toContain('data-menu-json-ld')
   expect(html).toContain('id="__MENU_DATA__"')
+  expect(html).toContain(`data-menu-theme="${current.business.theme}"`)
 
   const noScriptContext = await browser.newContext({ javaScriptEnabled: false })
   const noScriptPage = await noScriptContext.newPage()
@@ -107,6 +109,76 @@ test('HTML público contém conteúdo e SEO antes do JavaScript e hidrata sem re
   await expect(page.getByRole('searchbox', { name: 'Pesquisar no cardápio' })).toBeVisible()
   expect(menuRequests).toBe(0)
   expect(hydrationErrors).toEqual([])
+})
+
+test('admin salva o tema rústico e o público o recebe no SSR e na hidratação', async ({ page, request }) => {
+  const current = await menu(request)
+  const originalSettings = settingsInputFromMenu(current)
+  const product = current.categories
+    .flatMap((category) => category.products)
+    .find((item) => item.isAvailable && item.variants.filter((variant) => variant.isActive).length === 1 && !item.customizationGroups.some((group) => group.isActive && group.minSelections > 0))
+  test.skip(!product, 'O cardápio local precisa ter um produto disponível sem montagem obrigatória.')
+
+  try {
+    await page.setViewportSize({ width: 390, height: 844 })
+    await page.goto('/admin/configuracoes')
+    await page.getByRole('button', { name: 'Aparência' }).click()
+    const rusticTheme = page.getByRole('radio', { name: /Rústico/ })
+    await rusticTheme.focus()
+    await expect(rusticTheme).toBeFocused()
+    await page.keyboard.press('Space')
+    await expect(rusticTheme).toBeChecked()
+    await expect(page.getByText('Alterações não salvas em')).toBeVisible()
+    await page.getByRole('button', { name: 'Salvar aparência' }).click()
+    await expect(page.getByText(/Informações salvas/)).toBeVisible()
+
+    expect((await menu(request)).business.theme).toBe('rustic')
+    await page.reload()
+    await page.getByRole('button', { name: 'Aparência' }).click()
+    await expect(page.getByRole('radio', { name: /Rústico/ })).toBeChecked()
+
+    const serverResponse = await request.get('/')
+    expect(serverResponse.ok()).toBeTruthy()
+    expect(await serverResponse.text()).toContain('data-menu-theme="rustic"')
+
+    for (const [width, height] of [[390, 844], [430, 932], [768, 900], [1440, 1000]] as const) {
+      await page.setViewportSize({ width, height })
+      await page.goto('/')
+      const themedMenu = page.locator('[data-menu-theme="rustic"]')
+      await expect(themedMenu).toBeVisible()
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBeTruthy()
+      const visual = await themedMenu.evaluate((element) => {
+        const card = element.querySelector('button[aria-label^="Ver detalhes de"]')
+        const heading = element.querySelector('.menu-section-header')
+        return {
+          pageBackground: getComputedStyle(element).backgroundImage,
+          cardBackground: card ? getComputedStyle(card).backgroundImage : 'none',
+          cardBorder: card ? getComputedStyle(card).borderTopWidth : '0px',
+          headingBackground: heading ? getComputedStyle(heading).backgroundColor : 'transparent',
+        }
+      })
+      expect(visual.pageBackground).not.toBe('none')
+      expect(visual.cardBackground).not.toBe('none')
+      expect(visual.cardBorder).toBe('1px')
+      expect(visual.headingBackground).not.toBe('rgba(0, 0, 0, 0)')
+    }
+
+    await page.setViewportSize({ width: 390, height: 844 })
+    await page.goto('/')
+    await page.getByRole('searchbox', { name: 'Pesquisar no cardápio' }).fill(product!.name)
+    const card = page.getByRole('button', { name: `Ver detalhes de ${product!.name}` })
+    await expect(card).toHaveCount(1)
+    await card.click()
+    const productDialog = page.getByRole('dialog')
+    await expect(productDialog).toBeVisible()
+    await productDialog.getByRole('button', { name: /Adicionar ao pedido/ }).click()
+    await page.getByRole('button', { name: /Ver pedido/ }).click()
+    await expect(page.getByRole('dialog')).toContainText(product!.name)
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBeTruthy()
+  } finally {
+    const response = await request.patch('/admin/api/settings', { data: originalSettings })
+    expect(response.ok()).toBeTruthy()
+  }
 })
 
 test('cardápio público é responsivo, pesquisa sem duplicar e devolve o foco', async ({ page, request }) => {

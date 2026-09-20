@@ -4,6 +4,7 @@ import type {
   Category,
   DeliveryZone,
   MenuResponse,
+  MenuTheme,
   PaymentMethod,
   Product,
   ProductCustomizationGroup,
@@ -32,6 +33,7 @@ interface SettingsRow {
   maps_url: string | null
   timezone: string
   special_message: string | null
+  theme: MenuTheme
   primary_color: string
   cover_image_key: string | null
   favicon_key: string | null
@@ -73,6 +75,7 @@ function mapSettings(row: SettingsRow): BusinessSettings {
     mapsUrl: row.maps_url,
     timezone: row.timezone,
     specialMessage: row.special_message,
+    theme: row.theme,
     primaryColor: row.primary_color,
     coverImageKey: row.cover_image_key,
     faviconKey: row.favicon_key,

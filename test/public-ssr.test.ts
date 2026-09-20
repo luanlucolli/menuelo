@@ -12,6 +12,14 @@ describe('SSR público', () => {
     expect(html).toContain('X-Salada')
     expect(html).toContain('R$\u00a025,90')
     expect(html).toContain('Aberto agora')
+    expect(html).toContain('data-menu-theme="classic"')
+  })
+
+  it('renderiza o tema rústico no HTML antes do JavaScript', () => {
+    const menu = publicMenuFixture()
+    menu.business.theme = 'rustic'
+    const html = renderPublicMenuMarkup(createPublicMenuBootstrap(menu, '2026-07-21T01:00:00.000Z'))
+    expect(html).toContain('data-menu-theme="rustic"')
   })
 
   it('normaliza queries sem misturar hostnames', () => {

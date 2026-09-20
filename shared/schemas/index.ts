@@ -1,6 +1,10 @@
 import { z } from 'zod'
 
 export const DEFAULT_PRIMARY_COLOR = '#374151'
+export const MENU_THEMES = ['classic', 'rustic'] as const
+export const DEFAULT_MENU_THEME = 'classic' as const
+export const menuThemeSchema = z.enum(MENU_THEMES)
+export type MenuTheme = z.infer<typeof menuThemeSchema>
 
 const nullableText = (max: number) => z.string().trim().max(max).nullable()
 const idSchema = z.string().trim().min(1).max(100)
@@ -114,6 +118,7 @@ export const settingsInputSchema = z.object({
   mapsUrl: optionalUrlSchema,
   timezone: z.string().trim().min(1).max(80),
   specialMessage: nullableText(300),
+  theme: menuThemeSchema,
   primaryColor: primaryColorSchema,
   publicSiteUrl: optionalUrlSchema,
   seoTitle: nullableText(120),
@@ -217,6 +222,7 @@ export const menuImportSchema = z.preprocess((value) => {
     ...source,
     schemaVersion: isLegacy ? 2 : source.schemaVersion,
     business: {
+      theme: DEFAULT_MENU_THEME,
       primaryColor: DEFAULT_PRIMARY_COLOR,
       addressPostalCode: null,
       addressStreet: null,
@@ -346,6 +352,7 @@ export const businessSettingsResponseSchema = z.object({
   mapsUrl: z.url().max(500).nullable(),
   timezone: z.string().min(1).max(80),
   specialMessage: responseNullableText(300),
+  theme: menuThemeSchema,
   primaryColor: z.string().regex(/^#[0-9a-fA-F]{6}$/),
   coverImageKey: coverImageKeySchema,
   faviconKey: faviconKeySchema,
