@@ -32,3 +32,6 @@ test-results
 !.dev.vars.example
 .env*
 !.env.example
+
+# Cardápios locais do Pipo
+copia-pipo-lanches-e-porcoes-*.json

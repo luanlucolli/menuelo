@@ -718,18 +718,6 @@ export function PublicMenu({
             </section>
           )}
 
-          {menu.paymentMethods.length > 0 && (
-            <section>
-              <h2 className={footerHeadingClass}>Formas de pagamento</h2>
-
-              <p className={footerTextClass}>
-                {menu.paymentMethods
-                  .map((method) => method.name)
-                  .join(' · ')}
-              </p>
-            </section>
-          )}
-
           {menu.deliveryZones.length > 0 && (
             <section>
               <h2 className={footerHeadingClass}>Regiões e taxas</h2>
