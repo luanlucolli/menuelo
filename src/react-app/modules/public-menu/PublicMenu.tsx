@@ -663,7 +663,7 @@ export function PublicMenu({
       </main>
 
       <footer className={cn('bg-[#211f1c] px-[18px] pb-[max(84px,calc(68px_+_env(safe-area-inset-bottom)))] pt-[38px] text-white min-[720px]:px-6 min-[720px]:pb-6 min-[1024px]:pb-6', cart.lines.length > 0 && 'pb-[max(118px,calc(102px_+_env(safe-area-inset-bottom)))] min-[720px]:pb-[110px]')}>
-        <div className="mx-auto grid w-full max-w-[1120px] gap-[30px] min-w-0 [&>section]:min-w-0 min-[720px]:grid-cols-2 min-[1024px]:grid-cols-4">
+        <div className="mx-auto grid w-full max-w-[1120px] gap-[30px] min-w-0 [&>section]:min-w-0 min-[720px]:grid-cols-2 min-[1024px]:grid-cols-[repeat(auto-fit,minmax(200px,1fr))]">
           {businessAddress && (
             <section>
               <h2 className={footerHeadingClass}>
@@ -715,6 +715,18 @@ export function PublicMenu({
                     </li>
                   ))}
               </ul>
+            </section>
+          )}
+
+          {menu.paymentMethods.length > 0 && (
+            <section>
+              <h2 className={footerHeadingClass}>Formas de pagamento</h2>
+
+              <p className={footerTextClass}>
+                {menu.paymentMethods
+                  .map((method) => method.name)
+                  .join(' · ')}
+              </p>
             </section>
           )}
 
