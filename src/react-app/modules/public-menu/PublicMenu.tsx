@@ -5,7 +5,6 @@ import {
   ExternalLink,
   MapPin,
   Megaphone,
-  Phone,
   Search,
   X,
 } from 'lucide-react'
@@ -116,21 +115,8 @@ export function PublicMenu({
   const whatsappDigits = normalizeWhatsappNumber(menu.business.whatsapp)
   const validWhatsapp = Boolean(whatsappDigits)
 
-  const phoneDigits = (
-    menu.business.phone ?? ''
-  ).replace(/\D/g, '')
-
-  const showPhone = Boolean(
-    menu.business.phone &&
-      (!validWhatsapp || phoneDigits !== whatsappDigits),
-  )
-
   const formattedWhatsapp = menu.business.whatsapp
     ? formatBrazilianPhone(menu.business.whatsapp)
-    : ''
-
-  const formattedPhone = menu.business.phone
-    ? formatBrazilianPhone(menu.business.phone)
     : ''
 
   const businessAddress =
@@ -175,7 +161,6 @@ export function PublicMenu({
 
   const showBusinessInfo = Boolean(
     validWhatsapp ||
-      showPhone ||
       (businessAddress && mapsUrl) ||
       instagramUrl ||
       facebookUrl ||
@@ -353,20 +338,6 @@ export function PublicMenu({
                   </div>
 
                   <ExternalLink className="h-[17px] w-[17px] text-[#aaa49c]" aria-hidden="true" />
-                </a>
-              )}
-
-              {showPhone && (
-                <a
-                  className={storeItemClass}
-                  href={`tel:${phoneDigits}`}
-                >
-                  <Phone className={storeIconClass} aria-hidden="true" />
-
-                  <div className="flex min-w-0 flex-col">
-                    <strong className="overflow-hidden text-ellipsis whitespace-nowrap text-[.88rem] font-[720]">{formattedPhone}</strong>
-                    <span className="mt-0.5 overflow-hidden text-ellipsis whitespace-nowrap text-[.74rem] text-menu-muted">Ligar para a loja</span>
-                  </div>
                 </a>
               )}
 
@@ -756,20 +727,11 @@ export function PublicMenu({
             </section>
           )}
 
-          {(menu.business.phone ||
-            instagramUrl ||
-            facebookUrl) && (
+          {(instagramUrl || facebookUrl) && (
             <section>
               <h2 className={footerHeadingClass}>Contato</h2>
 
               <div className="flex flex-wrap gap-x-[18px] gap-y-2">
-                {menu.business.phone && (
-                  <a className={footerLinkClass.replace('mt-2.5', 'mt-0')} href={`tel:${phoneDigits}`}>
-                    <Phone aria-hidden="true" />
-                    {formattedPhone}
-                  </a>
-                )}
-
                 {instagramUrl && (
                   <a
                     className={footerLinkClass.replace('mt-2.5', 'mt-0')}
