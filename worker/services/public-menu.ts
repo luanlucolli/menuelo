@@ -1,4 +1,5 @@
 import { menuResponseSchema, type MenuResponse } from '../../shared/schemas'
+import type { PublicProductPageData } from '../../shared/public-seo'
 import { getMenu } from '../repositories/menu'
 
 function normalizeOrigin(value: string): string | null {
@@ -25,4 +26,13 @@ export function preparePublicMenu(menu: MenuResponse, requestUrl: string, config
 
 export async function loadPublicMenu(db: D1Database, requestUrl: string, configuredUrl: string): Promise<MenuResponse> {
   return preparePublicMenu(await getMenu(db), requestUrl, configuredUrl)
+}
+
+export function findPublicProduct(menu: MenuResponse, id: string): PublicProductPageData | null {
+  for (const category of menu.categories) {
+    if (!category.isActive) continue
+    const product = category.products.find((candidate) => candidate.id === id)
+    if (product) return { category, product }
+  }
+  return null
 }

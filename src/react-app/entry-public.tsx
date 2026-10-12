@@ -1,67 +1,42 @@
 import { StrictMode, type ReactNode } from 'react'
 import { createRoot, hydrateRoot, type Root } from 'react-dom/client'
 import { menuResponseSchema, publicMenuBootstrapSchema, type MenuResponse, type PublicMenuBootstrap } from '../../shared/schemas'
-import { buildPublicSeo } from '../../shared/public-seo'
+import { buildPublicProductSeo, buildPublicSeo, type PublicProductPageData } from '../../shared/public-seo'
 import { getZonedClock } from '../../shared/utils'
 import { primaryButton } from './lib/tailwind'
+import { applyPublicSeo } from './lib/public-seo'
 import { PublicMenu } from './modules/public-menu/PublicMenu'
 
 const IDENTIFIER_PREFIX = 'menuelo-'
 const root = document.getElementById('root')
 let clientRoot: Root | null = null
 
-function publicTree(bootstrap: PublicMenuBootstrap): ReactNode {
-  return <StrictMode><PublicMenu menu={bootstrap.menu} initialClock={bootstrap.initialClock} /></StrictMode>
-}
-
-function setMeta(selector: string, attribute: 'name' | 'property', key: string, content: string) {
-  let element = document.head.querySelector<HTMLMetaElement>(selector)
-  if (!element) {
-    element = document.createElement('meta')
-    element.setAttribute(attribute, key)
-    document.head.append(element)
+function productPageForPath(menu: MenuResponse, pathname: string): PublicProductPageData | undefined {
+  const match = pathname.match(/^\/produtos\/([^/]+)\/[^/]+$/)
+  if (!match) return undefined
+  let productId: string
+  try {
+    productId = decodeURIComponent(match[1]!)
+  } catch {
+    return undefined
   }
-  element.content = content
+  for (const category of menu.categories) {
+    const product = category.products.find((item) => item.id === productId)
+    if (category.isActive && product) return { category, product }
+  }
+  return undefined
 }
 
-function applyClientSeo(menu: MenuResponse) {
+function publicTree(bootstrap: PublicMenuBootstrap, productPage?: PublicProductPageData): ReactNode {
+  return <StrictMode><PublicMenu menu={bootstrap.menu} initialClock={bootstrap.initialClock} productPage={productPage} /></StrictMode>
+}
+
+function applyClientSeo(menu: MenuResponse, productPage?: PublicProductPageData): void {
   const publicOrigin = menu.business.publicSiteUrl || window.location.origin
-  const seo = buildPublicSeo(menu, publicOrigin)
-  document.title = seo.title
-  setMeta('meta[name="theme-color"]', 'name', 'theme-color', seo.themeColor)
-  setMeta('meta[name="description"]', 'name', 'description', seo.description)
-  setMeta('meta[property="og:type"]', 'property', 'og:type', 'website')
-  setMeta('meta[property="og:title"]', 'property', 'og:title', seo.title)
-  setMeta('meta[property="og:description"]', 'property', 'og:description', seo.description)
-  setMeta('meta[property="og:url"]', 'property', 'og:url', seo.canonical)
-  if (seo.image) setMeta('meta[property="og:image"]', 'property', 'og:image', seo.image)
-  else document.head.querySelector('meta[property="og:image"]')?.remove()
-  let canonical = document.head.querySelector<HTMLLinkElement>('link[rel="canonical"]')
-  if (!canonical) {
-    canonical = document.createElement('link')
-    canonical.rel = 'canonical'
-    document.head.append(canonical)
-  }
-  canonical.href = seo.canonical
-  const favicon = document.head.querySelector<HTMLLinkElement>('link[rel="icon"]')
-  if (seo.favicon) {
-    const icon = favicon ?? document.createElement('link')
-    icon.rel = 'icon'
-    icon.type = 'image/x-icon'
-    icon.sizes = 'any'
-    icon.href = seo.favicon
-    if (!favicon) document.head.append(icon)
-  } else {
-    favicon?.remove()
-  }
-  let jsonLd = document.head.querySelector<HTMLScriptElement>('script[data-menu-json-ld]')
-  if (!jsonLd) {
-    jsonLd = document.createElement('script')
-    jsonLd.type = 'application/ld+json'
-    jsonLd.dataset.menuJsonLd = 'true'
-    document.head.append(jsonLd)
-  }
-  jsonLd.text = JSON.stringify(seo.jsonLd)
+  const seo = productPage
+    ? buildPublicProductSeo(menu, productPage, publicOrigin)
+    : buildPublicSeo(menu, publicOrigin)
+  applyPublicSeo(seo)
 }
 
 function readBootstrap(): PublicMenuBootstrap | null {
@@ -91,21 +66,22 @@ async function fetchMenu(): Promise<PublicMenuBootstrap> {
   }
 }
 
-function renderState(content: ReactNode) {
+function renderState(content: ReactNode): void {
   if (!root) return
   clientRoot ??= createRoot(root, { identifierPrefix: IDENTIFIER_PREFIX })
   clientRoot.render(<StrictMode>{content}</StrictMode>)
 }
 
-async function mountFromApi(preserveServerHtml: boolean) {
+async function mountFromApi(preserveServerHtml: boolean): Promise<void> {
   if (!root) return
   if (!preserveServerHtml) renderState(<main className="grid min-h-[100dvh] place-content-center justify-items-center gap-[.8rem] p-8 text-center"><span className="h-8 w-8 animate-[spin_.8s_linear_infinite] rounded-full border-[3px] border-border border-t-[var(--color-brand)] motion-reduce:animate-none" /><p>Carregando cardápio…</p></main>)
   try {
     const bootstrap = await fetchMenu()
-    applyClientSeo(bootstrap.menu)
+    const productPage = productPageForPath(bootstrap.menu, window.location.pathname)
+    applyClientSeo(bootstrap.menu, productPage)
     if (preserveServerHtml) root.replaceChildren()
     clientRoot ??= createRoot(root, { identifierPrefix: IDENTIFIER_PREFIX })
-    clientRoot.render(publicTree(bootstrap))
+    clientRoot.render(publicTree(bootstrap, productPage))
   } catch (error) {
     console.error('Falha ao carregar o cardápio.', error)
     if (preserveServerHtml) return
@@ -116,16 +92,18 @@ async function mountFromApi(preserveServerHtml: boolean) {
 const bootstrap = readBootstrap()
 if (root && bootstrap) {
   try {
-    hydrateRoot(root, publicTree(bootstrap), {
+    const productPage = productPageForPath(bootstrap.menu, window.location.pathname)
+    applyClientSeo(bootstrap.menu, productPage)
+    hydrateRoot(root, publicTree(bootstrap, productPage), {
       identifierPrefix: IDENTIFIER_PREFIX,
       onCaughtError: (error) => console.error('Erro capturado no cardápio.', error),
       onRecoverableError: (error) => console.error('Erro recuperável durante a hidratação.', error),
-      onUncaughtError: (error) => console.error('Erro não tratado no cardápio.', error),
+      onUncaughtError: (error) => console.error('Erro não tratado na hidratação.', error),
     })
   } catch (error) {
     console.error('A hidratação do cardápio falhou; recuperando em CSR.', error)
     root.replaceChildren()
-    createRoot(root, { identifierPrefix: IDENTIFIER_PREFIX }).render(publicTree(bootstrap))
+    createRoot(root, { identifierPrefix: IDENTIFIER_PREFIX }).render(publicTree(bootstrap, productPageForPath(bootstrap.menu, window.location.pathname)))
   }
 } else {
   void mountFromApi(Boolean(root?.hasChildNodes()))

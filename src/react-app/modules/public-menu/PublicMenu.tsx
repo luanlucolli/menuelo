@@ -8,12 +8,9 @@ import {
   Search,
   X,
 } from 'lucide-react'
-import { useEffect, useRef, useState, type CSSProperties } from 'react'
-import type {
-  MenuResponse,
-  ZonedClock,
-} from '../../../../shared/schemas'
-import { safePublicHttpUrl } from '../../../../shared/public-seo'
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
+import type { MenuResponse, Product, ZonedClock } from '../../../../shared/schemas'
+import { buildPublicProductSeo, buildPublicSeo, safePublicHttpUrl, type PublicProductPageData } from '../../../../shared/public-seo'
 import {
   buildGoogleMapsDirectionsUrl,
   calculateOpenStatus,
@@ -26,10 +23,11 @@ import {
 import whatsappLogo from '../../../assets/WhatsApp-logo.webp'
 import { CartBar } from './CartBar'
 import { CartDialog } from './CartDialog'
-import { ProductCard, ProductDialog } from './ProductCard'
+import { ProductCard, ProductDialog, ProductPageSummary } from './ProductCard'
 import { useCart } from './cart/useCart'
 import { usePublicMenuInteractions } from './usePublicMenuInteractions'
 import { cn, focusRing, publicCartFocusRing } from '../../lib/tailwind'
+import { applyPublicSeo } from '../../lib/public-seo'
 
 const WEEKDAYS = [
   'Domingo',
@@ -57,9 +55,11 @@ type PublicThemeStyle = CSSProperties & {
 export function PublicMenu({
   menu,
   initialClock,
+  productPage,
 }: {
   menu: MenuResponse
   initialClock: ZonedClock
+  productPage?: PublicProductPageData
 }) {
   const {
     activeCategory,
@@ -78,6 +78,37 @@ export function PublicMenu({
   const [cartOpen, setCartOpen] = useState(false)
   const [itemAddedFeedback, setItemAddedFeedback] = useState<string | null>(null)
   const cartTriggerRef = useRef<HTMLButtonElement | null>(null)
+  const publicOrigin = menu.business.publicSiteUrl ?? (typeof window === 'undefined' ? 'http://localhost' : window.location.origin)
+  const homeSeo = useMemo(() => buildPublicSeo(menu, publicOrigin), [menu, publicOrigin])
+
+  const seoForPath = useCallback((pathname: string) => {
+    const match = pathname.match(/^\/produtos\/([^/]+)\/[^/]+$/)
+    if (match) {
+      const productId = decodeURIComponent(match[1]!)
+      const category = menu.categories.find((item) => item.products.some((candidate) => candidate.id === productId))
+      const product = category?.products.find((candidate) => candidate.id === productId)
+      if (category && product) return buildPublicProductSeo(menu, { category, product }, publicOrigin)
+    }
+    return homeSeo
+  }, [homeSeo, menu, publicOrigin])
+
+  const handleSelectProduct = useCallback((product: Product, trigger: HTMLButtonElement | HTMLAnchorElement, href?: string) => {
+    const category = menu.categories.find((item) => item.products.some((candidate) => candidate.id === product.id))
+    selectProduct(product, trigger, href)
+    if (category) applyPublicSeo(buildPublicProductSeo(menu, { category, product }, publicOrigin))
+  }, [menu, publicOrigin, selectProduct])
+
+  const handleCloseProduct = useCallback(() => {
+    closeProduct()
+    applyPublicSeo(productPage ? buildPublicProductSeo(menu, productPage, publicOrigin) : homeSeo)
+  }, [closeProduct, homeSeo, menu, productPage, publicOrigin])
+
+  useEffect(() => {
+    const syncSeo = () => applyPublicSeo(seoForPath(window.location.pathname))
+    syncSeo()
+    window.addEventListener('popstate', syncSeo)
+    return () => window.removeEventListener('popstate', syncSeo)
+  }, [seoForPath])
 
   useEffect(() => {
     if (!itemAddedFeedback) return
@@ -205,21 +236,33 @@ export function PublicMenu({
     >
       <header
         className="menu-hero relative min-h-[220px] overflow-hidden bg-[var(--color-brand)] bg-cover bg-center text-white min-[720px]:min-h-[270px] min-[1024px]:min-h-[300px]"
-        style={
-          menu.business.coverImageKey
-            ? {
-                backgroundImage: `url(/media/${menu.business.coverImageKey})`,
-              }
-            : undefined
-        }
       >
+        {!productPage && menu.business.coverImageKey && (
+          <img
+            className="absolute inset-0 h-full w-full object-cover object-center"
+            src={`/media/${menu.business.coverImageKey}`}
+            alt=""
+            aria-hidden="true"
+            width={1920}
+            height={1080}
+            loading="eager"
+            fetchPriority="high"
+            decoding="async"
+          />
+        )}
         <div
           className="menu-hero-overlay absolute inset-0 bg-[linear-gradient(180deg,rgb(0_0_0_/_12%)_0%,rgb(0_0_0_/_28%)_42%,rgb(0_0_0_/_88%)_100%)]"
           aria-hidden="true"
         />
 
         <div className="relative z-[1] mx-auto flex min-h-[220px] w-full max-w-[1120px] flex-col items-start justify-end px-[18px] pb-5 pt-7 min-[720px]:min-h-[270px] min-[720px]:px-6 min-[720px]:pb-[30px] min-[1024px]:min-h-[300px]">
-          <h1 className="m-0 max-w-[18ch] text-[clamp(1.85rem,7vw,3.25rem)] font-[800] leading-[1.03] tracking-[-.045em] [text-wrap:balance] [text-shadow:0_2px_18px_rgb(0_0_0_/_42%)]">{menu.business.name}</h1>
+          <h1 className="m-0 max-w-[18ch] text-[clamp(1.85rem,7vw,3.25rem)] font-[800] leading-[1.03] tracking-[-.045em] [text-wrap:balance] [text-shadow:0_2px_18px_rgb(0_0_0_/_42%)]">{productPage?.product.name ?? menu.business.name}</h1>
+
+          {productPage && (
+            <a className={`mt-2 text-[.94rem] font-[650] text-[rgb(255_255_255_/_88%)] underline underline-offset-4 ${focusRing}`} href="/">
+              {menu.business.name} · {productPage.category.name}
+            </a>
+          )}
 
           {menu.business.slogan && (
             <p className="mt-2 max-w-[42rem] text-[.94rem] leading-[1.45] text-[rgb(255_255_255_/_84%)]">
@@ -261,7 +304,7 @@ export function PublicMenu({
         </div>
       </header>
 
-      <main>
+      <main id="menu">
         {specialMessage && (
           <div className="menu-special-message relative flex min-h-[46px] w-full items-center overflow-hidden border-b border-[color-mix(in_srgb,var(--color-brand)_18%,var(--color-menu-border))] bg-[color-mix(in_srgb,var(--color-brand)_7%,#fff)] text-menu-text">
             <span className="sr-only">{specialMessage}</span>
@@ -426,6 +469,28 @@ export function PublicMenu({
           </details>
         )}
 
+        {!productPage && menu.business.description && (
+          <section className="mx-auto w-full max-w-[1120px] px-[18px] pt-5 min-[720px]:px-6" aria-label="Sobre a loja">
+            <p className="m-0 max-w-[72ch] text-[.9rem] leading-[1.6] text-menu-muted">{menu.business.description}</p>
+          </section>
+        )}
+
+        {productPage ? (
+          <div className="mx-auto grid w-full max-w-[1120px] gap-4 px-[18px] pb-[72px] pt-6 min-[720px]:gap-5 min-[720px]:px-6 min-[720px]:pt-8">
+            <nav className="flex flex-wrap items-center gap-2 text-[.84rem] text-menu-muted" aria-label="Navegação estrutural">
+              <a className={`font-[700] text-menu-text underline underline-offset-4 ${focusRing}`} href="/">Voltar ao cardápio</a>
+              <span aria-hidden="true">/</span>
+              <a className={`underline underline-offset-4 ${focusRing}`} href={`/#${productPage.category.slug}`}>{productPage.category.name}</a>
+            </nav>
+            <ProductPageSummary
+              category={productPage.category}
+              product={productPage.product}
+              businessName={menu.business.name}
+              onConfigure={(product, trigger) => handleSelectProduct(product, trigger)}
+            />
+          </div>
+        ) : (
+          <>
         <div className="menu-toolbar sticky top-0 z-[30] border-b border-menu-border bg-[rgb(247_246_243_/_94%)] backdrop-blur-[14px]">
           <div className="menu-toolbar-inner menu-rustic-plaque menu-rustic-plaque-medium mx-auto w-full max-w-[1120px] px-4 py-[11px] pb-[9px] min-[720px]:px-6 min-[1024px]:grid min-[1024px]:grid-cols-[minmax(300px,420px)_minmax(0,1fr)] min-[1024px]:items-center min-[1024px]:gap-[18px]">
             <div className="menu-search-frame relative flex items-center" role="search">
@@ -540,7 +605,7 @@ export function PublicMenu({
                   <ProductCard
                     key={product.id}
                     product={product}
-                    onSelect={selectProduct}
+                    onSelect={handleSelectProduct}
                   />
                 ))}
               </div>
@@ -563,7 +628,7 @@ export function PublicMenu({
                       <ProductCard
                         key={`promotion-${product.id}`}
                         product={product}
-                        onSelect={selectProduct}
+                        onSelect={handleSelectProduct}
                       />
                     ))}
                   </div>
@@ -587,7 +652,7 @@ export function PublicMenu({
                       <ProductCard
                         key={`featured-${product.id}`}
                         product={product}
-                        onSelect={selectProduct}
+                        onSelect={handleSelectProduct}
                       />
                     ))}
                   </div>
@@ -623,7 +688,7 @@ export function PublicMenu({
                       <ProductCard
                         key={product.id}
                         product={product}
-                        onSelect={selectProduct}
+                        onSelect={handleSelectProduct}
                       />
                     ))}
                   </div>
@@ -632,6 +697,8 @@ export function PublicMenu({
             </>
           )}
         </div>
+          </>
+        )}
       </main>
 
       <footer className={cn('menu-footer bg-[#211f1c] px-[18px] pb-[max(84px,calc(68px_+_env(safe-area-inset-bottom)))] pt-[38px] text-white min-[720px]:px-6 min-[720px]:pb-6 min-[1024px]:pb-6', cart.lines.length > 0 && 'pb-[max(118px,calc(102px_+_env(safe-area-inset-bottom)))] min-[720px]:pb-[110px]')}>
@@ -785,7 +852,7 @@ export function PublicMenu({
       {selected && (
         <ProductDialog
           product={selected}
-          onClose={closeProduct}
+          onClose={handleCloseProduct}
           onAdd={(product, variant, quantity, note, customizations) => {
             cart.addItem(product, variant, quantity, note, customizations)
             setItemAddedFeedback('Item adicionado ao pedido')

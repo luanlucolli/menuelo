@@ -1,7 +1,7 @@
 import { StrictMode } from 'react'
 import { renderToString } from 'react-dom/server'
 import type { MenuResponse, PublicMenuBootstrap } from '../../shared/schemas'
-import { buildPublicSeo, type PublicSeoData } from '../../shared/public-seo'
+import { buildPublicProductSeo, buildPublicSeo, type PublicProductPageData, type PublicSeoData } from '../../shared/public-seo'
 import { serializeJsonForHtml } from '../../shared/safe-json'
 import { getZonedClock } from '../../shared/utils'
 import { PublicMenu } from '../../src/react-app/modules/public-menu/PublicMenu'
@@ -45,8 +45,15 @@ function documentRewriter(markup: string, bootstrap: PublicMenuBootstrap, seo: P
   const jsonLd = serializeJsonForHtml(seo.jsonLd)
   const headExtras = [
     `<link rel="canonical" href="${escapeHtmlAttribute(seo.canonical)}">`,
+    `<meta name="robots" content="${seo.robots}">`,
     `<meta property="og:url" content="${escapeHtmlAttribute(seo.canonical)}">`,
+    `<meta property="og:site_name" content="${escapeHtmlAttribute(seo.siteName)}">`,
+    `<meta property="og:locale" content="${seo.locale}">`,
     seo.image ? `<meta property="og:image" content="${escapeHtmlAttribute(seo.image)}">` : '',
+    `<meta name="twitter:card" content="${seo.twitterCard}">`,
+    `<meta name="twitter:title" content="${escapeHtmlAttribute(seo.title)}">`,
+    `<meta name="twitter:description" content="${escapeHtmlAttribute(seo.description)}">`,
+    seo.image ? `<meta name="twitter:image" content="${escapeHtmlAttribute(seo.image)}">` : '',
     seo.favicon ? `<link rel="icon" href="${escapeHtmlAttribute(seo.favicon)}" type="image/x-icon" sizes="any">` : '',
     `<script type="application/ld+json" data-menu-json-ld nonce="${nonce}">${jsonLd}</script>`,
   ].join('')
@@ -56,7 +63,7 @@ function documentRewriter(markup: string, bootstrap: PublicMenuBootstrap, seo: P
     .on('title', { element: (element) => { element.setInnerContent(seo.title) } })
     .on('meta[name="theme-color"]', { element: (element) => { element.setAttribute('content', seo.themeColor) } })
     .on('meta[name="description"]', { element: (element) => { element.setAttribute('content', seo.description) } })
-    .on('meta[property="og:type"]', { element: (element) => { element.setAttribute('content', 'website') } })
+    .on('meta[property="og:type"]', { element: (element) => { element.setAttribute('content', seo.openGraphType) } })
     .on('meta[property="og:title"]', { element: (element) => { element.setAttribute('content', seo.title) } })
     .on('meta[property="og:description"]', { element: (element) => { element.setAttribute('content', seo.description) } })
     .on('head', { element: (element) => { element.append(headExtras, { html: true }) } })
@@ -68,11 +75,13 @@ function documentRewriter(markup: string, bootstrap: PublicMenuBootstrap, seo: P
     })
 }
 
-export async function renderPublicMenuDocument(request: Request, assets: Fetcher, menu: MenuResponse): Promise<Response> {
+async function renderDocument(request: Request, assets: Fetcher, menu: MenuResponse, productPage?: PublicProductPageData): Promise<Response> {
   const bootstrap = createPublicMenuBootstrap(menu)
   const publicOrigin = menu.business.publicSiteUrl ?? new URL(request.url).origin
-  const seo = buildPublicSeo(menu, publicOrigin)
-  const markup = renderPublicMenuMarkup(bootstrap)
+  const seo = productPage
+    ? buildPublicProductSeo(menu, productPage, publicOrigin)
+    : buildPublicSeo(menu, publicOrigin)
+  const markup = renderPublicMenuMarkup(bootstrap, productPage)
   const shellUrl = new URL('/index.html', request.url)
   const shell = await assets.fetch(new Request(shellUrl, { headers: { Accept: 'text/html' } }))
   if (!shell.ok || !shell.body) throw new Error(`STATIC_SHELL_UNAVAILABLE:${shell.status}`)
@@ -81,9 +90,18 @@ export async function renderPublicMenuDocument(request: Request, assets: Fetcher
   const headers = new Headers(shell.headers)
   headers.set('Content-Type', 'text/html; charset=UTF-8')
   headers.set('Cache-Control', 'public, max-age=0, s-maxage=60, must-revalidate')
+  if (seo.robots.startsWith('noindex')) headers.set('X-Robots-Tag', seo.robots.replace(',', ', '))
   securityHeaders(headers, request.url, nonce)
   const source = new Response(shell.body, { status: 200, headers })
   return documentRewriter(markup, bootstrap, seo, nonce).transform(source)
+}
+
+export function renderPublicMenuDocument(request: Request, assets: Fetcher, menu: MenuResponse): Promise<Response> {
+  return renderDocument(request, assets, menu)
+}
+
+export function renderPublicProductDocument(request: Request, assets: Fetcher, menu: MenuResponse, productPage: PublicProductPageData): Promise<Response> {
+  return renderDocument(request, assets, menu, productPage)
 }
 
 export function createPublicMenuBootstrap(menu: MenuResponse, renderedAt = new Date().toISOString()): PublicMenuBootstrap {
@@ -95,9 +113,9 @@ export function createPublicMenuBootstrap(menu: MenuResponse, renderedAt = new D
   }
 }
 
-export function renderPublicMenuMarkup(bootstrap: PublicMenuBootstrap): string {
+export function renderPublicMenuMarkup(bootstrap: PublicMenuBootstrap, productPage?: PublicProductPageData): string {
   return renderToString(
-    <StrictMode><PublicMenu menu={bootstrap.menu} initialClock={bootstrap.initialClock} /></StrictMode>,
+    <StrictMode><PublicMenu menu={bootstrap.menu} initialClock={bootstrap.initialClock} productPage={productPage} /></StrictMode>,
     { identifierPrefix: IDENTIFIER_PREFIX },
   )
 }
@@ -113,6 +131,20 @@ export function publicErrorDocument(status: 500 | 502 | 503): Response {
       'Content-Security-Policy': "default-src 'none'; style-src 'unsafe-inline'",
       'X-Content-Type-Options': 'nosniff',
       'X-Frame-Options': 'DENY',
+      'X-Robots-Tag': 'noindex, nofollow',
+    },
+  })
+}
+
+export function publicNotFoundDocument(method = 'GET'): Response {
+  const html = '<!doctype html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,follow"><title>Página não encontrada</title></head><body><main><h1>Página não encontrada</h1><p>O endereço pode ter mudado ou não está disponível.</p><a href="/">Voltar ao cardápio</a></main></body></html>'
+  return new Response(method === 'HEAD' ? null : html, {
+    status: 404,
+    headers: {
+      'Content-Type': 'text/html; charset=UTF-8',
+      'Cache-Control': 'no-store',
+      'X-Robots-Tag': 'noindex, follow',
+      'X-Content-Type-Options': 'nosniff',
     },
   })
 }

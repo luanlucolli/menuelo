@@ -1,6 +1,8 @@
 import { X } from 'lucide-react'
 import { useEffect, useId, useRef, useState } from 'react'
 import type { Product, ProductVariant } from '../../../../shared/schemas'
+import type { PublicProductPageData } from '../../../../shared/public-seo'
+import { publicProductPath } from '../../../../shared/public-seo'
 import { formatMoney } from '../../../../shared/utils'
 import { CART_NOTE_MAX_LENGTH, CART_QUANTITY_MAX, getActiveVariants, getVariantPriceCents } from './cart/cart-utils'
 import { ProductCustomizationGroups } from './ProductCustomizationGroups'
@@ -13,7 +15,7 @@ function hasActivePromotion(product: Product): boolean {
     .some((variant) => variant.promotionalPriceCents !== null)
 }
 
-function CardPrice({ product }: { product: Product }) {
+export function CardPrice({ product }: { product: Product }) {
   const activeVariants = getActiveVariants(product)
 
   if (!activeVariants.length) {
@@ -52,9 +54,11 @@ function CardPrice({ product }: { product: Product }) {
 function ProductImage({
   product,
   modal = false,
+  alt = '',
 }: {
   product: Product
   modal?: boolean
+  alt?: string
 }) {
   const initial =
     product.name.trim().charAt(0).toLocaleUpperCase('pt-BR') || '•'
@@ -64,8 +68,11 @@ function ProductImage({
       <img
         className={modal ? 'menu-product-dialog-image block aspect-[16/10] max-h-[360px] min-h-[220px] w-full object-cover max-[639px]:max-h-[300px]' : cn('menu-product-image block h-[104px] w-[104px] rounded-[14px] bg-menu-surface-muted object-cover max-[360px]:h-[92px] max-[360px]:w-[92px] min-[720px]:h-[108px] min-[720px]:w-[108px]', !product.isAvailable && 'grayscale-[.35] opacity-[.72]')}
         src={`/media/${product.imageKey}`}
-        alt=""
+        alt={alt}
+        width={modal ? 800 : 220}
+        height={modal ? 500 : 220}
         loading={modal ? 'eager' : 'lazy'}
+        fetchPriority={modal ? 'high' : 'auto'}
         decoding="async"
       />
     )
@@ -293,17 +300,21 @@ export function ProductCard({
   product: Product
   onSelect: (
     product: Product,
-    trigger: HTMLButtonElement,
+    trigger: HTMLAnchorElement,
+    href: string,
   ) => void
 }) {
   const promoted = hasActivePromotion(product)
+  const href = publicProductPath(product.id, product.name)
 
   return (
-    <button
-      className={cn('menu-product-card menu-rustic-plaque menu-rustic-plaque-dark grid min-h-[132px] w-full cursor-pointer grid-cols-[minmax(0,1fr)_104px] items-center gap-[14px] border-0 border-b border-menu-border bg-menu-surface px-4 py-[15px] text-left text-menu-text transition-[background-color] duration-[140ms] ease-[ease] motion-reduce:transition-none hover:bg-menu-hover focus-visible:relative focus-visible:z-[1] focus-visible:outline-[3px] focus-visible:outline-[color-mix(in_srgb,var(--color-brand)_28%,transparent)] focus-visible:outline-offset-[-3px] last:border-b-0 max-[360px]:grid-cols-[minmax(0,1fr)_92px] min-[720px]:min-h-[142px] min-[720px]:rounded-2xl min-[720px]:border min-[720px]:last:border-b', !product.isAvailable && 'menu-product-card-unavailable bg-menu-disabled')}
-      type="button"
+    <a
+      className={cn('menu-product-card menu-rustic-plaque menu-rustic-plaque-dark grid min-h-[132px] w-full cursor-pointer grid-cols-[minmax(0,1fr)_104px] items-center gap-[14px] border-0 border-b border-menu-border bg-menu-surface px-4 py-[15px] text-left text-menu-text no-underline transition-[background-color] duration-[140ms] ease-[ease] motion-reduce:transition-none hover:bg-menu-hover focus-visible:relative focus-visible:z-[1] focus-visible:outline-[3px] focus-visible:outline-[color-mix(in_srgb,var(--color-brand)_28%,transparent)] focus-visible:outline-offset-[-3px] last:border-b-0 max-[360px]:grid-cols-[minmax(0,1fr)_92px] min-[720px]:min-h-[142px] min-[720px]:rounded-2xl min-[720px]:border min-[720px]:last:border-b', !product.isAvailable && 'menu-product-card-unavailable bg-menu-disabled')}
+      href={href}
       onClick={(event) => {
-        onSelect(product, event.currentTarget)
+        if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return
+        event.preventDefault()
+        onSelect(product, event.currentTarget, href)
       }}
       aria-label={`Ver detalhes de ${product.name}${
         product.isAvailable ? '' : ', indisponível no momento'
@@ -332,6 +343,40 @@ export function ProductCard({
       </div>
 
       <ProductImage product={product} />
-    </button>
+    </a>
+  )
+}
+
+export function ProductPageSummary({
+  category,
+  product,
+  businessName,
+  onConfigure,
+}: PublicProductPageData & {
+  businessName: string
+  onConfigure: (product: Product, trigger: HTMLButtonElement) => void
+}) {
+  const hasActiveVariant = product.variants.some((variant) => variant.isActive)
+
+  return (
+    <article className="grid overflow-hidden rounded-2xl border border-menu-border bg-menu-surface shadow-menu-sm min-[720px]:grid-cols-[minmax(280px,.9fr)_minmax(0,1.1fr)]">
+      <div className="min-w-0 bg-menu-surface-muted">
+        <ProductImage product={product} modal alt={product.name} />
+      </div>
+      <div className="grid content-start gap-3 p-5 min-[720px]:p-7">
+        <p className="m-0 text-[.84rem] font-[700] text-menu-muted">{businessName} · {category.name}</p>
+        {product.ingredients && <p className="m-0 text-[.98rem] leading-[1.6] text-menu-muted">{product.ingredients}</p>}
+        {!product.isAvailable && <p className="m-0 rounded-[10px] bg-menu-danger-background px-3 py-2 text-[.9rem] font-[650] text-menu-danger">Indisponível no momento</p>}
+        <CardPrice product={product} />
+        <button
+          className={`mt-1 min-h-12 cursor-pointer rounded-xl border-0 bg-[var(--color-brand)] px-4 py-3 text-center font-[750] text-[var(--color-brand-text)] disabled:cursor-not-allowed disabled:opacity-55 ${publicAddFocusRing}`}
+          type="button"
+          disabled={!product.isAvailable || !hasActiveVariant}
+          onClick={(event) => onConfigure(product, event.currentTarget)}
+        >
+          Ver opções e adicionar ao pedido
+        </button>
+      </div>
+    </article>
   )
 }

@@ -8,7 +8,8 @@ export function usePublicMenuInteractions(menu: MenuResponse, initialClock: Zone
   const [selected, setSelected] = useState<Product | null>(null)
   const [clock, setClock] = useState(initialClock)
   const categoryNavRef = useRef<HTMLDivElement>(null)
-  const selectedTriggerRef = useRef<HTMLButtonElement | null>(null)
+  const selectedTriggerRef = useRef<HTMLButtonElement | HTMLAnchorElement | null>(null)
+  const openedFromCardRef = useRef(false)
   const searching = Boolean(normalizeSearch(search))
 
   const categories = useMemo(() => {
@@ -22,8 +23,28 @@ export function usePublicMenuInteractions(menu: MenuResponse, initialClock: Zone
 
   const closeProduct = useCallback(() => {
     setSelected(null)
+    if (openedFromCardRef.current) {
+      openedFromCardRef.current = false
+      window.history.back()
+    }
     requestAnimationFrame(() => selectedTriggerRef.current?.focus())
   }, [])
+
+  useEffect(() => {
+    const syncSelectedProduct = () => {
+      const match = window.location.pathname.match(/^\/produtos\/([^/]+)\/[^/]+$/)
+      if (!match) {
+        openedFromCardRef.current = false
+        setSelected(null)
+        return
+      }
+      openedFromCardRef.current = window.history.state?.menueloProductModal === true
+      const product = menu.categories.flatMap((category) => category.products).find((item) => item.id === decodeURIComponent(match[1]!))
+      setSelected(product ?? null)
+    }
+    window.addEventListener('popstate', syncSelectedProduct)
+    return () => window.removeEventListener('popstate', syncSelectedProduct)
+  }, [menu])
 
   useEffect(() => {
     const updateClock = () => setClock(getZonedClock(new Date(), menu.business.timezone))
@@ -102,8 +123,13 @@ export function usePublicMenuInteractions(menu: MenuResponse, initialClock: Zone
     })
   }
 
-  const selectProduct = (product: Product, trigger: HTMLButtonElement) => {
+  const selectProduct = (product: Product, trigger: HTMLButtonElement | HTMLAnchorElement, href?: string) => {
     selectedTriggerRef.current = trigger
+    openedFromCardRef.current = Boolean(href && window.location.pathname === '/')
+    if (openedFromCardRef.current && href) {
+      const currentState = window.history.state && typeof window.history.state === 'object' ? window.history.state : {}
+      window.history.pushState({ ...currentState, menueloProductModal: true }, '', href)
+    }
     setSelected(product)
   }
 

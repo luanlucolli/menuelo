@@ -3,19 +3,32 @@ import { ApiError, errorJson } from './lib/http'
 import type { AppEnvironment } from './middleware/auth'
 import { mediaRoutes, publicRoutes } from './routes/public'
 import { adminRoutes } from './routes/admin'
-import { servePublicPage, serveRobots, serveSitemap } from './routes/public-page'
+import { publicNotFoundDocument } from './ssr/render-public-menu'
+import { serveAdminDocument, serveIndexHtmlRedirect, servePublicPage, servePublicProduct, serveRobots, serveSitemap } from './routes/public-page'
 
 const app = new Hono<AppEnvironment>()
 
 app.get('/', servePublicPage)
 app.on('HEAD', '/', servePublicPage)
+app.get('/index.html', serveIndexHtmlRedirect)
+app.on('HEAD', '/index.html', serveIndexHtmlRedirect)
 app.get('/robots.txt', serveRobots)
+app.on('HEAD', '/robots.txt', serveRobots)
 app.get('/sitemap.xml', serveSitemap)
+app.on('HEAD', '/sitemap.xml', serveSitemap)
 app.route('/api', publicRoutes)
 app.route('/media', mediaRoutes)
 app.route('/admin/api', adminRoutes)
+app.get('/admin', serveAdminDocument)
+app.on('HEAD', '/admin', serveAdminDocument)
+app.get('/admin/*', serveAdminDocument)
+app.on('HEAD', '/admin/*', serveAdminDocument)
+app.get('/produtos/:id/:slug', servePublicProduct)
+app.on('HEAD', '/produtos/:id/:slug', servePublicProduct)
 
-app.notFound((c) => c.json({ code: 'NOT_FOUND', message: 'Rota não encontrada.' }, 404))
+app.notFound((c) => c.req.header('Accept')?.includes('text/html')
+  ? publicNotFoundDocument(c.req.method)
+  : c.json({ code: 'NOT_FOUND', message: 'Rota não encontrada.' }, 404))
 
 app.onError((error, c) => {
   if (error instanceof ApiError) return errorJson(c, error)

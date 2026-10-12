@@ -1,6 +1,7 @@
 import { expect, test, type APIRequestContext, type Locator, type Page } from '@playwright/test'
 import { Buffer } from 'node:buffer'
 import type { MenuResponse, Product, ProductInput, SettingsInput } from '../../shared/schemas'
+import { publicProductPath } from '../../shared/public-seo'
 
 async function menu(request: APIRequestContext): Promise<MenuResponse> {
   const response = await request.get('/admin/api/menu')
@@ -90,9 +91,16 @@ test('HTML público contém conteúdo e SEO antes do JavaScript e hidrata sem re
   }
   expect(html).toContain('<link rel="canonical"')
   expect(html).toContain('property="og:url"')
+  expect(html).toContain('property="og:site_name"')
+  expect(html).toContain('property="og:locale" content="pt_BR"')
+  expect(html).toContain('name="twitter:card"')
+  expect(html).toContain('name="robots" content="index,follow"')
   expect(html).toContain('data-menu-json-ld')
   expect(html).toContain('id="__MENU_DATA__"')
   expect(html).toContain(`data-menu-theme="${current.business.theme}"`)
+  const jsonLdText = html.match(/<script[^>]*data-menu-json-ld[^>]*>(.*?)<\/script>/s)?.[1]
+  expect(jsonLdText).toBeTruthy()
+  expect(JSON.parse(jsonLdText!)).toMatchObject({ '@type': 'Restaurant', name: current.business.name })
 
   const noScriptContext = await browser.newContext({ javaScriptEnabled: false })
   const noScriptPage = await noScriptContext.newPage()
@@ -109,6 +117,65 @@ test('HTML público contém conteúdo e SEO antes do JavaScript e hidrata sem re
   await expect(page.getByRole('searchbox', { name: 'Pesquisar no cardápio' })).toBeVisible()
   expect(menuRequests).toBe(0)
   expect(hydrationErrors).toEqual([])
+})
+
+test('redireciona index.html, protege documentos admin e responde 404 verdadeiro', async ({ request }) => {
+  const duplicate = await request.get('/index.html', { maxRedirects: 0 })
+  expect(duplicate.status()).toBe(308)
+  expect(duplicate.headers().location).toBe('/')
+
+  const missing = await request.get('/rota-publica-inexistente', { headers: { Accept: 'text/html' } })
+  expect(missing.status()).toBe(404)
+  expect(missing.headers()['x-robots-tag']).toContain('noindex')
+  expect(await missing.text()).toContain('Página não encontrada')
+
+  const admin = await request.get('/admin/configuracoes')
+  expect(admin.ok()).toBeTruthy()
+  expect(admin.headers()['x-robots-tag']).toBe('noindex, nofollow')
+
+  const robots = await request.get('/robots.txt')
+  expect(robots.ok()).toBeTruthy()
+  expect(await robots.text()).toContain('Disallow: /admin/')
+
+  const sitemap = await request.get('/sitemap.xml')
+  expect(sitemap.ok()).toBeTruthy()
+  expect(sitemap.headers()['content-type']).toContain('application/xml')
+  expect(sitemap.headers()['cache-control']).toBe('no-store')
+  expect(await sitemap.text()).not.toContain('/admin')
+})
+
+test('página individual de produto contém SSR, canonical e navegação sem JavaScript', async ({ browser, request }) => {
+  const current = await publicMenu(request)
+  const category = current.categories.find((item) => item.products.length > 0)
+  test.skip(!category, 'O cardápio local precisa ter ao menos um produto público.')
+  const product = category!.products[0]!
+  const productPath = publicProductPath(product.id, product.name)
+  const response = await request.get(productPath)
+  expect(response.status()).toBe(200)
+  expect(response.headers()['content-type']).toContain('text/html')
+  const html = await response.text()
+  const expectedCanonical = new URL(productPath, current.business.publicSiteUrl ?? response.url()).toString()
+  expect(html).toContain(`<link rel="canonical" href="${expectedCanonical}">`)
+  expect(html).toContain(product.name)
+  expect(html).toContain(current.business.name)
+  if (product.ingredients) expect(html).toContain(product.ingredients)
+  if (product.variants.some((variant) => variant.isActive)) expect(html).toMatch(/R\$[^<]*\d/)
+  expect(html).toContain('data-menu-json-ld')
+
+  const noScriptContext = await browser.newContext({ javaScriptEnabled: false })
+  const noScriptPage = await noScriptContext.newPage()
+  await noScriptPage.goto(productPath)
+  await expect(noScriptPage.getByRole('heading', { level: 1, name: product.name })).toBeVisible()
+  await expect(noScriptPage.getByRole('link', { name: 'Voltar ao cardápio' })).toBeVisible()
+  await expect(noScriptPage.getByRole('button', { name: 'Ver opções e adicionar ao pedido' })).toBeVisible()
+  await noScriptContext.close()
+
+  const outdatedSlug = await request.get(`/produtos/${product.id}/nome-antigo`, { maxRedirects: 0 })
+  expect(outdatedSlug.status()).toBe(301)
+  expect(new URL(outdatedSlug.headers().location!).pathname).toBe(productPath)
+
+  const removed = await request.get('/produtos/00000000-0000-4000-8000-000000000000/produto-removido')
+  expect(removed.status()).toBe(404)
 })
 
 test('admin salva o tema rústico e o público o recebe no SSR e na hidratação', async ({ page, request }) => {
@@ -148,7 +215,7 @@ test('admin salva o tema rústico e o público o recebe no SSR e na hidratação
       await expect(themedMenu).toBeVisible()
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBeTruthy()
       const visual = await themedMenu.evaluate((element) => {
-        const card = element.querySelector('button[aria-label^="Ver detalhes de"]')
+        const card = element.querySelector('a[aria-label^="Ver detalhes de"]')
         const heading = element.querySelector('.menu-section-header')
         return {
           pageBackground: getComputedStyle(element).backgroundImage,
@@ -166,7 +233,7 @@ test('admin salva o tema rústico e o público o recebe no SSR e na hidratação
     await page.setViewportSize({ width: 390, height: 844 })
     await page.goto('/')
     await page.getByRole('searchbox', { name: 'Pesquisar no cardápio' }).fill(product!.name)
-    const card = page.getByRole('button', { name: `Ver detalhes de ${product!.name}` })
+    const card = page.getByRole('link', { name: `Ver detalhes de ${product!.name}` })
     await expect(card).toHaveCount(1)
     await card.click()
     const productDialog = page.getByRole('dialog')
@@ -193,7 +260,7 @@ test('cardápio público é responsivo, pesquisa sem duplicar e devolve o foco',
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBeTruthy()
 
-    const card = page.getByRole('button', { name: `Ver detalhes de ${product.name}` }).first()
+    const card = page.getByRole('link', { name: `Ver detalhes de ${product.name}` }).first()
     await expect(card).toBeVisible()
     if (width === 700 || width === 720) {
       const layout = await card.evaluate((element) => {
@@ -222,7 +289,7 @@ test('cardápio público é responsivo, pesquisa sem duplicar e devolve o foco',
   await page.setViewportSize({ width: 390, height: 844 })
   await page.goto('/')
   const transitionStyles = await page.evaluate(() => {
-    const card = document.querySelector('button[aria-label^="Ver detalhes de"]')
+    const card = document.querySelector('a[aria-label^="Ver detalhes de"]')
     const search = document.getElementById('menu-search')
     const category = document.querySelector('button[data-category]')
     const chevron = document.querySelector('details > summary svg')
@@ -242,7 +309,7 @@ test('cardápio público é responsivo, pesquisa sem duplicar e devolve o foco',
   await expect(page.getByRole('heading', { name: 'Resultados da busca' })).toBeVisible()
   await expect(page.getByText(/item encontrado|itens encontrados/)).toBeVisible()
   await expect(page.getByRole('navigation', { name: 'Categorias do cardápio' })).toBeHidden()
-  const result = page.getByRole('button', { name: `Ver detalhes de ${product.name}` })
+  const result = page.getByRole('link', { name: `Ver detalhes de ${product.name}` })
   await expect(result).toHaveCount(1)
   await result.click()
   const dialog = page.getByRole('dialog')
@@ -284,7 +351,7 @@ test('regressões críticas de layout público e admin respeitam breakpoints', a
 
   try {
     await page.setViewportSize({ width: 390, height: 844 })
-    await page.goto('/index.html')
+    await page.goto('/')
     const fab = page.getByRole('link', { name: 'Abrir conversa no WhatsApp' })
     await expect(fab).toBeVisible()
     const fabStyle = await fab.locator('img').evaluate((element) => {
@@ -424,7 +491,7 @@ test('controles públicos preservam foco, toque e interação dos descendentes',
   await page.mouse.click((searchIconBox?.x ?? 0) + (searchIconBox?.width ?? 0) / 2, (searchIconBox?.y ?? 0) + (searchIconBox?.height ?? 0) / 2)
   await expect(searchInput).toBeFocused()
 
-  const publicButton = page.getByRole('button', { name: `Ver detalhes de ${product!.name}` }).first()
+  const publicButton = page.getByRole('link', { name: `Ver detalhes de ${product!.name}` }).first()
   const publicLink = page.locator('a').first()
   const tapHighlight = await publicButton.evaluate((button) => getComputedStyle(button).getPropertyValue('-webkit-tap-highlight-color'))
   const linkTapHighlight = await publicLink.evaluate((link) => getComputedStyle(link).getPropertyValue('-webkit-tap-highlight-color'))
@@ -537,9 +604,9 @@ test('cria produto, valida promoção, alterna disponibilidade, duplica e exclui
     await expect.poll(async () => (await menu(request)).categories.flatMap((item) => item.products).find((item) => item.id === saved!.id)?.variants.map((variant) => variant.label)).toContain('Grande')
 
     await page.setViewportSize({ width: 359, height: 800 })
-    await page.goto('/index.html')
+    await page.goto('/')
     await page.getByRole('searchbox', { name: 'Pesquisar no cardápio' }).fill(productName)
-    await page.getByRole('button', { name: `Ver detalhes de ${productName}` }).click()
+    await page.getByRole('link', { name: `Ver detalhes de ${productName}` }).click()
     const narrowProductDialog = page.getByRole('dialog')
     const variantLabels = narrowProductDialog.locator('fieldset').first().locator('label')
     await expect(variantLabels).toHaveCount(2)
@@ -564,6 +631,7 @@ test('cria produto, valida promoção, alterna disponibilidade, duplica e exclui
     expect(narrowVariantLayout.valuesTextAlign).toBe('right')
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBeTruthy()
     await narrowProductDialog.getByRole('button', { name: 'Fechar detalhes' }).click()
+    await expect(page).toHaveURL('/')
     await page.goto(`/admin/produtos?categoria=${categoryId}`)
 
     row = page.locator('article').filter({ hasText: productName })
@@ -695,9 +763,9 @@ test('administra montagem obrigatória e cliente só adiciona uma configuração
     expect(edited?.customizationGroups[0]?.options.map((option) => option.name)).toEqual(['A1', 'A2 editado'])
 
     // O HTML público é cacheado por 60s; o shell força o bootstrap atual da API neste fluxo administrativo.
-    await page.goto('/index.html')
+    await page.goto('/')
     await page.getByRole('searchbox', { name: 'Pesquisar no cardápio' }).fill(productName)
-    await page.getByRole('button', { name: `Ver detalhes de ${productName}` }).click()
+    await page.getByRole('link', { name: `Ver detalhes de ${productName}` }).click()
     const productDialog = page.getByRole('dialog')
     await expect(productDialog).toContainText('Grupo A')
     await expect(productDialog).not.toContainText('Grupo B')
